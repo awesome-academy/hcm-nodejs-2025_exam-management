@@ -1,12 +1,7 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import tsEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
+const tsEslint = require('@typescript-eslint/eslint-plugin');
+const tsParser = require('@typescript-eslint/parser');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-export default [
+module.exports = [
   {
     files: ['**/*.ts'],
     languageOptions: {
