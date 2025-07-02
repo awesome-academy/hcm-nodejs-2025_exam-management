@@ -1,0 +1,32 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(145deg, #f0f0f0, #fafafa);
+  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+.home-card {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.home-card .ant-card-head {
+  border-radius: 12px 12px 0 0;
+  font-size: 22px;
+  padding: 20px;
+  border-bottom: none;
+  background-color: #fff;
+  text-align: center;
+}
+
+.home-card .ant-card-body {
+  padding: 40px;
+  background-color: #fff;
+}

@@ -1,0 +1,7 @@
+{
+  "token_invalid_or_expired": "Token không hợp lệ hoặc đã hết hạn",
+  "token_expired": "Token đã hết hạn",
+  "email_verified_success": "Xác thực thành công!",
+  "email_already_verified": "Email đã xác thực",
+  "email_verify_subject": "Xác thực tài khoản"
+}
