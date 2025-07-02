@@ -22,4 +22,7 @@ export class EmailVerificationToken {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: 'datetime' })
+  expires_at: Date;
 }

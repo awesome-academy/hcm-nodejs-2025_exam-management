@@ -1,0 +1,24 @@
+{
+  "username_required": "Tên đăng nhập không được để trống",
+  "username_min": "Tên đăng nhập phải có ít nhất 4 ký tự",
+  "username_max": "Tên đăng nhập tối đa 20 ký tự",
+
+  "password_required": "Mật khẩu không được để trống",
+  "password_min": "Mật khẩu phải có ít nhất 6 ký tự",
+  "password_max": "Mật khẩu tối đa 32 ký tự",
+
+  "fullname_required": "Họ và tên không được để trống",
+
+  "email_required": "Email không được để trống",
+  "email_invalid": "Email không hợp lệ",
+
+  "role_invalid": "Vai trò không hợp lệ (suppervisor | user)",
+
+  "login_username_required": "Vui lòng nhập tên đăng nhập",
+  "login_password_required": "Vui lòng nhập mật khẩu",
+
+  "avatar_url_invalid": "URL ảnh đại diện không hợp lệ",
+
+  "confirm_password_required": "Vui lòng nhập lại mật khẩu",
+  "confirm_password_not_match": "Mật khẩu xác nhận không khớp"
+}
