@@ -1,44 +1,49 @@
-import { Button, Card } from "antd";
+import { Button, Card, Typography, Row, Col } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useTranslation } from "react-i18next";
 import "../../styles/HomePage.css";
-import LanguageSwitcher from "../../components/LanguageSwitcher"; 
+import { useTranslation } from "react-i18next";
+
+const { Title, Paragraph } = Typography;
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
-  const { t } = useTranslation("auth");
+  const { isLoggedIn, user } = useAuth();
+  const { t } = useTranslation("home");
+
+  const handleStart = () => {
+    if (user?.role_name === "user") {
+      navigate("/tests");
+    } else if (user?.role_name === "suppervisor") {
+      navigate("/suppervisor/subjects");
+    }
+  };
 
   return (
     <div className="home-container">
-      <LanguageSwitcher />
-      <Card title={t("welcome")} className="home-card">
-        {isLoggedIn ? (
-          <Button type="primary" danger block onClick={logout}>
-            {t("logout")}
-          </Button>
-        ) : (
-          <>
-            <Button
-              type="primary"
-              size="large"
-              block
-              onClick={() => navigate("/login")}
-              style={{ marginBottom: 16 }}
-            >
-              {t("login")}
-            </Button>
-            <Button
-              type="default"
-              size="large"
-              block
-              onClick={() => navigate("/register")}
-            >
-              {t("register")}
-            </Button>
-          </>
-        )}
+      <Card className="home-card">
+        <Row gutter={[32, 16]} align="middle">
+          <Col xs={24} md={14}>
+            <Title>{t("title")}</Title>
+            <Paragraph>{t("desc_1")}</Paragraph>
+            <Paragraph>{t("desc_2")}</Paragraph>
+
+            {isLoggedIn && (
+              <Button type="primary" size="large" onClick={handleStart}>
+                {t("enter_system")}
+              </Button>
+            )}
+          </Col>
+          <Col xs={24} md={10}>
+            <div className="image-wrapper">
+              <img
+                src="https://gnums.co.in/Default/assets/img-gnweb/Exam_Module_28-07-2023.png"
+                alt="Exam illustration"
+                className="home-image"
+              />
+            </div>
+          </Col>
+        </Row>
       </Card>
     </div>
   );

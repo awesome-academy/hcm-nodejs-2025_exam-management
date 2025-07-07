@@ -4,8 +4,17 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import viAuth from './vi/auth.json';
 import viCommon from './vi/common.json';
+import viGuest from './vi/guest.json';
+import viHome from './vi/home.json';
+import viSupervisor from './vi/supervisor.json';
+import viUser from './vi/user.json';
+
 import enAuth from './en/auth.json';
 import enCommon from './en/common.json';
+import enGuest from './en/guest.json';
+import enHome from './en/home.json';
+import enSupervisor from './en/supervisor.json';
+import enUser from './en/user.json';
 
 i18n
   .use(LanguageDetector)
@@ -15,17 +24,25 @@ i18n
       vi: {
         auth: viAuth,
         common: viCommon,
+        guest: viGuest,
+        home: viHome,
+        supervisor: viSupervisor,
+        user: viUser,
       },
       en: {
         auth: enAuth,
         common: enCommon,
+        guest: enGuest,
+        home: enHome,
+        supervisor: enSupervisor,
+        user: enUser,
       },
     },
-    fallbackLng: 'vi', 
-    ns: ['auth', 'common'],
+    fallbackLng: 'vi',
+    ns: ['auth', 'common', 'guest', 'home', 'supervisor', 'user'], 
     defaultNS: 'common',
     interpolation: {
-      escapeValue: false, 
+      escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],

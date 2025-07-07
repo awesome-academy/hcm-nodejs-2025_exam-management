@@ -1,5 +1,7 @@
 {
   "unknown_error": "Something went wrong",
   "lang_vi": "Vietnamese",
-  "lang_en": "English"
+  "lang_en": "English",
+  "footer_text": "Online Examination System",
+  "auth_context_missing": "useAuth phải được dùng bên trong AuthProvider"
 }

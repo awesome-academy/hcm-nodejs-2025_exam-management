@@ -1,121 +1,117 @@
 .login-container {
+  flex: 1;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  padding: 24px;
   background: linear-gradient(145deg, #f0f0f0, #fafafa);
-  box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.5); 
 }
 
-
+/* Card chính */
 .login-card {
   width: 100%;
-  max-width: 500px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 520px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  padding: 30px;
+  position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.login-card .ant-card-head {
-  border-radius: 12px 12px 0 0;
+.login-card:hover {
+  transform: translateY(-6px); 
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Thanh gradient trên cùng card */
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #1890ff, #722ed1);
+}
+
+/* Typography */
+.login-card .ant-card-head-title {
+  font-size: 1.8rem;          
+  font-weight: 700;
   text-align: center;
-  font-size: 35px;
-  padding: 20px;
-  border-bottom: none;
+  background: linear-gradient(90deg, #1890ff, #722ed1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-
-.login-card .ant-card-body {
-  padding: 40px;
+/* Form Item */
+.login-card .ant-form-item {
+  margin-bottom: 20px;
 }
 
 .login-card .ant-form-item-label > label {
-  font-size: 16px;
+  font-size: 14px;
   color: #555;
 }
 
+/* Input */
 .login-card .ant-input,
 .login-card .ant-input-password {
-  padding: 12px;
-  font-size: 16px;
+  padding: 10px;
+  font-size: 14px;
   border-radius: 6px;
 }
 
+/* Button */
 .login-card .ant-btn {
-  height: 48px;
-  font-size: 18px;
-  border-radius: 6px;
-  margin-top: 10px;
-  background-color: #1890ff;
-  border-color: #1890ff;
+  width: 100%;
+  height: 44px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #1890ff, #722ed1);
+  border: none;
+  box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3);
   transition: all 0.3s;
 }
 
 .login-card .ant-btn:hover {
-  background-color: #40a9ff;
-  border-color: #40a9ff;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(24, 144, 255, 0.4);
 }
 
-.login-card .ant-form-item {
-  margin-bottom: 24px;
-}
-
+/* Link nhỏ bên dưới */
 .login-links {
-  margin-top: 20px;
+  margin-top: 16px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
 }
 
 .login-links a {
   color: #1890ff;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 .login-links a:hover {
+  color: #722ed1;
   text-decoration: underline;
 }
 
-.resend-modal-container {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px 0;
-}
+/* Responsive */
+@media (max-width: 576px) {
+  .login-card {
+    padding: 24px;
+  }
 
-.resend-modal-container h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-  text-align: center;
-}
+  .login-card h2 {
+    font-size: 1.5rem;
+  }
 
-.resend-input {
-  padding: 10px 12px;
-  font-size: 14px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-
-.resend-input:focus {
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
-}
-
-.resend-button {
-  background-color: #1677ff;
-  color: white;
-  padding: 10px;
-  font-size: 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.resend-button:hover {
-  background-color: #0958d9;
+  .login-container {
+    padding: 16px;
+  }
 }
