@@ -1,0 +1,7 @@
+{
+  "token_invalid_or_expired": "Token is invalid or expired",
+  "token_expired": "Token has expired",
+  "email_verified_success": "Email verification successful!",
+  "email_already_verified": "Email already verified",
+  "email_verify_subject": "Account verification"
+}
