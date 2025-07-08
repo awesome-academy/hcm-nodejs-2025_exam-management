@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -103,14 +107,20 @@ export class UserService {
   }
 
   async findByUsername(username: string): Promise<User> {
-    return findOneByField(
-      this.userRepo,
-      'username',
-      username,
-      await this.i18n.translate('user.user_not_found_by_username', {
-        lang: this.getLang(),
-      }),
-    );
+    const user = await this.userRepo.findOne({
+      where: { username },
+      relations: ['role'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        await this.i18n.translate('user.user_not_found_by_username', {
+          lang: this.getLang(),
+        }),
+      );
+    }
+
+    return user;
   }
 
   async findById(id: number): Promise<User> {

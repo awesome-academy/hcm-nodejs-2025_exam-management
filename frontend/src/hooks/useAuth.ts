@@ -1,22 +1,15 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { AuthContext } from "../contexts/AuthContext";
 
-export function useAuth() {
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("access_token");
-  });
+export const useAuth = () => {
+  const { t } = useTranslation("common"); 
+  const context = useContext(AuthContext);
 
-  const login = (newToken: string) => {
-    localStorage.setItem("access_token", newToken);
-    setToken(newToken);
-  };
+  if (!context) {
+    throw new Error(t("auth_context_missing")); 
+  }
 
-  const logout = () => {
-    localStorage.removeItem("access_token");
-    setToken(null);
-  };
-
-  const isLoggedIn = !!token;
-
-  return { token, login, logout, isLoggedIn };
-}
+  return context;
+};
 

@@ -1,5 +1,7 @@
 {
   "unknown_error": "Đã có lỗi xảy ra",
   "lang_vi": "Tiếng Việt",
-  "lang_en": "Tiếng Anh"
+  "lang_en": "Tiếng Anh",
+  "footer_text": "Hệ thống thi trực tuyến",
+  "auth_context_missing": "useAuth must be used within an AuthProvider"
 }

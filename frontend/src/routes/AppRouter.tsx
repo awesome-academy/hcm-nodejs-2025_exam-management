@@ -7,6 +7,18 @@ import {
 import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import HomePage from "../pages/guest/HomePage";
+import SubjectList from "../pages/guest/SubjectList";
+import TestList from "../pages/user/TestList";
+import DoTest from "../pages/user/DoTest";
+import TestHistory from "../pages/user/TestHistory";
+import TestResultDetail from "../pages/user/TestResultDetail";
+import SubjectManagement from "../pages/suppervisor/SubjectManagement";
+import QuestionManagement from "../pages/suppervisor/QuestionManagement";
+import TestReviewList from "../pages/suppervisor/TestReviewList";
+import TestReviewDetail from "../pages/suppervisor/TestReviewDetail";
+import RequireRole from "../components/RequireRole";
+import GuestLayout from "../layouts/GuestLayout";
+import SupervisorLayout from "../layouts/SuppervisorLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,9 +27,36 @@ const AppRouter = () => {
     <>
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<GuestLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/subjects" element={<SubjectList />} />
+
+            <Route path="/tests" element={<TestList />} />
+            <Route path="/tests/:id" element={<DoTest />} />
+            <Route path="/history" element={<TestHistory />} />
+            <Route path="/results/:id" element={<TestResultDetail />} />
+          </Route>
+
+          <Route element={<RequireRole allowed={["suppervisor"]} />}>
+            <Route element={<SupervisorLayout />}>
+              <Route
+                path="/suppervisor/subjects"
+                element={<SubjectManagement />}
+              />
+              <Route
+                path="/suppervisor/questions"
+                element={<QuestionManagement />}
+              />
+              <Route path="/suppervisor/tests" element={<TestReviewList />} />
+              <Route
+                path="/suppervisor/tests/:id"
+                element={<TestReviewDetail />}
+              />
+            </Route>
+          </Route>
+
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

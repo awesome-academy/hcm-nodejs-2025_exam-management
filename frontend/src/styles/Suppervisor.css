@@ -1,0 +1,62 @@
+.supervisor-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  overflow-x: hidden;
+}
+
+.supervisor-sider {
+  background-color: #fff;
+  border-right: 1px solid #f0f0f0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.supervisor-sider-title {
+  color: #000000;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 24px 16px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.supervisor-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.supervisor-header {
+  background-color: #fff;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom: 1px solid #f0f0f0;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+}
+
+.supervisor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.supervisor-content {
+  flex: 1;
+  padding: 24px;
+  background-color: #fff;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ant-menu-item-selected {
+  background-color: #e6f7ff !important;
+  font-weight: 600;
+}
