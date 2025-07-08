@@ -15,6 +15,9 @@ export class Subject extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  image_url: string;
+
   @ManyToOne(() => User, (user) => user.subjects)
   @JoinColumn({ name: 'creator_id' })
   creator: User;

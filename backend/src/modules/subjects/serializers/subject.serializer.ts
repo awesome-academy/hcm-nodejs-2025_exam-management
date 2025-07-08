@@ -19,6 +19,10 @@ export class SubjectSerializer {
   @Expose()
   description?: string;
 
+  @ApiProperty({ required: false })
+  @Expose()
+  image_url?: string;
+
   @ApiProperty()
   @Expose()
   creator_id: number;

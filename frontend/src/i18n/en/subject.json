@@ -23,5 +23,14 @@
   "delete_success": "Subject deleted successfully",
 
   "confirm": "Confirm",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+
+  "subject_list": "List of subjects",
+
+  "image": "Image",
+  "upload_image": "Upload Image",
+  "no_image": "No image available",
+
+  "view_detail":"View Detail"
 }
+

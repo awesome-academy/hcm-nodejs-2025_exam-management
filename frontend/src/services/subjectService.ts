@@ -1,7 +1,7 @@
 import api from "../api/apiClient";
 import type {
-  CreateSubjectDto,
-  UpdateSubjectDto,
+  CreateSubjectFormData,
+  UpdateSubjectFormData,
   SubjectResponse,
   SubjectResponseAll,
   DeleteSubjectResponse,
@@ -27,10 +27,19 @@ export const getSubjectById = async (id: number): Promise<SubjectResponse> => {
 };
 
 export const createSubject = async (
-  data: CreateSubjectDto
+  data: CreateSubjectFormData
 ): Promise<SubjectResponse> => {
   try {
-    const res = await api.post("/subjects", data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("code", data.code);
+    if (data.description) formData.append("description", data.description);
+    if (data.file) formData.append("file", data.file);
+
+    const res = await api.post("/subjects", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "subject.create_failed");
@@ -39,10 +48,20 @@ export const createSubject = async (
 
 export const updateSubject = async (
   id: number,
-  data: UpdateSubjectDto
+  data: UpdateSubjectFormData
 ): Promise<SubjectResponse> => {
   try {
-    const res = await api.put(`/subjects/${id}`, data);
+    const formData = new FormData();
+    if (data.name) formData.append("name", data.name);
+    if (data.code) formData.append("code", data.code);
+    if (data.description) formData.append("description", data.description);
+    if (data.file) formData.append("file", data.file);
+    if (data.image_url) formData.append("image_url", data.image_url);
+
+    const res = await api.put(`/subjects/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "subject.update_failed");

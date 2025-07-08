@@ -9,6 +9,7 @@ import { plainToInstance } from 'class-transformer';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { findOneByField } from '@/common/utils/repository.util';
+import { CloudinaryService } from '../shared/cloudinary.service';
 
 @Injectable()
 export class SubjectService {
@@ -16,6 +17,7 @@ export class SubjectService {
     @InjectRepository(Subject) private subjectRepo: Repository<Subject>,
     private readonly i18n: I18nService,
     private readonly context: RequestContextService,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   private get lang() {
@@ -33,7 +35,7 @@ export class SubjectService {
         excludeExtraneousValues: true,
       });
     } catch (error) {
-      console.error('[Subject FindAll Error]', error);
+      if (error instanceof BadRequestException) throw error;
       throw new BadRequestException(
         await this.i18n.translate('subject.fetch_failed', { lang: this.lang }),
       );
@@ -58,61 +60,77 @@ export class SubjectService {
   async create(
     dto: CreateSubjectDto,
     user: { id: number },
+    file?: Express.Multer.File,
   ): Promise<SubjectSerializer> {
     try {
       const existed = await this.subjectRepo.findOneBy({ code: dto.code });
       if (existed) {
-        throw new BadRequestException(
-          await this.i18n.translate('subject.code_existed', {
-            lang: this.lang,
-          }),
-        );
+        const msg = await this.i18n.translate('subject.code_existed', {
+          lang: this.lang,
+        });
+        throw new BadRequestException(msg);
+      }
+
+      let imageUrl = dto.image_url || undefined;
+      if (file) {
+        imageUrl = await this.cloudinaryService.uploadImage(file);
       }
 
       const subject = this.subjectRepo.create({
         ...dto,
+        image_url: imageUrl,
         creator_id: user.id,
       });
+
       await this.subjectRepo.save(subject);
 
       return plainToInstance(SubjectSerializer, subject, {
         excludeExtraneousValues: true,
       });
     } catch (error) {
-      if (['ER_DUP_ENTRY', '23505'].includes(error.code)) {
-        throw new BadRequestException(
-          await this.i18n.translate('subject.duplicate_code', {
-            lang: this.lang,
-          }),
-        );
-      }
+      if (error instanceof BadRequestException) throw error;
 
-      console.error('[Subject Create Error]', error);
       throw new BadRequestException(
         await this.i18n.translate('subject.create_failed', { lang: this.lang }),
       );
     }
   }
 
-  async update(id: number, dto: UpdateSubjectDto): Promise<SubjectSerializer> {
+  async update(
+    id: number,
+    dto: UpdateSubjectDto,
+    file?: Express.Multer.File,
+  ): Promise<SubjectSerializer> {
     try {
+      const notFoundMsg = await this.i18n.translate(
+        'subject.subject_not_found_by_id',
+        { lang: this.lang },
+      );
       const subject = await findOneByField(
         this.subjectRepo,
         'id',
         id,
-        await this.i18n.translate('subject.subject_not_found_by_id', {
-          lang: this.lang,
-        }),
+        notFoundMsg,
       );
 
-      const updated = this.subjectRepo.merge(subject, dto);
+      let imageUrl = dto.image_url || subject.image_url;
+      if (file) {
+        imageUrl = await this.cloudinaryService.uploadImage(file);
+      }
+
+      const updated = this.subjectRepo.merge(subject, {
+        ...dto,
+        image_url: imageUrl,
+      });
+
       await this.subjectRepo.save(updated);
 
       return plainToInstance(SubjectSerializer, updated, {
         excludeExtraneousValues: true,
       });
     } catch (error) {
-      console.error('[Subject Update Error]', error);
+      if (error instanceof BadRequestException) throw error;
+
       throw new BadRequestException(
         await this.i18n.translate('subject.update_failed', { lang: this.lang }),
       );
@@ -127,36 +145,36 @@ export class SubjectService {
       });
 
       if (!subject) {
-        throw new BadRequestException(
-          await this.i18n.translate('subject.subject_not_found_by_id', {
+        const msg = await this.i18n.translate(
+          'subject.subject_not_found_by_id',
+          {
             lang: this.lang,
-          }),
+          },
         );
+        throw new BadRequestException(msg);
       }
 
       if (
         (subject.questions?.length ?? 0) > 0 ||
         (subject.tests?.length ?? 0) > 0
       ) {
-        throw new BadRequestException(
-          await this.i18n.translate(
-            'subject.cannot_delete_subject_with_dependencies',
-            {
-              lang: this.lang,
-            },
-          ),
+        const msg = await this.i18n.translate(
+          'subject.cannot_delete_subject_with_dependencies',
+          { lang: this.lang },
         );
+        throw new BadRequestException(msg);
       }
 
       await this.subjectRepo.softDelete(subject.id);
 
-      return {
-        message: await this.i18n.translate('subject.deleted_success', {
-          lang: this.lang,
-        }),
-      };
+      const msg = await this.i18n.translate('subject.deleted_success', {
+        lang: this.lang,
+      });
+
+      return { message: msg };
     } catch (error) {
-      console.error('[Subject Delete Error]', error);
+      if (error instanceof BadRequestException) throw error;
+
       throw new BadRequestException(
         await this.i18n.translate('subject.delete_failed', { lang: this.lang }),
       );

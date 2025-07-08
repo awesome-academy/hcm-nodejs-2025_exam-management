@@ -6,6 +6,7 @@ import { useSubjects } from "../../hooks/useSubjects";
 
 import SubjectTable from "../../components/Subjects/SubjectTable";
 import SubjectFormModal from "../../components/Subjects/SubjectFormModal";
+import type { SubjectFormValues } from "../../types/subject.type";
 
 const SubjectManagement: React.FC = () => {
   const { t } = useTranslation("subject");
@@ -13,6 +14,7 @@ const SubjectManagement: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentSubjectId, setCurrentSubjectId] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const {
     subjects,
@@ -49,16 +51,23 @@ const SubjectManagement: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields();
+      const values = (await form.validateFields()) as SubjectFormValues;
+      setUploading(true);
+
       if (isEditMode && currentSubjectId) {
         await onUpdate(currentSubjectId, values);
       } else {
         await onCreate(values);
       }
+
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
-      console.error("Validation failed:", error);
+      message.error(
+        error instanceof Error ? error.message : t("common.unknown_error")
+      );
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -93,6 +102,7 @@ const SubjectManagement: React.FC = () => {
       <SubjectFormModal
         open={isModalVisible}
         loading={loading}
+        uploading={uploading}
         isEditMode={isEditMode}
         form={form}
         onCancel={handleCancel}

@@ -9,9 +9,10 @@ import {
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import type {
-  CreateSubjectDto,
-  UpdateSubjectDto,
+  CreateSubjectFormData,
+  UpdateSubjectFormData,
   SubjectSerializer,
+  SubjectFormValues,
 } from "../types/subject.type";
 import { useAuth } from "./useAuth";
 
@@ -49,21 +50,38 @@ export const useSubjects = () => {
     }
   };
 
-  const onCreate = async (values: CreateSubjectDto) => {
+  const onCreate = async (values: SubjectFormValues) => {
     try {
-      await createSubject(values);
+      const file = values.image?.[0]?.originFileObj;
+      const payload: CreateSubjectFormData = {
+        name: values.name,
+        code: values.code,
+        description: values.description,
+        file,
+      };
+
+      await createSubject(payload);
       toast.success(t("create_success"));
       await loadSubjects();
       return true;
     } catch (err) {
+      console.log("err.message", (err as Error).message);
       toast.error((err as Error).message);
       return false;
     }
   };
 
-  const onUpdate = async (id: number, values: UpdateSubjectDto) => {
+  const onUpdate = async (id: number, values: SubjectFormValues) => {
     try {
-      await updateSubject(id, values);
+      const file = values.image?.[0]?.originFileObj;
+      const payload: UpdateSubjectFormData = {
+        name: values.name,
+        code: values.code,
+        description: values.description,
+        file,
+      };
+
+      await updateSubject(id, payload);
       toast.success(t("update_success"));
       await loadSubjects();
       return true;
@@ -98,5 +116,7 @@ export const useSubjects = () => {
     onCreate,
     onUpdate,
     onDelete,
+    loadSubjects,
   };
 };
+
