@@ -1,0 +1,27 @@
+{
+  "subject_management": "Subject Management",
+  "add_subject": "Add Subject",
+  "edit_subject": "Edit Subject",
+  "delete_confirm": "Are you sure you want to delete this subject?",
+  "yes": "Yes",
+  "no": "No",
+
+  "id": "ID",
+  "name": "Subject Name",
+  "name_required": "Please enter the subject name",
+
+  "code": "Subject Code",
+  "code_required": "Please enter the subject code",
+
+  "description": "Description",
+  "description_required": "Please enter the description",
+
+  "actions": "Actions",
+
+  "create_success": "Subject created successfully",
+  "update_success": "Subject updated successfully",
+  "delete_success": "Subject deleted successfully",
+
+  "confirm": "Confirm",
+  "cancel": "Cancel"
+}

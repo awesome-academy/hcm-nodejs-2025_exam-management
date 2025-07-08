@@ -1,0 +1,12 @@
+{
+  "subject_not_found_by_id": "Subject not found by ID",
+  "code_existed": "Subject code already exists",
+  "duplicate_code": "Duplicate subject code",
+  "create_failed": "Failed to create subject",
+  "update_failed": "Failed to update subject",
+  "delete_failed": "Failed to delete subject",
+  "deleted_success": "Subject deleted successfully",
+  "fetch_failed": "Failed to fetch subjects",
+  "cannot_delete_subject_with_dependencies": "Cannot delete subject with linked questions or tests."
+}
+

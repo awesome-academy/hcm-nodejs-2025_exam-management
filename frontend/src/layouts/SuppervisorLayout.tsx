@@ -40,16 +40,18 @@ const SupervisorLayout = () => {
     },
   ];
 
-  const avatarDropdownMenu = (
-    <Menu>
-      <Menu.Item key="profile" onClick={() => navigate("/profile")}>
-        {t("profile")}
-      </Menu.Item>
-      <Menu.Item key="logout" onClick={handleLogout}>
-        {t("logout")}
-      </Menu.Item>
-    </Menu>
-  );
+  const avatarDropdownItems = [
+    {
+      key: "profile",
+      label: t("profile"),
+      onClick: () => navigate("/profile"),
+    },
+    {
+      key: "logout",
+      label: t("logout"),
+      onClick: handleLogout,
+    },
+  ];
 
   return (
     <Layout className="supervisor-layout">
@@ -67,7 +69,10 @@ const SupervisorLayout = () => {
         <Header className="supervisor-header">
           <div className="supervisor-header-actions">
             <LanguageSwitcher />
-            <Dropdown overlay={avatarDropdownMenu} placement="bottomRight">
+            <Dropdown
+              menu={{ items: avatarDropdownItems }}
+              placement="bottomRight"
+            >
               <Avatar icon={<UserOutlined />} style={{ cursor: "pointer" }} />
             </Dropdown>
           </div>

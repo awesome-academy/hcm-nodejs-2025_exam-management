@@ -1,0 +1,11 @@
+{
+  "subject_not_found_by_id": "Không tìm thấy môn học với ID này",
+  "code_existed": "Mã môn học đã tồn tại",
+  "duplicate_code": "Mã môn học bị trùng",
+  "create_failed": "Tạo môn học thất bại",
+  "update_failed": "Cập nhật môn học thất bại",
+  "delete_failed": "Xóa môn học thất bại",
+  "deleted_success": "Xóa môn học thành công",
+  "fetch_failed": "Lấy danh sách môn học thất bại",
+  "cannot_delete_subject_with_dependencies": "Không thể xoá môn học có câu hỏi hoặc bài kiểm tra liên kết."
+}

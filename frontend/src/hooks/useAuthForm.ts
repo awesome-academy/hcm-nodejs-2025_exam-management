@@ -10,7 +10,7 @@ import type { LoginFormData, RegisterFormData } from "../types/auth.type";
 import { useTranslation } from "react-i18next";
 export const useAuthForm = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation("auth"); 
+  const { t } = useTranslation("auth");
   const { login, logout } = useAuth();
 
   const handleLogin = async (data: LoginFormData) => {
@@ -49,7 +49,7 @@ export const useAuthForm = () => {
 
   const handleResend = async (email: string, onSuccess?: () => void) => {
     try {
-      const res = await resendVerifyEmail(email); 
+      const res = await resendVerifyEmail(email);
       toast.success(res.message);
       onSuccess?.();
     } catch (err) {
