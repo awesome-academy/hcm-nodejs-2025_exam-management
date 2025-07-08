@@ -19,3 +19,4 @@ export class AuthController {
     return new ResponseData(result, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }
+

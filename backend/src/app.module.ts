@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { EmailVerifyModule } from './modules/email_verification_tokens/email_verify.module';
 
 import { RequestContextService } from './modules/shared/request-context.service';
+import { SubjectModule } from './modules/subjects/subject.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RequestContextService } from './modules/shared/request-context.service'
     UserModule,
     AuthModule,
     EmailVerifyModule,
+    SubjectModule
   ],
   controllers: [AppController],
   providers: [AppService, RequestContextService],

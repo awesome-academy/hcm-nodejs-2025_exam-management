@@ -1,0 +1,27 @@
+{
+  "subject_management": "Quản lý môn học",
+  "add_subject": "Thêm môn học",
+  "edit_subject": "Chỉnh sửa môn học",
+  "delete_confirm": "Bạn có chắc chắn muốn xóa môn học này?",
+  "yes": "Đồng ý",
+  "no": "Hủy",
+
+  "id": "Mã ID",
+  "name": "Tên môn học",
+  "name_required": "Vui lòng nhập tên môn học",
+  
+  "code": "Mã môn học",
+  "code_required": "Vui lòng nhập mã môn học",
+
+  "description": "Mô tả",
+  "description_required": "Vui lòng nhập mô tả",
+
+  "actions": "Hành động",
+
+  "create_success": "Tạo môn học thành công",
+  "update_success": "Cập nhật môn học thành công",
+  "delete_success": "Xóa môn học thành công",
+
+  "confirm": "Xác nhận",
+  "cancel": "Hủy"
+}
