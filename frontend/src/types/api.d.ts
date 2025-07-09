@@ -139,6 +139,7 @@ export interface components {
             name: string;
             code: string;
             description?: string;
+            image_url?: string;
             creator_id: number;
             creator: components["schemas"]["UserSerializer"];
             /** Format: date-time */
@@ -153,11 +154,13 @@ export interface components {
             name: string;
             code: string;
             description?: string;
+            image_url?: string;
         };
         UpdateSubjectDto: {
             name?: string;
             code?: string;
             description?: string;
+            image_url?: string;
         };
     };
     responses: never;

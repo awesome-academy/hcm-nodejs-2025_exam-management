@@ -7,13 +7,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { I18nValidationPipe, I18nValidationExceptionFilter } from 'nestjs-i18n';
 import { RequestContextService } from './modules/shared/request-context.service';
 import { createContextMiddleware } from './modules/shared/middleware/context.middleware';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   //Request Context Middleware (AsyncLocalStorage)
   const contextService = app.get(RequestContextService);
-  app.use(createContextMiddleware(contextService)); 
+  app.use(createContextMiddleware(contextService));
 
   // CORS setup
   app.enableCors({
@@ -47,7 +48,8 @@ async function bootstrap() {
     }),
   );
 
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
-

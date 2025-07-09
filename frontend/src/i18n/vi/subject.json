@@ -23,5 +23,14 @@
   "delete_success": "Xóa môn học thành công",
 
   "confirm": "Xác nhận",
-  "cancel": "Hủy"
+  "cancel": "Hủy",
+
+  "subject_list": "Danh sách môn học",
+
+  "image": "Hình ảnh",
+  "upload_image": "Thêm hình ảnh",
+  "no_image": "Không có hình",
+
+  "view_detail":"Xem Chi Tiết"
 }
+

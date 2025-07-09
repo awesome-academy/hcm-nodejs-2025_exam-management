@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubjectDto {
@@ -16,4 +16,9 @@ export class CreateSubjectDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  image_url?: string;
 }

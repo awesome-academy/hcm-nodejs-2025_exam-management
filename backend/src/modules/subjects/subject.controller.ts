@@ -8,6 +8,8 @@ import {
   Body,
   ParseIntPipe,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   Req,
 } from '@nestjs/common';
 import { SubjectService } from './subject.service';
@@ -26,6 +28,7 @@ import {
   ApiResponseDataArray,
 } from '@/common/decorators/api-response.decorator';
 import { MessageResponseDto } from '@/common/dto/message-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Subject')
 @Controller('subjects')
@@ -58,11 +61,13 @@ export class SubjectController {
   @Role(UserRole.SUPPERVISOR)
   @ApiBody({ type: CreateSubjectDto })
   @ApiResponseData(SubjectSerializer)
+  @UseInterceptors(FileInterceptor('file'))
   async create(
     @Body() dto: CreateSubjectDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: any,
   ): Promise<ResponseData<SubjectSerializer>> {
-    const subject = await this.subjectService.create(dto, req.user);
+    const subject = await this.subjectService.create(dto, req.user, file);
     return new ResponseData(subject, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
@@ -70,11 +75,13 @@ export class SubjectController {
   @Role(UserRole.SUPPERVISOR)
   @ApiBody({ type: UpdateSubjectDto })
   @ApiResponseData(SubjectSerializer)
+  @UseInterceptors(FileInterceptor('file'))
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateSubjectDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<ResponseData<SubjectSerializer>> {
-    const subject = await this.subjectService.update(id, dto);
+    const subject = await this.subjectService.update(id, dto, file);
     return new ResponseData(subject, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 

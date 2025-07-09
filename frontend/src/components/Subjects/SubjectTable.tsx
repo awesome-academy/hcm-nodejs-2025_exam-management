@@ -35,7 +35,39 @@ const SubjectTable: React.FC<Props> = ({ data, onEdit, onDelete, loading }) => {
       title: t("description"),
       dataIndex: "description",
       key: "description",
+      render: (text: string) => (
+        <div
+          style={{
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            maxWidth: 250,
+          }}
+        >
+          {text}
+        </div>
+      ),
     },
+    {
+      title: t("image"),
+      dataIndex: "image_url",
+      key: "image_url",
+      render: (url: string) =>
+        url ? (
+          <img
+            src={url}
+            alt="subject"
+            style={{
+              width: 60,
+              height: 40,
+              objectFit: "cover",
+              borderRadius: 6,
+            }}
+          />
+        ) : (
+          <i style={{ color: "#aaa" }}>{t("no_image")}</i>
+        ),
+    },
+
     {
       title: t("actions"),
       key: "actions",
@@ -60,7 +92,7 @@ const SubjectTable: React.FC<Props> = ({ data, onEdit, onDelete, loading }) => {
       columns={columns}
       dataSource={data}
       rowKey="id"
-      pagination={{ pageSize: 6 }}
+      pagination={{ pageSize: 4 }}
       loading={loading}
     />
   );
