@@ -24,21 +24,22 @@ export class SubjectService {
     return this.context.getLang() || 'vi';
   }
 
+  private async t(key: string): Promise<string> {
+    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+  }
+
   async findAll(): Promise<SubjectSerializer[]> {
     try {
       const subjects = await this.subjectRepo.find({
-        order: { name: 'ASC' },
+        order: { id: 'ASC' },
         withDeleted: false,
       });
 
       return plainToInstance(SubjectSerializer, subjects, {
         excludeExtraneousValues: true,
       });
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException(
-        await this.i18n.translate('subject.fetch_failed', { lang: this.lang }),
-      );
+    } catch {
+      throw new BadRequestException(await this.t('subject.fetch_failed'));
     }
   }
 
@@ -47,9 +48,7 @@ export class SubjectService {
       this.subjectRepo,
       'id',
       id,
-      await this.i18n.translate('subject.subject_not_found_by_id', {
-        lang: this.lang,
-      }),
+      await this.t('subject.subject_not_found_by_id'),
     );
 
     return plainToInstance(SubjectSerializer, subject, {
@@ -65,10 +64,7 @@ export class SubjectService {
     try {
       const existed = await this.subjectRepo.findOneBy({ code: dto.code });
       if (existed) {
-        const msg = await this.i18n.translate('subject.code_existed', {
-          lang: this.lang,
-        });
-        throw new BadRequestException(msg);
+        throw new BadRequestException(await this.t('subject.code_existed'));
       }
 
       let imageUrl = dto.image_url || undefined;
@@ -87,12 +83,9 @@ export class SubjectService {
       return plainToInstance(SubjectSerializer, subject, {
         excludeExtraneousValues: true,
       });
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-
-      throw new BadRequestException(
-        await this.i18n.translate('subject.create_failed', { lang: this.lang }),
-      );
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('subject.create_failed'));
     }
   }
 
@@ -102,15 +95,11 @@ export class SubjectService {
     file?: Express.Multer.File,
   ): Promise<SubjectSerializer> {
     try {
-      const notFoundMsg = await this.i18n.translate(
-        'subject.subject_not_found_by_id',
-        { lang: this.lang },
-      );
       const subject = await findOneByField(
         this.subjectRepo,
         'id',
         id,
-        notFoundMsg,
+        await this.t('subject.subject_not_found_by_id'),
       );
 
       let imageUrl = dto.image_url || subject.image_url;
@@ -128,12 +117,9 @@ export class SubjectService {
       return plainToInstance(SubjectSerializer, updated, {
         excludeExtraneousValues: true,
       });
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-
-      throw new BadRequestException(
-        await this.i18n.translate('subject.update_failed', { lang: this.lang }),
-      );
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('subject.update_failed'));
     }
   }
 
@@ -145,39 +131,26 @@ export class SubjectService {
       });
 
       if (!subject) {
-        const msg = await this.i18n.translate(
-          'subject.subject_not_found_by_id',
-          {
-            lang: this.lang,
-          },
+        throw new BadRequestException(
+          await this.t('subject.subject_not_found_by_id'),
         );
-        throw new BadRequestException(msg);
       }
 
       if (
         (subject.questions?.length ?? 0) > 0 ||
         (subject.tests?.length ?? 0) > 0
       ) {
-        const msg = await this.i18n.translate(
-          'subject.cannot_delete_subject_with_dependencies',
-          { lang: this.lang },
+        throw new BadRequestException(
+          await this.t('subject.cannot_delete_subject_with_dependencies'),
         );
-        throw new BadRequestException(msg);
       }
 
       await this.subjectRepo.softDelete(subject.id);
 
-      const msg = await this.i18n.translate('subject.deleted_success', {
-        lang: this.lang,
-      });
-
-      return { message: msg };
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-
-      throw new BadRequestException(
-        await this.i18n.translate('subject.delete_failed', { lang: this.lang }),
-      );
+      return { message: await this.t('subject.deleted_success') };
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('subject.delete_failed'));
     }
   }
 }

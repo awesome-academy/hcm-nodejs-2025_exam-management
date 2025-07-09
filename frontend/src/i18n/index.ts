@@ -9,6 +9,8 @@ import viHome from "./vi/home.json";
 import viSupervisor from "./vi/supervisor.json";
 import viUser from "./vi/user.json";
 import viSubject from "./vi/subject.json";
+import viQuestion from "./vi/question.json";
+import viAnswer from "./vi/answer.json";
 
 import enAuth from "./en/auth.json";
 import enCommon from "./en/common.json";
@@ -17,6 +19,8 @@ import enHome from "./en/home.json";
 import enSupervisor from "./en/supervisor.json";
 import enUser from "./en/user.json";
 import enSubject from "./en/subject.json";
+import enQuestion from "./en/question.json";
+import enAnswer from "./en/answer.json";
 
 i18n
   .use(LanguageDetector)
@@ -31,6 +35,8 @@ i18n
         supervisor: viSupervisor,
         user: viUser,
         subject: viSubject,
+        question: viQuestion,
+        answer: viAnswer,
       },
       en: {
         auth: enAuth,
@@ -40,10 +46,22 @@ i18n
         supervisor: enSupervisor,
         user: enUser,
         subject: enSubject,
+        question: enQuestion,
+        answer: enAnswer,
       },
     },
     fallbackLng: "vi",
-    ns: ["auth", "common", "guest", "home", "supervisor", "user", "subject"],
+    ns: [
+      "auth",
+      "common",
+      "guest",
+      "home",
+      "supervisor",
+      "user",
+      "subject",
+      "question",
+      "answer",
+    ],
     defaultNS: "common",
     interpolation: {
       escapeValue: false,

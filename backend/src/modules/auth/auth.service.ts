@@ -21,28 +21,32 @@ export class AuthService {
     private readonly context: RequestContextService,
   ) {}
 
-  private getLang(): string {
+  private get lang(): string {
     return this.context.getLang() || 'vi';
   }
 
-  async login(data: LoginDto) {
-    const lang = this.getLang();
+  private async t(key: string): Promise<string> {
+    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+  }
 
+  async login(data: LoginDto) {
     const user = await this.userService.findByUsername(data.username);
     const isMatch =
       user && (await bcrypt.compare(data.password, user.password_hash));
 
     if (!user || !isMatch) {
-      throw new UnauthorizedException(
-        await this.i18n.translate('auth.invalid_credentials', { lang }),
-      );
+      throw new UnauthorizedException(await this.t('auth.invalid_credentials'));
     }
+
     if (!user.email_verified_at) {
-      throw new BadRequestException(
-        await this.i18n.translate('auth.email_not_verified', { lang }),
-      );
+      throw new BadRequestException(await this.t('auth.email_not_verified'));
     }
-    const payload = { sub: user.id, username: user.username, role: user.role };
+
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+    };
     const token = this.jwtService.sign(payload);
 
     return {

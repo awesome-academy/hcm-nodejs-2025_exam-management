@@ -28,12 +28,15 @@ export class UserService {
     private readonly context: RequestContextService,
   ) {}
 
-  private getLang() {
+  private get lang() {
     return this.context.getLang() || 'vi';
   }
 
+  private async t(key: string): Promise<string> {
+    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+  }
+
   async register(data: RegisterDto): Promise<UserSerializer> {
-    const lang = this.getLang();
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -44,9 +47,7 @@ export class UserService {
       });
 
       if (existing) {
-        throw new BadRequestException(
-          await this.i18n.translate('user.username_existed', { lang }),
-        );
+        throw new BadRequestException(await this.t('user.username_existed'));
       }
 
       const role = await this.roleService.findByName('user');
@@ -80,16 +81,12 @@ export class UserService {
 
       if (error.code === 'ER_DUP_ENTRY') {
         throw new BadRequestException(
-          await this.i18n.translate('user.username_or_email_existed', {
-            lang,
-          }),
+          await this.t('user.username_or_email_existed'),
         );
       }
 
       console.error('[Register Error]', error);
-      throw new BadRequestException(
-        await this.i18n.translate('user.register_failed', { lang }),
-      );
+      throw new BadRequestException(await this.t('user.register_failed'));
     } finally {
       await queryRunner.release();
     }
@@ -100,9 +97,7 @@ export class UserService {
       this.userRepo,
       'email',
       email,
-      await this.i18n.translate('user.user_not_found_by_email', {
-        lang: this.getLang(),
-      }),
+      await this.t('user.user_not_found_by_email'),
     );
   }
 
@@ -114,9 +109,7 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException(
-        await this.i18n.translate('user.user_not_found_by_username', {
-          lang: this.getLang(),
-        }),
+        await this.t('user.user_not_found_by_username'),
       );
     }
 
@@ -128,9 +121,7 @@ export class UserService {
       this.userRepo,
       'id',
       id,
-      await this.i18n.translate('user.user_not_found_by_id', {
-        lang: this.getLang(),
-      }),
+      await this.t('user.user_not_found_by_id'),
     );
   }
 
