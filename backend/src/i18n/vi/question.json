@@ -1,0 +1,9 @@
+{
+  "not_found": "Không tìm thấy câu hỏi.",
+  "create_failed": "Tạo câu hỏi thất bại.",
+  "update_failed": "Cập nhật câu hỏi thất bại.",
+  "delete_failed": "Xóa câu hỏi thất bại.",
+  "deleted_success": "Xóa câu hỏi thành công.",
+  "fetch_failed": "Lấy danh sách câu hỏi thất bại.",
+  "delete_denied_has_answers": "Không thể xóa câu hỏi vì đã có câu trả lời."
+}

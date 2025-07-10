@@ -32,8 +32,12 @@ export class EmailVerifyService {
     );
   }
 
-  private getLang() {
+  private get lang() {
     return this.context.getLang() || 'vi';
+  }
+
+  private async t(key: string): Promise<string> {
+    return (await this.i18n.translate(key, { lang: this.lang })) as string;
   }
 
   async createVerificationToken(
@@ -59,8 +63,6 @@ export class EmailVerifyService {
   }
 
   async verifyEmail(token: string): Promise<string> {
-    const lang = this.getLang();
-
     const record = await this.emailVerifyRepo.findOne({
       where: { token },
       relations: ['user'],
@@ -68,17 +70,13 @@ export class EmailVerifyService {
 
     if (!record) {
       throw new BadRequestException(
-        await this.i18n.translate('emailVerify.token_invalid_or_expired', {
-          lang,
-        }),
+        await this.t('emailVerify.token_invalid_or_expired'),
       );
     }
 
     if (record.expires_at.getTime() < Date.now()) {
       await this.emailVerifyRepo.delete({ token });
-      throw new BadRequestException(
-        await this.i18n.translate('emailVerify.token_expired', { lang }),
-      );
+      throw new BadRequestException(await this.t('emailVerify.token_expired'));
     }
 
     const user = await this.userService.findById(record.user_id);
@@ -86,39 +84,30 @@ export class EmailVerifyService {
     await this.userService.saveUser(user);
     await this.emailVerifyRepo.delete({ token });
 
-    return await this.i18n.translate('emailVerify.email_verified_success', {
-      lang,
-    });
+    return await this.t('emailVerify.email_verified_success');
   }
 
   async resendVerificationEmail(email: string): Promise<void> {
-    const lang = this.getLang();
-
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
-      throw new NotFoundException(
-        await this.i18n.translate('user.user_not_found_by_email', { lang }),
-      );
+      throw new NotFoundException(await this.t('user.user_not_found_by_email'));
     }
 
     if (user.email_verified_at) {
       throw new BadRequestException(
-        await this.i18n.translate('emailVerify.email_already_verified', {
-          lang,
-        }),
+        await this.t('emailVerify.email_already_verified'),
       );
     }
 
     const token = generateToken();
     await this.createVerificationToken(user.id, token);
     await this.sendVerificationEmail(user.email, token);
-    return await this.i18n.translate('emailVerify.resend_success', { lang });
+
+    await this.t('emailVerify.resend_success');
   }
 
   async sendVerificationEmail(email: string, token: string) {
-    const lang = this.getLang();
-
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -136,9 +125,7 @@ export class EmailVerifyService {
     await transporter.sendMail({
       from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_EMAIL}>`,
       to: email,
-      subject: await this.i18n.translate('emailVerify.email_verify_subject', {
-        lang,
-      }),
+      subject: await this.t('emailVerify.email_verify_subject'),
       html: emailContent,
     });
   }

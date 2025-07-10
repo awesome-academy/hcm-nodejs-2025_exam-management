@@ -1,0 +1,9 @@
+{
+  "not_found": "Question not found.",
+  "create_failed": "Failed to create question.",
+  "update_failed": "Failed to update question.",
+  "delete_failed": "Failed to delete question.",
+  "deleted_success": "Question deleted successfully.",
+  "fetch_failed": "Failed to fetch question list.",
+  "delete_denied_has_answers": "Cannot delete the question because it already has answers."
+}

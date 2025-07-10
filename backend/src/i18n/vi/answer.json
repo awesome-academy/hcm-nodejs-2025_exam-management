@@ -1,0 +1,10 @@
+{
+    "not_found": "Answer not found.",
+    "create_failed": "Failed to create answer.",
+    "update_failed": "Failed to update answer.",
+    "delete_failed": "Failed to delete answer.",
+    "deleted_success": "Answer deleted successfully.",
+    "fetch_failed": "Failed to fetch answers.",
+    "update_denied_has_user_answers": "Không thể cập nhật đáp án vì đã được sử dụng trong bài làm.",
+    "delete_denied_has_user_answers": "Không thể xóa đáp án vì đã được sử dụng trong bài làm."
+}

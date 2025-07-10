@@ -51,4 +51,3 @@ export class Question extends BaseEntity {
   @OneToMany(() => Question, (childQuestion) => childQuestion.parent_question)
   children: Question[];
 }
-
