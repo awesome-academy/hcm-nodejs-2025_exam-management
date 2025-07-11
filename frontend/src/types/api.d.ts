@@ -180,10 +180,260 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestController_findAll"];
+        put?: never;
+        post: operations["TestController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestController_findOne"];
+        put: operations["TestController_update"];
+        post?: never;
+        delete: operations["TestController_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-questions/doing/{testId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestQuestionController_findForDoingTest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-questions/test/{testId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestQuestionController_findByTestId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-questions/bulk/{testId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TestQuestionController_createBulk"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-questions/{testId}/{questionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["TestQuestionController_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TestSessionController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TestSessionController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions/history/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestSessionController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestSessionController_findById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        TestSessionSerializer: {
+            id: number;
+            test_id: number;
+            user_id: number;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            submitted_at?: string;
+            score?: number;
+            time_spent?: number;
+            status: string;
+            is_completed: boolean;
+            auto_graded: boolean;
+            supervisor_id?: number;
+            test: components["schemas"]["TestSerializer"];
+            user: components["schemas"]["UserSerializer"];
+            user_answers: components["schemas"]["UserAnswerSerializer"][];
+        };
+        UserAnswerSerializer: {
+            id: number;
+            session_id: number;
+            question_id: number;
+            answer_id?: number;
+            answer_text?: string;
+            is_correct: boolean;
+            points_earned?: number;
+            grader_id?: number;
+            /** Format: date-time */
+            graded_at?: string;
+            session: components["schemas"]["TestSessionSerializer"];
+            question: components["schemas"]["QuestionSerializer"];
+            answer?: components["schemas"]["AnswerSerializer"];
+            grader?: components["schemas"]["UserSerializer"];
+        };
+        AnswerSerializer: {
+            id: number;
+            question_id: number;
+            answer_text: string;
+            is_correct: boolean;
+            explanation?: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+            question: components["schemas"]["QuestionSerializer"];
+            user_answers: components["schemas"]["UserAnswerSerializer"][];
+            is_active: boolean;
+        };
+        QuestionSerializer: {
+            id: number;
+            subject_id: number;
+            question_text: string;
+            question_type: string;
+            points: number;
+            difficulty_level: string;
+            creator_id: number;
+            creator: components["schemas"]["UserSerializer"];
+            subject: components["schemas"]["SubjectSerializer"];
+            answers: components["schemas"]["AnswerSerializer"][];
+            test_questions: components["schemas"]["TestQuestionSerializer"][];
+            subject_name: string;
+            created_at: string;
+            updated_at: string;
+            is_active: boolean;
+        };
+        TestQuestionSerializer: {
+            test_id: number;
+            question_id: number;
+            order_number: number;
+            question: components["schemas"]["QuestionSerializer"];
+            test: components["schemas"]["TestSerializer"];
+        };
+        TestSerializer: {
+            id: number;
+            subject_id: number;
+            title: string;
+            description: string;
+            time_limit: number;
+            passing_score: number;
+            is_published: boolean;
+            creator_id: number;
+            creator: components["schemas"]["UserSerializer"];
+            subject: components["schemas"]["SubjectSerializer"];
+            test_questions: components["schemas"]["TestQuestionSerializer"][];
+            test_sessions: components["schemas"]["TestSessionSerializer"][];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
         UserSerializer: {
             id: number;
             username: string;
@@ -195,6 +445,24 @@ export interface components {
             email_verified_at?: string;
             role_id: number;
             role_name: string;
+            subjects: components["schemas"]["SubjectSerializer"][];
+            tests: components["schemas"]["TestSerializer"][];
+            questions: components["schemas"]["QuestionSerializer"][];
+            test_sessions: components["schemas"]["TestSessionSerializer"][];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        SubjectSerializer: {
+            id: number;
+            name: string;
+            code: string;
+            description?: string;
+            image_url?: string;
+            creator_id: number;
+            creator: components["schemas"]["UserSerializer"];
+            tests: components["schemas"]["TestSerializer"][];
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -214,19 +482,6 @@ export interface components {
             access_token: string;
             user: components["schemas"]["UserSerializer"];
         };
-        SubjectSerializer: {
-            id: number;
-            name: string;
-            code: string;
-            description?: string;
-            image_url?: string;
-            creator_id: number;
-            creator: components["schemas"]["UserSerializer"];
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
-        };
         MessageResponseDto: {
             message: string;
         };
@@ -242,47 +497,23 @@ export interface components {
             description?: string;
             image_url?: string;
         };
-        QuestionSerializer: {
-            id: number;
-            subject_id: number;
-            question_text: string;
-            question_type: string;
-            parent_question_id?: number;
-            points: number;
-            difficulty_level: string;
-            creator_id: number;
-            creator: components["schemas"]["UserSerializer"];
-            subject: components["schemas"]["SubjectSerializer"];
-            subject_name: string;
-            created_at: string;
-            updated_at: string;
-        };
         CreateQuestionDto: {
             subject_id: number;
             question_text: string;
             question_type: string;
-            parent_question_id?: number;
             points: number;
             difficulty_level: string;
+            /** @default true */
+            is_active: boolean;
         };
         UpdateQuestionDto: {
             subject_id?: number;
             question_text?: string;
             question_type?: string;
-            parent_question_id?: number;
             points?: number;
             difficulty_level?: string;
-        };
-        AnswerSerializer: {
-            id: number;
-            question_id: number;
-            answer_text: string;
-            is_correct: boolean;
-            explanation?: string;
-            /** Format: date-time */
-            created_at: string;
-            /** Format: date-time */
-            updated_at: string;
+            /** @default true */
+            is_active: boolean;
         };
         UpdateAnswerDto: {
             question_id?: number;
@@ -290,15 +521,52 @@ export interface components {
             /** @default false */
             is_correct: boolean;
             explanation?: string;
+            /** @default true */
+            is_active: boolean;
         };
         CreateAnswerWithoutQuestionIdDto: {
             answer_text: string;
             /** @default false */
             is_correct: boolean;
             explanation?: string;
+            /** @default true */
+            is_active: boolean;
         };
         CreateBulkAnswerDto: {
             answers: components["schemas"]["CreateAnswerWithoutQuestionIdDto"][];
+        };
+        CreateTestDto: {
+            title: string;
+            time_limit: number;
+            passing_score: number;
+            subject_id: number;
+            description: string;
+            is_published: boolean;
+        };
+        UpdateTestDto: {
+            title?: string;
+            time_limit?: number;
+            passing_score?: number;
+            subject_id?: number;
+            description?: string;
+            is_published?: boolean;
+        };
+        CreateTestQuestionDto: {
+            question_id: number;
+            order_number: number;
+        };
+        CreateBulkTestQuestionDto: {
+            questions: components["schemas"]["CreateTestQuestionDto"][];
+        };
+        CreateTestSessionDto: {
+            testId: number;
+        };
+        SubmitAnswerDto: {
+            questionId: number;
+            answerId: number;
+        };
+        SubmitTestSessionDto: {
+            answers: components["schemas"]["SubmitAnswerDto"][];
         };
     };
     responses: never;
@@ -839,6 +1107,399 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["AnswerSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestController_findAll: {
+        parameters: {
+            query: {
+                subject_id: string;
+                is_published: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["MessageResponseDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestQuestionController_findForDoingTest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                testId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestQuestionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestQuestionController_findByTestId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                testId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestQuestionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestQuestionController_createBulk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                testId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBulkTestQuestionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestQuestionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestQuestionController_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                testId: number;
+                questionId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["MessageResponseDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTestSessionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitTestSessionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_findById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
                         /** @example 200 */
                         statusCode?: number;
                         /** @example Server Response Success */

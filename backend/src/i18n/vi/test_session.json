@@ -1,0 +1,8 @@
+{
+  "create_failed": "Không thể tạo phiên làm bài",
+  "submit_failed": "Không thể nộp bài làm",
+  "not_found": "Không tìm thấy phiên làm bài",
+  "not_found_or_unauthorized": "Không tìm thấy hoặc không có quyền truy cập phiên làm bài",
+  "invalid_user": "Người dùng không hợp lệ",
+  "fetch_failed": "Không thể lấy lịch sử làm bài"
+}

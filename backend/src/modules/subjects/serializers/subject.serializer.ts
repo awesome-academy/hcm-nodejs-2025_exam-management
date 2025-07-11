@@ -1,6 +1,7 @@
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserSerializer } from '@/modules/users/serializers/user.serializer';
+import { TestSerializer } from '@/modules/tests/serializers/test.serializer';
 
 export class SubjectSerializer {
   @ApiProperty()
@@ -31,6 +32,11 @@ export class SubjectSerializer {
   @Expose()
   @Type(() => UserSerializer)
   creator: UserSerializer;
+
+  @ApiProperty({ type: () => [TestSerializer] })
+  @Expose()
+  @Type(() => TestSerializer)
+  tests: TestSerializer[];
 
   @ApiProperty({ type: String, format: 'date-time' })
   @Expose()

@@ -2,11 +2,13 @@ import React from "react";
 import { List, Card, Spin } from "antd";
 import { useTranslation } from "react-i18next";
 import { useSubjects } from "../../hooks/useSubjects";
+import { useNavigate } from "react-router-dom";
 import "../../styles/SubjectList.css";
 
 const SubjectList: React.FC = () => {
   const { subjects, loading } = useSubjects();
   const { t } = useTranslation("subject");
+  const navigate = useNavigate();
 
   return (
     <div className="subject-list-container">
@@ -32,7 +34,11 @@ const SubjectList: React.FC = () => {
                   )
                 }
                 actions={[
-                  <button key="view" className="subject-view-button">
+                  <button
+                    key="view"
+                    className="subject-view-button"
+                    onClick={() => navigate(`/subjects/${item.id}`)}
+                  >
                     {t("view_detail")}
                   </button>,
                 ]}

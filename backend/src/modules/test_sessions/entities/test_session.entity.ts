@@ -56,4 +56,3 @@ export class TestSession {
   @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.session)
   user_answers: UserAnswer[];
 }
-

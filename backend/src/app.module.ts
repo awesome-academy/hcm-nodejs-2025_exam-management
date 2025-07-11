@@ -14,6 +14,9 @@ import { RequestContextService } from './modules/shared/request-context.service'
 import { SubjectModule } from './modules/subjects/subject.module';
 import { QuestionModule } from './modules/questions/question.module';
 import { AnswerModule } from './modules/answers/answer.module';
+import { TestModule } from './modules/tests/test.module';
+import { TestQuestionModule } from './modules/test_questions/test_question.module';
+import { TestSessionModule } from './modules/test_sessions/test_session.module';
 
 @Module({
   imports: [
@@ -42,6 +45,9 @@ import { AnswerModule } from './modules/answers/answer.module';
     SubjectModule,
     QuestionModule,
     AnswerModule,
+    TestModule,
+    TestQuestionModule,
+    TestSessionModule,
   ],
   controllers: [AppController],
   providers: [AppService, RequestContextService],

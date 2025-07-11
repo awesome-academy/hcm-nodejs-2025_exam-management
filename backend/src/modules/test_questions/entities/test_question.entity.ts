@@ -21,4 +21,3 @@ export class TestQuestion {
   @Column()
   order_number: number;
 }
-

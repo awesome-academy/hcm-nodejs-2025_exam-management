@@ -41,6 +41,18 @@ const AnswerTable: React.FC<Props> = ({ data, loading, onEdit, onDelete }) => {
       render: (text) => text || <i>{t("none")}</i>,
     },
     {
+      title: t("status"),
+      dataIndex: "is_active",
+      key: "is_active",
+      render: (val) =>
+        val === true ? (
+          <Tag color="green">{t("active")}</Tag>
+        ) : (
+          <Tag color="red">{t("inactive")}</Tag>
+        ),
+    },
+
+    {
       title: t("action"),
       key: "actions",
       render: (_, record) => (
