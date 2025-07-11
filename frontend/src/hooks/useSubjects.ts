@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getAllSubjects,
   getSubjectById,
@@ -36,19 +36,20 @@ export const useSubjects = () => {
     }
   };
 
-  const fetchSubjectById = async (
-    id: number
-  ): Promise<SubjectSerializer | null> => {
-    try {
-      const data = await getSubjectById(id);
-      const subject = data.data ?? null;
-      setSelectedSubject(subject);
-      return subject;
-    } catch (err) {
-      toast.error((err as Error).message);
-      return null;
-    }
-  };
+  const fetchSubjectById = useCallback(
+    async (id: number): Promise<SubjectSerializer | null> => {
+      try {
+        const data = await getSubjectById(id);
+        const subject = data.data ?? null;
+        setSelectedSubject(subject);
+        return subject;
+      } catch (err) {
+        toast.error((err as Error).message);
+        return null;
+      }
+    },
+    []
+  );
 
   const onCreate = async (values: SubjectFormValues) => {
     try {
@@ -119,4 +120,3 @@ export const useSubjects = () => {
     loadSubjects,
   };
 };
-

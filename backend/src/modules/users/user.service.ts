@@ -16,24 +16,19 @@ import { generateToken } from '../../common/utils/token.util';
 import { findOneByField } from '../../common/utils/repository.util';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
+import { BaseService } from '../shared/base.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService {
   constructor(
     @InjectRepository(User) private userRepo: Repository<User>,
     private readonly roleService: RoleService,
     private readonly emailVerifyService: EmailVerifyService,
     private readonly dataSource: DataSource,
-    private readonly i18n: I18nService,
-    private readonly context: RequestContextService,
-  ) {}
-
-  private get lang() {
-    return this.context.getLang() || 'vi';
-  }
-
-  private async t(key: string): Promise<string> {
-    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+    i18n: I18nService,
+    context: RequestContextService,
+  ) {
+    super(i18n, context);
   }
 
   async register(data: RegisterDto): Promise<UserSerializer> {

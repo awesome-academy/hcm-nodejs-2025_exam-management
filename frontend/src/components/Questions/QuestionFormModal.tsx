@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, Select, Spin, InputNumber } from "antd";
+import { Modal, Form, Input, Select, Spin, InputNumber, Checkbox } from "antd";
 import type { FormInstance } from "antd/es/form";
 import { useTranslation } from "react-i18next";
 import type { QuestionSerializer } from "../../types/question.type";
@@ -23,16 +23,9 @@ const QuestionFormModal: React.FC<Props> = ({
   form,
   onCancel,
   onSubmit,
-  parentQuestions,
   subjects,
 }) => {
   const { t } = useTranslation("question");
-  const { useWatch } = Form;
-
-  const selectedSubjectId = useWatch("subject_id", form);
-  const filteredParentQuestions = parentQuestions.filter(
-    (q) => q.subject_id === selectedSubjectId
-  );
 
   return (
     <Modal
@@ -81,16 +74,6 @@ const QuestionFormModal: React.FC<Props> = ({
             </Select>
           </Form.Item>
 
-          <Form.Item name="parent_question_id" label={t("parent_question_id")}>
-            <Select allowClear disabled={!selectedSubjectId}>
-              {filteredParentQuestions.map((q) => (
-                <Select.Option key={q.id} value={q.id}>
-                  #{q.id} - {q.question_text.slice(0, 40)}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           <Form.Item
             name="points"
             label={t("points")}
@@ -109,6 +92,14 @@ const QuestionFormModal: React.FC<Props> = ({
               <Select.Option value="Trung bình">{t("medium")}</Select.Option>
               <Select.Option value="Khó">{t("hard")}</Select.Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="is_active"
+            valuePropName="checked"
+            label={t("status")}
+          >
+            <Checkbox>{t("active")}</Checkbox>
           </Form.Item>
         </Form>
       </Spin>

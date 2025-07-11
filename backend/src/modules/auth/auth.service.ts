@@ -11,22 +11,17 @@ import { plainToInstance } from 'class-transformer';
 import { UserSerializer } from '../users/serializers/user.serializer';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
+import { BaseService } from '@/modules/shared/base.service';
 
 @Injectable()
-export class AuthService {
+export class AuthService extends BaseService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly i18n: I18nService,
-    private readonly context: RequestContextService,
-  ) {}
-
-  private get lang(): string {
-    return this.context.getLang() || 'vi';
-  }
-
-  private async t(key: string): Promise<string> {
-    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+    i18n: I18nService,
+    context: RequestContextService,
+  ) {
+    super(i18n, context);
   }
 
   async login(data: LoginDto) {

@@ -25,5 +25,8 @@
   "remove": "Remove",
   "select_question_first": "Please select a question first",
   "update_failed": "Failed to update answer",
-  "update_success": "Updated answer successfully"
+  "update_success": "Updated answer successfully",
+  "status": "Status",
+  "active": "Active",
+  "inactive": "InActive"
 }

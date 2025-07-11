@@ -1,5 +1,9 @@
-  import { Expose,Transform } from 'class-transformer';
-  import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Transform, Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { SubjectSerializer } from '@/modules/subjects/serializers/subject.serializer';
+import { TestSerializer } from '@/modules/tests/serializers/test.serializer';
+import { QuestionSerializer } from '@/modules/questions/serializers/question.serializer';
+import { TestSessionSerializer } from '@/modules/test_sessions/serializers/test_session.serializer';
 
 export class UserSerializer {
   @ApiProperty()
@@ -38,6 +42,26 @@ export class UserSerializer {
   @Transform(({ obj }) => obj.role?.name)
   @ApiProperty()
   role_name: string;
+
+  @ApiProperty({ type: () => [SubjectSerializer] })
+  @Expose()
+  @Type(() => SubjectSerializer)
+  subjects: SubjectSerializer[];
+
+  @ApiProperty({ type: () => [TestSerializer] })
+  @Expose()
+  @Type(() => TestSerializer)
+  tests: TestSerializer[];
+
+  @ApiProperty({ type: () => [QuestionSerializer] })
+  @Expose()
+  @Type(() => QuestionSerializer)
+  questions: QuestionSerializer[];
+
+  @ApiProperty({ type: () => [TestSessionSerializer] })
+  @Expose()
+  @Type(() => TestSessionSerializer)
+  test_sessions: TestSessionSerializer[];
 
   @ApiProperty()
   @Expose()

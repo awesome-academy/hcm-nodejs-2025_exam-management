@@ -15,6 +15,7 @@
 
   "description": "Mô tả",
   "description_required": "Vui lòng nhập mô tả",
+  "no_description": "Không có mô tả",
 
   "actions": "Hành động",
 
@@ -31,6 +32,9 @@
   "upload_image": "Thêm hình ảnh",
   "no_image": "Không có hình",
 
-  "view_detail":"Xem Chi Tiết"
-}
+  "view_detail": "Xem Chi Tiết",
 
+  "test_list_for_subject": "Danh sách bài thi cho môn học này",
+  "take_test": "Làm bài thi",
+  "created_at": "Thời gian tạo"
+}

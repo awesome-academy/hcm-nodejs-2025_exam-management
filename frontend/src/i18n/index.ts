@@ -11,6 +11,9 @@ import viUser from "./vi/user.json";
 import viSubject from "./vi/subject.json";
 import viQuestion from "./vi/question.json";
 import viAnswer from "./vi/answer.json";
+import viTest from "./vi/test.json";
+import viTestQuesiton from "./vi/test_question.json";
+import viDoTest from "./vi/dotest.json"
 
 import enAuth from "./en/auth.json";
 import enCommon from "./en/common.json";
@@ -21,6 +24,9 @@ import enUser from "./en/user.json";
 import enSubject from "./en/subject.json";
 import enQuestion from "./en/question.json";
 import enAnswer from "./en/answer.json";
+import enTest from "./en/test.json";
+import enTestQuestion from "./en/test_question.json";
+import enDoTest from "./en/dotest.json"
 
 i18n
   .use(LanguageDetector)
@@ -37,6 +43,9 @@ i18n
         subject: viSubject,
         question: viQuestion,
         answer: viAnswer,
+        test: viTest,
+        test_question: viTestQuesiton,
+        dotest: viDoTest,
       },
       en: {
         auth: enAuth,
@@ -48,6 +57,9 @@ i18n
         subject: enSubject,
         question: enQuestion,
         answer: enAnswer,
+        test: enTest,
+        test_question: enTestQuestion,
+        dotest: enDoTest
       },
     },
     fallbackLng: "vi",
@@ -61,6 +73,9 @@ i18n
       "subject",
       "question",
       "answer",
+      "test",
+      "test_question",
+      "dotest"
     ],
     defaultNS: "common",
     interpolation: {

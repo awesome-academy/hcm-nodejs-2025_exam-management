@@ -1,0 +1,12 @@
+{
+    "fetch_failed": "Không thể lấy danh sách câu hỏi của bài kiểm tra",
+    "create_failed": "Không thể thêm câu hỏi vào bài kiểm tra",
+    "delete_failed": "Không thể xóa câu hỏi của bài kiểm tra",
+    "deleted_success": "Xóa câu hỏi của bài kiểm tra thành công",
+
+    "not_found": "Không tìm thấy câu hỏi trong bài kiểm tra.",
+
+    "duplicate_order_in_request": "Có thứ tự câu hỏi (order_number) bị trùng trong yêu cầu.",
+    "question_already_in_test": "Một số câu hỏi đã tồn tại trong bài kiểm tra.",
+    "duplicate_order_in_db": "Thứ tự câu hỏi bị trùng với các câu hỏi đã có trong bài kiểm tra."
+}

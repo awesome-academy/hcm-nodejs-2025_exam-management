@@ -5,7 +5,6 @@
   "question_text": "Question Text",
   "question_type": "Question Type",
   "subject_id": "Subject ID",
-  "parent_question_id": "Parent Question ID",
   "points": "Points",
   "difficulty_level": "Difficulty Level",
   "multiple_choice": "Multiple Choice",
@@ -30,5 +29,8 @@
   "action": "Actions",
   "answers_for_question": "Answers for question",
   "add_answer": "Add Answer",
-  "close_answer_section": "Close Answer Section"
+  "close_answer_section": "Close Answer Section",
+  "status": "Status",
+  "active": "Active",
+  "inactive": "InActive"
 }

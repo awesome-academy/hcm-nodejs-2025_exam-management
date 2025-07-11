@@ -19,7 +19,9 @@ import TestReviewDetail from "../pages/suppervisor/TestReviewDetail";
 import RequireRole from "../components/RequireRole";
 import GuestLayout from "../layouts/GuestLayout";
 import SupervisorLayout from "../layouts/SuppervisorLayout";
+import TestManagement from "../pages/suppervisor/TestManagement";
 import { ToastContainer } from "react-toastify";
+import SubjectDetail from "../pages/user/SubjectDetail";
 import "react-toastify/dist/ReactToastify.css";
 
 const AppRouter = () => {
@@ -33,10 +35,11 @@ const AppRouter = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/subjects" element={<SubjectList />} />
 
+            <Route path="/subjects/:id" element={<SubjectDetail />} />
             <Route path="/tests" element={<TestList />} />
-            <Route path="/tests/:id" element={<DoTest />} />
+            <Route path="/tests/:id/do" element={<DoTest />} />
             <Route path="/history" element={<TestHistory />} />
-            <Route path="/results/:id" element={<TestResultDetail />} />
+            <Route path="/results/:sessionId" element={<TestResultDetail />} />
           </Route>
 
           <Route element={<RequireRole allowed={["suppervisor"]} />}>
@@ -49,6 +52,11 @@ const AppRouter = () => {
                 path="/suppervisor/questions"
                 element={<QuestionManagement />}
               />
+              <Route
+                path="/suppervisor/test-management"
+                element={<TestManagement />}
+              />
+
               <Route path="/suppervisor/tests" element={<TestReviewList />} />
               <Route
                 path="/suppervisor/tests/:id"
