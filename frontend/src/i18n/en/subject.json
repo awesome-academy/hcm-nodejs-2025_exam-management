@@ -15,6 +15,7 @@
 
   "description": "Description",
   "description_required": "Please enter the description",
+  "no_description": "No description available",
 
   "actions": "Actions",
 
@@ -31,6 +32,9 @@
   "upload_image": "Upload Image",
   "no_image": "No image available",
 
-  "view_detail":"View Detail"
-}
+  "view_detail": "View Detail",
 
+  "test_list_for_subject": "Tests for this subject",
+  "take_test": "Take Test",
+  "created_at": "Created at"
+}

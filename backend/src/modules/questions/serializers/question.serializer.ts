@@ -2,7 +2,8 @@ import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserSerializer } from '@/modules/users/serializers/user.serializer';
 import { SubjectSerializer } from '@/modules/subjects/serializers/subject.serializer';
-
+import { AnswerSerializer } from '@/modules/answers/serializers/answer.serializer';
+import { TestQuestionSerializer } from '@/modules/test_questions/serializers/test_question.serializer';
 export class QuestionSerializer {
   @ApiProperty()
   @Expose()
@@ -19,10 +20,6 @@ export class QuestionSerializer {
   @ApiProperty()
   @Expose()
   question_type: string;
-
-  @ApiProperty({ required: false })
-  @Expose()
-  parent_question_id?: number;
 
   @ApiProperty()
   @Expose()
@@ -46,6 +43,15 @@ export class QuestionSerializer {
   @Type(() => SubjectSerializer)
   subject: SubjectSerializer;
 
+  @ApiProperty({ type: () => [AnswerSerializer] })
+  @Expose()
+  @Type(() => AnswerSerializer)
+  answers: AnswerSerializer[];
+
+  @ApiProperty({ type: () => [TestQuestionSerializer] })
+  @Type(() => TestQuestionSerializer)
+  test_questions: TestQuestionSerializer[];
+
   @ApiProperty({ type: String })
   @Expose()
   get subject_name(): string {
@@ -59,4 +65,8 @@ export class QuestionSerializer {
   @ApiProperty({ type: String })
   @Expose()
   updated_at: Date;
+
+  @ApiProperty()
+  @Expose()
+  is_active: boolean;
 }

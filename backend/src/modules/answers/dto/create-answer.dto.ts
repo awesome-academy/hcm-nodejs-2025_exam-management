@@ -27,4 +27,9 @@ export class CreateAnswerDto {
   @IsOptional()
   @IsString()
   explanation?: string;
+
+  @ApiProperty({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
 }

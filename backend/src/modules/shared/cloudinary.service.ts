@@ -1,5 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { v2 as cloudinary } from 'cloudinary';
+import { Injectable } from '@nestjs/common';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import toStream = require('buffer-to-stream');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,18 +11,18 @@ cloudinary.config({
 @Injectable()
 export class CloudinaryService {
   async uploadImage(file: Express.Multer.File): Promise<string> {
-    try {
-      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'subjects',
+        },
+        (error: any, result: UploadApiResponse) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        },
+      );
 
-      const result = await cloudinary.uploader.upload(base64, {
-        folder: 'subjects',
-        timeout: 60000,
-      });
-
-      return result.secure_url;
-    } catch (error) {
-      console.error('[Cloudinary Upload Error]', error);
-      throw new BadRequestException('Upload failed');
-    }
+      toStream(file.buffer).pipe(uploadStream);
+    });
   }
 }

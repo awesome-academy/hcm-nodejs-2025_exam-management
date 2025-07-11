@@ -44,12 +44,18 @@ export class SubjectService {
   }
 
   async findOneById(id: number): Promise<SubjectSerializer> {
-    const subject = await findOneByField(
-      this.subjectRepo,
-      'id',
-      id,
-      await this.t('subject.subject_not_found_by_id'),
-    );
+    const subject = await this.subjectRepo.findOne({
+      where: { id },
+      relations: ['tests'],
+    });
+
+    if (!subject) {
+      throw new BadRequestException(
+        await this.t('subject.subject_not_found_by_id'),
+      );
+    }
+
+    subject.tests = subject.tests?.filter((test) => test.is_published);
 
     return plainToInstance(SubjectSerializer, subject, {
       excludeExtraneousValues: true,

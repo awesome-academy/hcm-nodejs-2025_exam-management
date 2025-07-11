@@ -24,9 +24,6 @@ export class Test extends BaseEntity {
   time_limit: number;
 
   @Column()
-  total_points: number;
-
-  @Column()
   passing_score: number;
 
   @Column({ default: false })

@@ -25,5 +25,8 @@
   "remove": "Xóa",
   "select_question_first": "Vui lòng chọn câu hỏi trước",
   "update_failed": "Cập nhật đáp án thất bại",
-  "update_success": "Cập nhật đáp án thành công"
+  "update_success": "Cập nhật đáp án thành công",
+  "status": "Trạng thái",
+  "active": "Đang hoạt động",
+  "inactive": "Không hoạt động"
 }

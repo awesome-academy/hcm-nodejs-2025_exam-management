@@ -1,0 +1,134 @@
+.test-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.question-area {
+  flex: 7;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-question-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  transition: box-shadow 0.3s;
+}
+
+.quiz-question-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.quiz-question-card .ant-card-head {
+  background-color: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.question-text {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.answer-options {
+  margin-top: 10px;
+}
+
+/* Radio đáp án */
+.custom-radio {
+  display: block;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background-color: white;
+  transition: all 0.3s;
+}
+
+.custom-radio.selected {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.sidebar {
+  flex: 3;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+  align-self: flex-start;
+  top: 88px;
+}
+
+.sidebar .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.question-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+
+.question-numbers .ant-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question-numbers .ant-btn.answered {
+  background-color: #1890ff;
+  color: white;
+  border-color: #1890ff;
+}
+
+/* Countdown timer styling */
+.ant-statistic-content {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1890ff;
+}
+
+/* Progress bar styling */
+.ant-progress-bg {
+  background-color: #1890ff;
+}
+
+/* Submit button styling */
+.submit-btn {
+  background-color: #52c41a;
+  border-color: #52c41a;
+}
+
+.submit-btn:hover {
+  background-color: #73d13d;
+  border-color: #73d13d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .test-layout {
+    flex-direction: column;
+  }
+
+  .question-area,
+  .sidebar {
+    flex: none;
+    width: 100%;
+  }
+
+  .sidebar {
+    position: static;
+    margin-top: 20px;
+  }
+}

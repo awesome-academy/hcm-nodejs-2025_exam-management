@@ -5,7 +5,6 @@
   "question_text": "Nội dung câu hỏi",
   "question_type": "Loại câu hỏi",
   "subject_id": "Mã môn học",
-  "parent_question_id": "Mã câu hỏi cha",
   "points": "Điểm",
   "difficulty_level": "Độ khó",
   "multiple_choice": "Trắc nghiệm",
@@ -27,8 +26,11 @@
   "cancel": "Hủy",
   "id": "Mã",
   "select_subject": "Chọn môn học",
-  "action":"Hành động",
+  "action": "Hành động",
   "answers_for_question": "Danh sách đáp án cho câu hỏi",
   "add_answer": "Thêm đáp án",
-   "close_answer_section": "Đóng phần đáp án"
+  "close_answer_section": "Đóng phần đáp án",
+  "status": "Trạng thái",
+  "active": "Đang hoạt động",
+  "inactive": "Không hoạt động"
 }

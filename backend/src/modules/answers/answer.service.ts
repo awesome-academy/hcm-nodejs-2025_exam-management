@@ -7,8 +7,8 @@ import { plainToInstance } from 'class-transformer';
 import { AnswerSerializer } from './serializers/answer.serializer';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
-import { findOneByField } from '@/common/utils/repository.util';
 import { CreateAnswerWithoutQuestionIdDto } from './dto/create-without-questionId.dto';
+import { TestSessionStatus } from '@/common/enums/testSession.enum';
 
 @Injectable()
 export class AnswerService {
@@ -30,6 +30,7 @@ export class AnswerService {
     try {
       const answers = await this.answerRepo.find({
         where: { question_id },
+        relations: ['question', 'user_answers'],
         order: { id: 'ASC' },
       });
 
@@ -44,13 +45,53 @@ export class AnswerService {
 
   async update(id: number, dto: UpdateAnswerDto): Promise<AnswerSerializer> {
     try {
-      const answer = await findOneByField(
-        this.answerRepo,
-        'id',
-        id,
-        await this.t('answer.not_found'),
+      const answer = await this.answerRepo.findOne({
+        where: { id },
+        relations: [
+          'user_answers',
+          'question',
+          'question.test_questions',
+          'question.test_questions.test.test_sessions',
+        ],
+      });
+
+      if (!answer) {
+        throw new BadRequestException(await this.t('answer.not_found'));
+      }
+
+      // Kiểm tra các test_sessions có đang IN_PROGRESS không
+      const hasActiveSession = answer.question?.test_questions?.some((tq) =>
+        tq.test?.test_sessions?.some(
+          (session) =>
+            session.status === TestSessionStatus.IN_PROGRESS &&
+            session.is_completed === false,
+        ),
       );
 
+      if (hasActiveSession) {
+        throw new BadRequestException(
+          await this.t('answer.update_denied_has_test_sessions'),
+        );
+      }
+
+      // Nếu đã được dùng → tạo mới và disable cũ
+      if (answer.user_answers?.length > 0) {
+        const newAnswer = this.answerRepo.create({
+          ...dto,
+          question_id: answer.question_id,
+        });
+
+        await this.answerRepo.save(newAnswer);
+
+        answer.is_active = false;
+        await this.answerRepo.save(answer);
+
+        return plainToInstance(AnswerSerializer, newAnswer, {
+          excludeExtraneousValues: true,
+        });
+      }
+
+      // Cập nhật trực tiếp nếu chưa bị dùng
       const updated = this.answerRepo.merge(answer, dto);
       await this.answerRepo.save(updated);
 

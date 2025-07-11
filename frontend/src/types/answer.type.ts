@@ -7,6 +7,7 @@ export interface CreateAnswerFormValues {
   answer_text: string;
   is_correct: boolean;
   explanation?: string;
+  is_active: boolean;
 }
 
 export interface UpdateAnswerFormValues {
@@ -14,6 +15,7 @@ export interface UpdateAnswerFormValues {
   answer_text?: string;
   is_correct?: boolean;
   explanation?: string;
+  is_active: boolean;
 }
 
 export interface CreateBulkAnswerFormValues {

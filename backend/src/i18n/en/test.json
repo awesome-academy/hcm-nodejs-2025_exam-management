@@ -1,0 +1,20 @@
+{
+  "title_required": "Test title is required.",
+  "title_max": "Test title must not exceed 255 characters.",
+  "description_max": "Description must not exceed 1000 characters.",
+  "time_required": "Test time limit is required.",
+  "time_min": "Time must be at least 1 minute.",
+  "time_max": "Time must not exceed 180 minutes.",
+  "total_points_required": "Total points are required.",
+  "total_points_min": "Total points must be greater than 0.",
+  "passing_score_required": "Passing score is required.",
+  "passing_score_min": "Passing score cannot be negative.",
+  "passing_score_max": "Passing score must not exceed 100%.",
+
+  "not_found": "Test not found.",
+  "fetch_failed": "Failed to fetch tests.",
+  "create_failed": "Failed to create test.",
+  "update_failed": "Failed to update test.",
+  "delete_failed": "Failed to delete test.",
+  "deleted_success": "Test deleted successfully."
+}

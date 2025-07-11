@@ -21,4 +21,20 @@ export enum ValidationMessage {
 
   CONFIRM_PASSWORD_REQUIRED = 'user.confirm_password_required',
   CONFIRM_PASSWORD_NOT_MATCH = 'user.confirm_password_not_match',
+
+  TEST_TITLE_REQUIRED = 'test.title_required',
+  TEST_TITLE_MAX = 'test.title_max',
+
+  TEST_DESCRIPTION_MAX = 'test.description_max',
+
+  TEST_TIME_REQUIRED = 'test.time_required',
+  TEST_TIME_MIN = 'test.time_min',
+  TEST_TIME_MAX = 'test.time_max',
+
+  TEST_TOTAL_POINTS_REQUIRED = 'test.total_points_required',
+  TEST_TOTAL_POINTS_MIN = 'test.total_points_min',
+
+  TEST_PASSING_SCORE_REQUIRED = 'test.passing_score_required',
+  TEST_PASSING_SCORE_MIN = 'test.passing_score_min',
+  TEST_PASSING_SCORE_MAX = 'test.passing_score_max',
 }

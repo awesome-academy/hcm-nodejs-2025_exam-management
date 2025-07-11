@@ -1,10 +1,11 @@
 {
-    "not_found": "Không tìm thấy đáp án.",
-    "create_failed": "Tạo đáp án thất bại.",
-    "update_failed": "Cập nhật đáp án thất bại.",
-    "delete_failed": "Xóa đáp án thất bại.",
-    "deleted_success": "Xóa đáp án thành công.",
-    "fetch_failed": "Lấy danh sách đáp án thất bại.",
-    "update_denied_has_user_answers": "This answer cannot be updated as it has been recorded in user submissions.",
-    "delete_denied_has_user_answers": "This answer cannot be deleted as it has been recorded in user submissions."
+  "not_found": "Answer not found.",
+  "create_failed": "Failed to create answer.",
+  "update_failed": "Failed to update answer.",
+  "delete_failed": "Failed to delete answer.",
+  "deleted_success": "Answer deleted successfully.",
+  "fetch_failed": "Failed to fetch answers.",
+  "update_denied_has_user_answers": "This answer cannot be updated as it has been recorded in user submissions.",
+  "delete_denied_has_user_answers": "This answer cannot be deleted as it has been recorded in user submissions.",
+  "update_denied_has_test_sessions": "Cannot update this answer because a test session using it is currently in progress."
 }
