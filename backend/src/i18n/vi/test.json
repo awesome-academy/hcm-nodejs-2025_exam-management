@@ -1,0 +1,20 @@
+{
+  "title_required": "Tiêu đề bài kiểm tra là bắt buộc.",
+  "title_max": "Tiêu đề bài kiểm tra không được vượt quá 255 ký tự.",
+  "description_max": "Mô tả không được vượt quá 1000 ký tự.",
+  "time_required": "Thời gian làm bài là bắt buộc.",
+  "time_min": "Thời gian tối thiểu là 1 phút.",
+  "time_max": "Thời gian tối đa là 180 phút.",
+  "total_points_required": "Tổng điểm là bắt buộc.",
+  "total_points_min": "Tổng điểm phải lớn hơn 0.",
+  "passing_score_required": "Điểm đạt là bắt buộc.",
+  "passing_score_min": "Điểm đạt không được nhỏ hơn 0.",
+  "passing_score_max": "Điểm đạt không được vượt quá 100%.",
+
+  "not_found": "Không tìm thấy bài kiểm tra.",
+  "fetch_failed": "Lấy danh sách bài kiểm tra thất bại.",
+  "create_failed": "Tạo bài kiểm tra thất bại.",
+  "update_failed": "Cập nhật bài kiểm tra thất bại.",
+  "delete_failed": "Xóa bài kiểm tra thất bại.",
+  "deleted_success": "Xóa bài kiểm tra thành công."
+}

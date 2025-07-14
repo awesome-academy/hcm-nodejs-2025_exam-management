@@ -6,18 +6,18 @@ export interface CreateQuestionFormValues {
   subject_id: number;
   question_text: string;
   question_type: string;
-  parent_question_id?: number;
   points: number;
   difficulty_level: string;
+  is_active: boolean;
 }
 
 export interface UpdateQuestionFormValues {
   subject_id?: number;
   question_text?: string;
   question_type?: string;
-  parent_question_id?: number;
   points?: number;
   difficulty_level?: string;
+  is_active: boolean;
 }
 
 export type QuestionResponse =

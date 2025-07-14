@@ -4,5 +4,6 @@
   "questions": "Manage Questions",
   "tests": "Student Tests",
   "logout": "Logout",
-  "profile": "Profile"
+  "profile": "Profile",
+  "test_management": "Manage Tests"
 }

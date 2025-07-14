@@ -1,0 +1,8 @@
+{
+  "create_failed": "Failed to create test session",
+  "submit_failed": "Failed to submit test session",
+  "not_found": "Test session not found",
+  "not_found_or_unauthorized": "Session not found or unauthorized access",
+  "invalid_user": "Invalid user",
+  "fetch_failed": "Failed to fetch session history"
+}

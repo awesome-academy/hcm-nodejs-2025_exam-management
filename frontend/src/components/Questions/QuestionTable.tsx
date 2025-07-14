@@ -51,12 +51,6 @@ const QuestionTable: React.FC<Props> = ({
       key: "question_type",
       render: (type) => <Tag>{type}</Tag>,
     },
-    {
-      title: t("parent_question_id"),
-      dataIndex: "parent_question_id",
-      key: "parent_question_id",
-      render: (val) => val ?? <i style={{ color: "#aaa" }}>{t("none")}</i>,
-    },
     { title: t("points"), dataIndex: "points", key: "points" },
     {
       title: t("difficulty_level"),
@@ -70,6 +64,16 @@ const QuestionTable: React.FC<Props> = ({
         </Tag>
       ),
     },
+    {
+      title: t("status"),
+      key: "is_active",
+      render: (_, record) => (
+        <Tag color={record.is_active ? "green" : "red"}>
+          {record.is_active ? t("active") : t("inactive")}
+        </Tag>
+      ),
+    },
+
     {
       title: t("action"),
       key: "actions",

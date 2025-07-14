@@ -10,22 +10,18 @@ import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { findOneByField } from '@/common/utils/repository.util';
 import { CloudinaryService } from '../shared/cloudinary.service';
+import { BaseService } from '../shared/base.service';
 
 @Injectable()
-export class SubjectService {
+export class SubjectService extends BaseService {
   constructor(
-    @InjectRepository(Subject) private subjectRepo: Repository<Subject>,
-    private readonly i18n: I18nService,
-    private readonly context: RequestContextService,
-    private cloudinaryService: CloudinaryService,
-  ) {}
-
-  private get lang() {
-    return this.context.getLang() || 'vi';
-  }
-
-  private async t(key: string): Promise<string> {
-    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+    @InjectRepository(Subject)
+    private readonly subjectRepo: Repository<Subject>,
+    i18n: I18nService,
+    context: RequestContextService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {
+    super(i18n, context);
   }
 
   async findAll(): Promise<SubjectSerializer[]> {
@@ -44,12 +40,18 @@ export class SubjectService {
   }
 
   async findOneById(id: number): Promise<SubjectSerializer> {
-    const subject = await findOneByField(
-      this.subjectRepo,
-      'id',
-      id,
-      await this.t('subject.subject_not_found_by_id'),
-    );
+    const subject = await this.subjectRepo.findOne({
+      where: { id },
+      relations: ['tests'],
+    });
+
+    if (!subject) {
+      throw new BadRequestException(
+        await this.t('subject.subject_not_found_by_id'),
+      );
+    }
+
+    subject.tests = subject.tests?.filter((test) => test.is_published);
 
     return plainToInstance(SubjectSerializer, subject, {
       excludeExtraneousValues: true,

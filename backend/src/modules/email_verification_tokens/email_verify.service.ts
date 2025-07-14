@@ -7,16 +7,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner } from 'typeorm';
-import { EmailVerificationToken } from './entities/email_verify.entity';
 import * as nodemailer from 'nodemailer';
+import { EmailVerificationToken } from './entities/email_verify.entity';
 import { UserService } from '../users/user.service';
 import { generateToken } from '../../common/utils/token.util';
 import { getEmailVerificationTemplate } from '@/common/templates/email-verification.template';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
+import { BaseService } from '@/modules/shared/base.service';
 
 @Injectable()
-export class EmailVerifyService {
+export class EmailVerifyService extends BaseService {
   private readonly emailTokenExpiresInMinutes: number;
 
   constructor(
@@ -24,20 +25,13 @@ export class EmailVerifyService {
     private emailVerifyRepo: Repository<EmailVerificationToken>,
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
-    private readonly i18n: I18nService,
-    private readonly context: RequestContextService,
+    i18n: I18nService,
+    context: RequestContextService,
   ) {
+    super(i18n, context);
     this.emailTokenExpiresInMinutes = Number(
       process.env.EMAIL_TOKEN_EXPIRES_IN_MIN || 2,
     );
-  }
-
-  private get lang() {
-    return this.context.getLang() || 'vi';
-  }
-
-  private async t(key: string): Promise<string> {
-    return (await this.i18n.translate(key, { lang: this.lang })) as string;
   }
 
   async createVerificationToken(

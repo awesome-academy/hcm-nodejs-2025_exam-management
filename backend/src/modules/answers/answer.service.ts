@@ -1,35 +1,32 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Answer } from './entities/answer.entity';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { plainToInstance } from 'class-transformer';
 import { AnswerSerializer } from './serializers/answer.serializer';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
-import { findOneByField } from '@/common/utils/repository.util';
 import { CreateAnswerWithoutQuestionIdDto } from './dto/create-without-questionId.dto';
+import { TestSessionStatus } from '@/common/enums/testSession.enum';
+import { BaseService } from '@/modules/shared/base.service';
 
 @Injectable()
-export class AnswerService {
+export class AnswerService extends BaseService {
   constructor(
     @InjectRepository(Answer) private answerRepo: Repository<Answer>,
-    private readonly i18n: I18nService,
-    private readonly context: RequestContextService,
-  ) {}
-
-  private get lang() {
-    return this.context.getLang() || 'vi';
-  }
-
-  private async t(key: string): Promise<string> {
-    return (await this.i18n.translate(key, { lang: this.lang })) as string;
+    private readonly dataSource: DataSource,
+    i18n: I18nService,
+    context: RequestContextService,
+  ) {
+    super(i18n, context);
   }
 
   async findByQuestion(question_id: number): Promise<AnswerSerializer[]> {
     try {
       const answers = await this.answerRepo.find({
         where: { question_id },
+        relations: ['question', 'user_answers'],
         order: { id: 'ASC' },
       });
 
@@ -43,23 +40,69 @@ export class AnswerService {
   }
 
   async update(id: number, dto: UpdateAnswerDto): Promise<AnswerSerializer> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      const answer = await findOneByField(
-        this.answerRepo,
-        'id',
-        id,
-        await this.t('answer.not_found'),
+      const answer = await queryRunner.manager.findOne(Answer, {
+        where: { id },
+        relations: [
+          'user_answers',
+          'question',
+          'question.test_questions',
+          'question.test_questions.test.test_sessions',
+        ],
+      });
+
+      if (!answer) {
+        throw new BadRequestException(await this.t('answer.not_found'));
+      }
+
+      const hasActiveSession = answer.question?.test_questions?.some((tq) =>
+        tq.test?.test_sessions?.some(
+          (session) =>
+            session.status === TestSessionStatus.IN_PROGRESS &&
+            session.is_completed === false,
+        ),
       );
 
-      const updated = this.answerRepo.merge(answer, dto);
-      await this.answerRepo.save(updated);
+      if (hasActiveSession) {
+        throw new BadRequestException(
+          await this.t('answer.update_denied_has_test_sessions'),
+        );
+      }
 
-      return plainToInstance(AnswerSerializer, updated, {
+      let resultAnswer: Answer;
+
+      if (answer.user_answers?.length > 0) {
+        const newAnswer = queryRunner.manager.create(Answer, {
+          ...dto,
+          question_id: answer.question_id,
+        });
+
+        const saved = await queryRunner.manager.save(Answer, newAnswer);
+
+        answer.is_active = false;
+        await queryRunner.manager.save(Answer, answer);
+
+        resultAnswer = saved;
+      } else {
+        const merged = queryRunner.manager.merge(Answer, answer, dto);
+        resultAnswer = await queryRunner.manager.save(Answer, merged);
+      }
+
+      await queryRunner.commitTransaction();
+
+      return plainToInstance(AnswerSerializer, resultAnswer, {
         excludeExtraneousValues: true,
       });
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       if (error instanceof BadRequestException) throw error;
       throw new BadRequestException(await this.t('answer.update_failed'));
+    } finally {
+      await queryRunner.release();
     }
   }
 

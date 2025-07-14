@@ -34,7 +34,7 @@ export class UserAnswer {
   answer: Answer;
 
   @Column({ nullable: true })
-  answer_id: number;
+  answer_id: number | null;
 
   @Column({ nullable: true })
   answer_text: string;

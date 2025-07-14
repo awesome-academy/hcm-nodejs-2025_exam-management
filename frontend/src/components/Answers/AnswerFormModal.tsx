@@ -90,6 +90,14 @@ const AnswerFormModal: React.FC<Props> = ({
                       <Checkbox>{t("is_correct")}</Checkbox>
                     </Form.Item>
 
+                    <Form.Item
+                      {...restField}
+                      name={[name, "is_active"]}
+                      valuePropName="checked"
+                    >
+                      <Checkbox>{t("active")}</Checkbox>
+                    </Form.Item>
+
                     <Form.Item shouldUpdate noStyle>
                       {() => {
                         const isCorrect = form.getFieldValue([

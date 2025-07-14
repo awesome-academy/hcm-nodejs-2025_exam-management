@@ -23,4 +23,7 @@ export class Answer extends BaseEntity {
 
   @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.answer)
   user_answers: UserAnswer[];
+
+  @Column({ default: true })
+  is_active: boolean;
 }

@@ -18,6 +18,7 @@ const SupervisorLayout = () => {
   const getSelectedKey = () => {
     if (location.pathname.includes("subjects")) return "subjects";
     if (location.pathname.includes("questions")) return "questions";
+    if (location.pathname.includes("test-management")) return "test-management";
     if (location.pathname.includes("tests")) return "tests";
     return "";
   };
@@ -32,6 +33,11 @@ const SupervisorLayout = () => {
       key: "questions",
       label: t("questions"),
       onClick: () => navigate("/suppervisor/questions"),
+    },
+    {
+      key: "test-management",
+      label: t("test_management"),
+      onClick: () => navigate("/suppervisor/test-management"),
     },
     {
       key: "tests",

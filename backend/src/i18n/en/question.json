@@ -5,5 +5,8 @@
   "delete_failed": "Failed to delete question.",
   "deleted_success": "Question deleted successfully.",
   "fetch_failed": "Failed to fetch question list.",
-  "delete_denied_has_answers": "Cannot delete the question because it already has answers."
+  "delete_denied_has_answers": "Cannot delete the question because it already has answers.",
+  "delete_denied_has_user_answers": "Cannot delete the question because it has been answered by users.",
+  "delete_denied_has_test_questions": "Cannot delete the question because it is assigned in a test.",
+  "update_denied_has_test_sessions": "Cannot update the question because a test session using it is currently in progress."
 }
