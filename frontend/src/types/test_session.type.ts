@@ -25,3 +25,12 @@ export type GetTestSessionHistoryResponse =
 
 export type GetTestSessionByIdResponse =
   paths["/test-sessions/{id}"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export type GetTestSessionHistoryDetailResponse =
+  paths["/test-sessions/{id}/history"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export type GetAllTestSessionsAdminResponse =
+  paths["/test-sessions/admin/all"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export type GetTestSessionDetailAdminResponse =
+  paths["/test-sessions/admin/{id}"]["get"]["responses"]["200"]["content"]["application/json"];

@@ -1,0 +1,15 @@
+{
+  "title": "Danh sách bài thi học viên",
+  "student": "Học viên",
+  "test": "Đề thi",
+  "status": "Trạng thái",
+  "score": "Điểm",
+  "submitted_at": "Nộp lúc",
+  "action": "Hành động",
+  "view_detail": "Xem chi tiết",
+  "SUBMITTED": "Đã nộp",
+  "IN_PROGRESS": "Đang làm",
+  "PENDING": "Chờ xử lý",
+  "CANCELLED": "Đã hủy",
+  "DEFAULT": "Không xác định"
+}

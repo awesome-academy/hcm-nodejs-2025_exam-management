@@ -1,0 +1,14 @@
+{
+  "test_history": "Lịch sử bài thi",
+  "score": "Điểm số",
+  "points": "điểm",
+  "submitted_at": "Thời gian nộp",
+  "status": "Trạng thái",
+  "status_submitted": "Đã nộp",
+  "status_not_submitted": "Chưa nộp",
+  "loading_test": "Đang tải lịch sử bài thi...",
+  "load_result_failed": "Tải lịch sử thất bại!",
+  "no_data": "Không có dữ liệu",
+  "no_test_title": "Bài thi không tên",
+  "no_user_answers": "Chưa có câu trả lời"
+}

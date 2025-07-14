@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   Card,
   Typography,
@@ -10,9 +10,14 @@ import {
   message,
   Row,
   Col,
+  Button,
 } from "antd";
-import { getTestSessionById } from "../../services/test_sessionService";
+import {
+  getTestSessionById,
+  getTestSessionHistoryDetail,
+} from "../../services/test_sessionService";
 import type { TestSessionSerializer } from "../../types/test_session.type";
+import type { AnswerWithOriginal } from "../../types/answer.type";
 import { useTranslation } from "react-i18next";
 import "../../styles/DoTest.css";
 
@@ -20,21 +25,28 @@ const { Title, Paragraph, Text } = Typography;
 
 const TestResult: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation("dotest");
 
   const [session, setSession] = useState<TestSessionSerializer | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const searchParams = new URLSearchParams(location.search);
+  const isFromHistory = searchParams.get("fromHistory") === "true";
+
   const fetchSession = useCallback(async () => {
     try {
-      const res = await getTestSessionById(Number(sessionId));
+      const res = isFromHistory
+        ? await getTestSessionHistoryDetail(Number(sessionId))
+        : await getTestSessionById(Number(sessionId));
       setSession(res.data ?? null);
     } catch {
       message.error(t("load_result_failed"));
     } finally {
       setLoading(false);
     }
-  }, [sessionId, t]);
+  }, [sessionId, t, isFromHistory]);
 
   useEffect(() => {
     if (sessionId) fetchSession();
@@ -52,7 +64,7 @@ const TestResult: React.FC = () => {
   const totalQuestions = session.user_answers.length;
   const score = session.score ?? 0;
   const totalScore = session.user_answers.reduce(
-    (sum, ua) => sum + (ua.question.points ?? 0),
+    (sum, ua) => sum + (ua.question?.points ?? 0),
     0
   );
 
@@ -62,6 +74,14 @@ const TestResult: React.FC = () => {
     <div className="test-layout">
       {/* LEFT: Question Area */}
       <div className="question-area">
+        <Button
+          type="default"
+          onClick={() => navigate(isFromHistory ? "/history" : "/dotest")}
+          style={{ marginBottom: 16 }}
+        >
+          ← {t("back")}
+        </Button>
+
         <Title level={2}>{t("result_title", { title: testTitle })}</Title>
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -82,8 +102,15 @@ const TestResult: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
           {session.user_answers.map((item, index) => {
             const q = item.question;
-            const correctAnswerId = q.answers.find((a) => a.is_correct)?.id;
-            const selectedAnswerId = item.answer_id;
+            const answers = (q.answers || []) as AnswerWithOriginal[];
+
+            const selectedAnswer = answers.find(
+              (a) => a.id === item.answer_id || a.original_id === item.answer_id
+            );
+            const selectedAnswerId = selectedAnswer?.id;
+
+            const correctAnswer = answers.find((a) => a.is_correct);
+            const correctAnswerId = correctAnswer?.id;
 
             return (
               <Card
@@ -99,7 +126,7 @@ const TestResult: React.FC = () => {
                   value={selectedAnswerId}
                   style={{ display: "flex", flexDirection: "column", gap: 8 }}
                 >
-                  {q.answers.map((answer, i) => {
+                  {answers.map((answer, i) => {
                     const isSelected = selectedAnswerId === answer.id;
                     const isCorrect = answer.id === correctAnswerId;
 
@@ -135,6 +162,21 @@ const TestResult: React.FC = () => {
                     );
                   })}
                 </Radio.Group>
+
+                {!selectedAnswer && (
+                  <Text type="secondary" italic>
+                    {t("no_answer_selected")}
+                  </Text>
+                )}
+
+                {correctAnswer?.explanation && (
+                  <Paragraph style={{ marginTop: 12 }}>
+                    <Text strong style={{ color: "#28a745" }}>
+                      {t("explanation")}:
+                    </Text>{" "}
+                    {correctAnswer.explanation}
+                  </Paragraph>
+                )}
               </Card>
             );
           })}
