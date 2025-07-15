@@ -6,12 +6,18 @@
 }
 
 .supervisor-sider {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 220px; /* đúng với prop width bạn set trong JSX */
   background-color: #fff;
   border-right: 1px solid #f0f0f0;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
   overflow-y: auto;
-  overflow-x: hidden;
+  z-index: 100;
 }
+
 
 .supervisor-sider-title {
   color: #000000;
@@ -26,6 +32,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-left: 220px;
   overflow: hidden;
 }
 
@@ -60,3 +67,5 @@
   background-color: #e6f7ff !important;
   font-weight: 600;
 }
+
+

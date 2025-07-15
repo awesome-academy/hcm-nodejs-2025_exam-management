@@ -1,0 +1,15 @@
+{
+  "title": "Test Sessions List",
+  "student": "Student",
+  "test": "Test",
+  "status": "Status",
+  "score": "Score",
+  "submitted_at": "Submitted At",
+  "action": "Action",
+  "view_detail": "View Detail",
+  "SUBMITTED": "Submitted",
+  "IN_PROGRESS": "In Progress",
+  "PENDING": "Pending",
+  "CANCELLED": "Cancelled",
+  "DEFAULT": "Unknown"
+}

@@ -1,0 +1,14 @@
+{
+  "test_history": "Test History",
+  "score": "Score",
+  "points": "points",
+  "submitted_at": "Submitted at",
+  "status": "Status",
+  "status_submitted": "Submitted",
+  "status_not_submitted": "Not Submitted",
+  "loading_test": "Loading test history...",
+  "load_result_failed": "Failed to load test history!",
+  "no_data": "No data",
+  "no_test_title": "Untitled Test",
+  "no_user_answers": "No answers submitted"
+}

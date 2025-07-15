@@ -20,10 +20,13 @@ import {
   ApiResponseDataArray,
 } from '@/common/decorators/api-response.decorator';
 import { ApiTags, ApiExtraModels } from '@nestjs/swagger';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from '@/common/enums/role.enum';
+import { Role } from '@/common/decorators/role.decorator';
 
 @ApiTags('Test Session')
 @ApiExtraModels(TestSessionSerializer)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('test-sessions')
 export class TestSessionController {
   constructor(private readonly testSessionService: TestSessionService) {}
@@ -53,10 +56,33 @@ export class TestSessionController {
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
+  @Get(':id/history')
+  @ApiResponseData(TestSessionSerializer)
+  async findByIdRaw(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const data = await this.testSessionService.getSessionByIdRaw(id, req.user);
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
   @Get(':id')
   @ApiResponseData(TestSessionSerializer)
   async findById(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     const data = await this.testSessionService.getSessionById(id, req.user);
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  @Get('suppervisor/all')
+  @Role(UserRole.SUPPERVISOR)
+  @ApiResponseDataArray(TestSessionSerializer)
+  async findAllAdmin() {
+    const data = await this.testSessionService.getAllSessionsForAdmin();
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  @Get('suppervisor/:id')
+  @Role(UserRole.SUPPERVISOR)
+  @ApiResponseData(TestSessionSerializer)
+  async findDetailAdmin(@Param('id', ParseIntPipe) id: number) {
+    const data = await this.testSessionService.getSessionDetailByAdmin(id);
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }

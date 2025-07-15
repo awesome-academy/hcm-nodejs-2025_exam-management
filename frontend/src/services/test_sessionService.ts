@@ -6,6 +6,9 @@ import type {
   SubmitTestSessionResponse,
   GetTestSessionHistoryResponse,
   GetTestSessionByIdResponse,
+  GetTestSessionHistoryDetailResponse,
+  GetAllTestSessionsAdminResponse,
+  GetTestSessionDetailAdminResponse,
 } from "../types/test_session.type";
 import { handleAxiosError } from "../utils/handleError";
 
@@ -42,6 +45,19 @@ export const getTestSessionHistory =
     }
   };
 
+//  Dùng cho kết quả từ lịch sử (không lọc câu bị ẩn)
+export const getTestSessionHistoryDetail = async (
+  id: number
+): Promise<GetTestSessionHistoryDetailResponse> => {
+  try {
+    const res = await api.get(`/test-sessions/${id}/history`);
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "test_session.get_history_detail_failed");
+  }
+};
+
+//  Dùng cho kết quả ngay sau khi submit (có lọc câu bị xóa)
 export const getTestSessionById = async (
   id: number
 ): Promise<GetTestSessionByIdResponse> => {
@@ -50,5 +66,28 @@ export const getTestSessionById = async (
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "test_session.get_by_id_failed");
+  }
+};
+
+// Lấy toàn bộ bài thi (admin)
+export const getAllTestSessionsAdmin =
+  async (): Promise<GetAllTestSessionsAdminResponse> => {
+    try {
+      const res = await api.get("/test-sessions/suppervisor/all");
+      return res.data;
+    } catch (err) {
+      throw handleAxiosError(err, "test_session.admin_get_all_failed");
+    }
+  };
+
+// Lấy chi tiết bài thi bất kỳ (admin)
+export const getTestSessionDetailAdmin = async (
+  id: number
+): Promise<GetTestSessionDetailAdminResponse> => {
+  try {
+    const res = await api.get(`/test-sessions/suppervisor/${id}`);
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "test_session.admin_get_detail_failed");
   }
 };

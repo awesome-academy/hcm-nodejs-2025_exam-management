@@ -324,6 +324,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/test-sessions/{id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestSessionController_findByIdRaw"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/test-sessions/{id}": {
         parameters: {
             query?: never;
@@ -332,6 +348,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["TestSessionController_findById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions/admin/all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestSessionController_findAllAdmin"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-sessions/admin/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["TestSessionController_findDetailAdmin"];
         put?: never;
         post?: never;
         delete?: never;
@@ -377,6 +425,10 @@ export interface components {
             question: components["schemas"]["QuestionSerializer"];
             answer?: components["schemas"]["AnswerSerializer"];
             grader?: components["schemas"]["UserSerializer"];
+            question_text_snapshot?: string;
+            answer_text_snapshot?: string;
+            answer_is_correct_snapshot?: boolean;
+            question_answers_snapshot?: Record<string, never>[];
         };
         AnswerSerializer: {
             id: number;
@@ -1482,7 +1534,92 @@ export interface operations {
             };
         };
     };
+    TestSessionController_findByIdRaw: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
     TestSessionController_findById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_findAllAdmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_findDetailAdmin: {
         parameters: {
             query?: never;
             header?: never;

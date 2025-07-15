@@ -22,5 +22,8 @@
   "load_result_failed": "Failed to load test result.",
   "user": "User:",
   "submitted_at": "Submitted At:",
-  "unknown_user": "Unknown user"
+  "unknown_user": "Unknown user",
+  "explanation": "Explanation",
+  "score": "Score",
+  "back": "Back"
 }

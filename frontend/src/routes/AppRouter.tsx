@@ -58,10 +58,7 @@ const AppRouter = () => {
               />
 
               <Route path="/suppervisor/tests" element={<TestReviewList />} />
-              <Route
-                path="/suppervisor/tests/:id"
-                element={<TestReviewDetail />}
-              />
+              <Route path="/suppervisor/tests/:sessionId" element={<TestReviewDetail />} />
             </Route>
           </Route>
 

@@ -39,6 +39,9 @@ export class TestSessionService extends BaseService {
     super(i18n, context);
   }
 
+  /**
+   * Tạo một phiên làm bài mới (nếu chưa tồn tại).
+   */
   async createSession(
     dto: CreateTestSessionDto,
     user: { id: number },
@@ -79,6 +82,9 @@ export class TestSessionService extends BaseService {
     }
   }
 
+  /**
+   * Nộp bài thi, chấm điểm tự động và lưu snapshot.
+   */
   async submitSession(
     id: number,
     dto: SubmitTestSessionDto,
@@ -96,6 +102,7 @@ export class TestSessionService extends BaseService {
         );
       }
 
+      // Lấy danh sách câu hỏi đang active của đề thi
       const testQuestions = await this.dataSource
         .getRepository(TestQuestion)
         .find({
@@ -103,18 +110,19 @@ export class TestSessionService extends BaseService {
             test_id: session.test_id,
             question: { is_active: true },
           },
-          relations: ['question'],
+          relations: ['question', 'question.answers'],
         });
 
       const allQuestions = testQuestions.map((tq) => tq.question);
       const allQuestionIds = allQuestions.map((q) => q.id);
 
+      // Lấy danh sách đáp án người dùng đã chọn, chỉ lấy những đáp án active
       const answers = await this.answerRepo.find({
         where: {
           id: In(dto.answers.map((a) => a.answerId)),
           is_active: true,
         },
-        relations: ['question'],
+        relations: ['question', 'question.answers'],
       });
 
       const answerMap = new Map<number, Answer>();
@@ -124,6 +132,7 @@ export class TestSessionService extends BaseService {
       const userAnswersToSave: UserAnswer[] = [];
       const answeredQuestions = new Set<number>();
 
+      // Duyệt từng câu trả lời hợp lệ và tính điểm
       for (const item of dto.answers) {
         const answer = answerMap.get(item.answerId);
         const isValid = answer && answer.question?.id === item.questionId;
@@ -133,33 +142,59 @@ export class TestSessionService extends BaseService {
         const isCorrect = answer.is_correct;
         const points = isCorrect ? (answer.question.points ?? 0) : 0;
 
-        const userAnswer = this.userAnswerRepo.create({
-          session_id: session.id,
-          question_id: item.questionId,
-          answer_id: item.answerId,
-          is_correct: isCorrect,
-          points_earned: points,
-        });
+        userAnswersToSave.push(
+          this.userAnswerRepo.create({
+            session_id: session.id,
+            question_id: item.questionId,
+            answer_id: item.answerId,
+            is_correct: isCorrect,
+            points_earned: points,
+            question_text_snapshot: answer.question.question_text,
+            answer_text_snapshot: answer.answer_text,
+            answer_is_correct_snapshot: answer.is_correct,
+            question_answers_snapshot: answer.question.answers
+              .filter((a) => a.is_active)
+              .map((a) => ({
+                id: a.id,
+                original_id: a.id,
+                answer_text: a.answer_text,
+                is_correct: a.is_correct,
+                explanation: a.explanation,
+              })),
+          }),
+        );
 
-        userAnswersToSave.push(userAnswer);
         if (isCorrect) totalScore += points;
         answeredQuestions.add(item.questionId);
       }
 
+      // Tạo UserAnswer cho các câu không trả lời
       for (const qid of allQuestionIds) {
         if (answeredQuestions.has(qid)) continue;
 
-        const userAnswer = this.userAnswerRepo.create({
-          session_id: session.id,
-          question_id: qid,
-          answer_id: null,
-          is_correct: false,
-          points_earned: 0,
-        });
-
-        userAnswersToSave.push(userAnswer);
+        const question = allQuestions.find((q) => q.id === qid);
+        userAnswersToSave.push(
+          this.userAnswerRepo.create({
+            session_id: session.id,
+            question_id: qid,
+            answer_id: null,
+            is_correct: false,
+            points_earned: 0,
+            question_text_snapshot: question?.question_text ?? '',
+            question_answers_snapshot: question?.answers
+              ?.filter((a) => a.is_active)
+              .map((a) => ({
+                id: a.id,
+                original_id: a.id,
+                answer_text: a.answer_text,
+                is_correct: a.is_correct,
+                explanation: a.explanation,
+              })),
+          }),
+        );
       }
 
+      // Lưu tất cả UserAnswer và cập nhật trạng thái phiên làm bài
       await this.userAnswerRepo.save(userAnswersToSave);
 
       session.score = totalScore;
@@ -182,13 +217,16 @@ export class TestSessionService extends BaseService {
     }
   }
 
+  /**
+   * Lấy danh sách lịch sử làm bài của người dùng.
+   */
   async getSessionHistory(user: {
     id: number;
   }): Promise<TestSessionSerializer[]> {
     try {
       const sessions = await this.testSessionRepo.find({
         where: { user_id: user.id },
-        relations: ['test'],
+        relations: ['test', 'user_answers', 'user_answers.question'],
         order: { submitted_at: 'DESC' },
       });
 
@@ -201,6 +239,64 @@ export class TestSessionService extends BaseService {
     }
   }
 
+  /**
+   * Lấy chi tiết phiên làm bài kèm snapshot đúng lúc làm bài.
+   */
+  async getSessionByIdRaw(
+    id: number,
+    user: { id: number },
+  ): Promise<TestSessionSerializer> {
+    const session = await this.testSessionRepo.findOne({
+      where: { id, user_id: user.id },
+      relations: [
+        'test',
+        'user_answers',
+        'user_answers.question',
+        'user_answers.answer',
+      ],
+    });
+
+    if (!session) {
+      throw new NotFoundException(
+        await this.t('test_session.not_found_or_unauthorized'),
+      );
+    }
+
+    if (session.user_answers) {
+      session.user_answers = session.user_answers.filter(
+        (ua) =>
+          ua.question?.is_active &&
+          (ua.answer === null || ua.answer?.is_active),
+      );
+
+      for (const ua of session.user_answers) {
+        const snapshot = ua.question_answers_snapshot;
+
+        if (snapshot) {
+          // Gán lại đáp án từ snapshot
+          ua.question.answers = snapshot;
+
+          // Gán lại đáp án đã chọn từ snapshot
+          const match = snapshot.find(
+            (ans) =>
+              ans.original_id === ua.answer_id || ans.id === ua.answer_id,
+          );
+          ua.answer = match ?? null;
+        } else {
+          // Nếu không có snapshot, fallback về các đáp án còn active
+          ua.question.answers = ua.question.answers?.filter((a) => a.is_active);
+        }
+      }
+    }
+
+    return plainToInstance(TestSessionSerializer, session, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * Lấy chi tiết phiên làm bài cho màn hình kết quả (không dùng snapshot).
+   */
   async getSessionById(
     id: number,
     user: { id: number },
@@ -233,6 +329,74 @@ export class TestSessionService extends BaseService {
           ua.question.answers = ua.question.answers.filter(
             (ans) => ans.is_active,
           );
+        }
+      }
+    }
+
+    return plainToInstance(TestSessionSerializer, session, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * Lấy tất cả phiên làm bài của tất cả học viên.
+   */
+  async getAllSessionsForAdmin(): Promise<TestSessionSerializer[]> {
+    try {
+      const sessions = await this.testSessionRepo.find({
+        relations: ['test', 'user', 'user_answers'],
+        order: { submitted_at: 'DESC' },
+      });
+
+      return plainToInstance(TestSessionSerializer, sessions, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(
+        await this.t('test_session.fetch_failed_for_admin'),
+      );
+    }
+  }
+  /**
+   * Xem chi tiết một phiên làm bài bất kỳ (dùng snapshot).
+   */
+  async getSessionDetailByAdmin(id: number): Promise<TestSessionSerializer> {
+    const session = await this.testSessionRepo.findOne({
+      where: { id },
+      relations: [
+        'test',
+        'user',
+        'user_answers',
+        'user_answers.question',
+        'user_answers.answer',
+      ],
+    });
+
+    if (!session) {
+      throw new NotFoundException(await this.t('test_session.not_found'));
+    }
+
+    if (session.user_answers) {
+      session.user_answers = session.user_answers.filter(
+        (ua) =>
+          ua.question?.is_active &&
+          (ua.answer === null || ua.answer?.is_active),
+      );
+
+      for (const ua of session.user_answers) {
+        const snapshot = ua.question_answers_snapshot;
+
+        if (snapshot) {
+          ua.question.answers = snapshot;
+
+          const match = snapshot.find(
+            (ans) =>
+              ans.original_id === ua.answer_id || ans.id === ua.answer_id,
+          );
+          ua.answer = match ?? null;
+        } else {
+          ua.question.answers = ua.question.answers?.filter((a) => a.is_active);
         }
       }
     }

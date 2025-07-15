@@ -22,5 +22,8 @@
   "load_result_failed": "Không thể tải kết quả bài thi.",
   "user": "Người làm:",
   "submitted_at": "Thời gian nộp:",
-  "unknown_user": "Không xác định"
+  "unknown_user": "Không xác định",
+  "explanation": "Giải thích",
+  "score": "Điểm",
+  "back": "Quay lại"
 }
