@@ -7,9 +7,10 @@ import type {
 } from "../types/test.type";
 import { handleAxiosError } from "../utils/handleError";
 
-export const getAllTests = async (
-  filters?: { subject_id?: number; is_published?: boolean }
-): Promise<TestResponseAll> => {
+export const getAllTests = async (filters?: {
+  subject_id?: number;
+  is_published?: boolean;
+}): Promise<TestResponseAll> => {
   try {
     const res = await api.get("/tests", {
       params: filters,
@@ -19,7 +20,6 @@ export const getAllTests = async (
     throw handleAxiosError(err, "test.fetch_all_failed");
   }
 };
-
 
 export const getTestById = async (id: number): Promise<TestResponseSingle> => {
   try {

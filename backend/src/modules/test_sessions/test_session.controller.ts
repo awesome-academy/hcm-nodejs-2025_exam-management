@@ -23,14 +23,23 @@ import { ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UserRole } from '@/common/enums/role.enum';
 import { Role } from '@/common/decorators/role.decorator';
+import {
+  TestSessionQuestionSerializer,
+  AnswerSnapshotSerializer,
+} from '../test_session_questions/serializers/test_session_question.serializer';
 
 @ApiTags('Test Session')
-@ApiExtraModels(TestSessionSerializer)
+@ApiExtraModels(
+  TestSessionSerializer,
+  TestSessionQuestionSerializer,
+  AnswerSnapshotSerializer,
+)
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('test-sessions')
 export class TestSessionController {
   constructor(private readonly testSessionService: TestSessionService) {}
 
+  //Tạo một phiên làm bài mới (test session)
   @Post()
   @ApiResponseData(TestSessionSerializer)
   async create(@Body() dto: CreateTestSessionDto, @Req() req: any) {
@@ -38,6 +47,7 @@ export class TestSessionController {
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
+  //Nộp bài thi (submit test session)
   @Post(':id/submit')
   @ApiResponseData(TestSessionSerializer)
   async submit(
@@ -49,20 +59,7 @@ export class TestSessionController {
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
-  @Get('history/me')
-  @ApiResponseDataArray(TestSessionSerializer)
-  async history(@Req() req: any) {
-    const data = await this.testSessionService.getSessionHistory(req.user);
-    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
-  }
-
-  @Get(':id/history')
-  @ApiResponseData(TestSessionSerializer)
-  async findByIdRaw(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    const data = await this.testSessionService.getSessionByIdRaw(id, req.user);
-    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
-  }
-
+  // User xem chi tiết bài thi sau khi thi
   @Get(':id')
   @ApiResponseData(TestSessionSerializer)
   async findById(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
@@ -70,6 +67,15 @@ export class TestSessionController {
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
+  // Lấy tất cả lịch sử bài thi của user
+  @Get('history/me')
+  @ApiResponseDataArray(TestSessionSerializer)
+  async history(@Req() req: any) {
+    const data = await this.testSessionService.getSessionHistory(req.user);
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  // Láy tất cả lịch sử bài thi của tất cả học viên
   @Get('suppervisor/all')
   @Role(UserRole.SUPPERVISOR)
   @ApiResponseDataArray(TestSessionSerializer)
@@ -78,11 +84,33 @@ export class TestSessionController {
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
-  @Get('suppervisor/:id')
+  // Supervisor xem chi tiết một bài thi user trong lịch sử
+  @Get('raw/supervisor/:id')
   @Role(UserRole.SUPPERVISOR)
   @ApiResponseData(TestSessionSerializer)
-  async findDetailAdmin(@Param('id', ParseIntPipe) id: number) {
-    const data = await this.testSessionService.getSessionDetailByAdmin(id);
+  async findDetailRawByAdmin(@Param('id', ParseIntPipe) id: number) {
+    const data = await this.testSessionService.getSessionDetailRawByAdmin(id);
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  // User tự xem chi tiết một bài thi trong lịch sử
+  @Get('raw/:id')
+  @ApiResponseData(TestSessionSerializer)
+  async findDetailRawByUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
+  ) {
+    const data = await this.testSessionService.getSessionDetailRawByUser(
+      id,
+      req.user,
+    );
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  @Get(':id/questions')
+  @ApiResponseDataArray(TestSessionQuestionSerializer)
+  async getSessionQuestions(@Param('id', ParseIntPipe) id: number) {
+    const data = await this.testSessionService.getSessionQuestions(id);
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }

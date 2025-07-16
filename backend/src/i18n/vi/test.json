@@ -16,5 +16,10 @@
   "create_failed": "Tạo bài kiểm tra thất bại.",
   "update_failed": "Cập nhật bài kiểm tra thất bại.",
   "delete_failed": "Xóa bài kiểm tra thất bại.",
-  "deleted_success": "Xóa bài kiểm tra thành công."
+  "deleted_success": "Xóa bài kiểm tra thành công.",
+
+  "update_question_count_denied": "Không được phép cập nhật số lượng câu hỏi khi bài kiểm tra đã tồn tại.",
+  "update_denied_has_in_progress_session": "Không thể cập nhật bài kiểm tra khi có thí sinh đang làm bài.",
+  "update_denied_no_active_questions": "Không thể clone bài kiểm tra vì không có câu hỏi nào còn hoạt động.",
+  "confirm_clone_message": "Việc thay đổi môn học sẽ tạo ra một bản sao mới. Bạn có chắc chắn muốn tiếp tục không?"
 }

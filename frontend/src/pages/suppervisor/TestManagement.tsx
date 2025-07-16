@@ -9,8 +9,6 @@ import TestFormModal from "../../components/Tests/TestFormModal";
 import TestTable from "../../components/Tests/TestTable";
 import type { TestFormValues } from "../../types/test.type";
 
-import TestQuestionSection from "../../components/TestQuestion/TestQuestionSection";
-
 const TestManagement: React.FC = () => {
   const { t } = useTranslation("test");
   const [form] = Form.useForm();
@@ -22,13 +20,9 @@ const TestManagement: React.FC = () => {
 
   const { subjects } = useSubjects();
 
-  const [openTestQuestionTestId, setOpenTestQuestionTestId] = useState<
-    number | null
-  >(null);
-
-  const handleViewQuestions = (testId: number) => {
-    setOpenTestQuestionTestId(testId);
-  };
+  const [originalSubjectId, setOriginalSubjectId] = useState<number | null>(
+    null
+  );
 
   const {
     tests,
@@ -39,27 +33,31 @@ const TestManagement: React.FC = () => {
     onDelete,
     loadTests,
     loading,
+    questionStats,
+    fetchQuestionStats,
   } = useTests();
 
   // --- FILTER ---
   const handleFilter = async () => {
-    setOpenTestQuestionTestId(null);
     const values = filterForm.getFieldsValue();
     await loadTests(values);
   };
 
   const resetFilter = async () => {
-    setOpenTestQuestionTestId(null);
     filterForm.resetFields();
     await loadTests();
   };
 
   // --- CRUD ---
   const showModal = () => {
-    setOpenTestQuestionTestId(null);
     setIsEditMode(false);
     setIsModalVisible(true);
     form.resetFields();
+
+    const defaultSubjectId = subjects[0]?.id;
+    if (defaultSubjectId) {
+      fetchQuestionStats(defaultSubjectId); 
+    }
   };
 
   const handleCancel = () => {
@@ -68,15 +66,16 @@ const TestManagement: React.FC = () => {
   };
 
   const handleEdit = async (id: number) => {
-    setOpenTestQuestionTestId(null);
     setCurrentTestId(id);
     setIsEditMode(true);
-    await fetchTestById(id);
+    const test = await fetchTestById(id);
+    if (test) {
+      setOriginalSubjectId(test.subject_id);
+    }
     setIsModalVisible(true);
   };
 
   const handleDelete = async (id: number) => {
-    setOpenTestQuestionTestId(null);
     await onDelete(id);
     message.success(t("delete_success"));
   };
@@ -84,11 +83,25 @@ const TestManagement: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      // Kiểm tra nếu đang ở chế độ edit và môn học bị thay đổi
+      const shouldClone =
+        isEditMode &&
+        currentTestId &&
+        originalSubjectId !== null &&
+        values.subject_id !== originalSubjectId;
+
+      if (shouldClone) {
+        const confirmed = window.confirm(t("confirm_clone_message"));
+        if (!confirmed) return;
+      }
+
       if (isEditMode && currentTestId) {
         await onUpdate(currentTestId, values as TestFormValues);
       } else {
         await onCreate(values as TestFormValues);
       }
+
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -158,7 +171,6 @@ const TestManagement: React.FC = () => {
           onEdit={handleEdit}
           onDelete={handleDelete}
           loading={loading}
-          onViewQuestions={handleViewQuestions}
         />
       </Spin>
 
@@ -170,17 +182,12 @@ const TestManagement: React.FC = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
         subjects={subjects}
+        questionStats={questionStats ?? { easy: 0, medium: 0, hard: 0 }}
+        onSubjectChange={(subjectId) => {
+          fetchQuestionStats(subjectId);
+        }}
+        //  isLatest={isEditMode ? selectedTest?.is_latest ?? true : true}
       />
-      {openTestQuestionTestId !== null && (
-        <TestQuestionSection
-          testId={openTestQuestionTestId}
-          subjectId={
-            tests.find((t) => t.id === openTestQuestionTestId)?.subject_id ??
-            null
-          }
-          onClose={() => setOpenTestQuestionTestId(null)}
-        />
-      )}
     </Card>
   );
 };

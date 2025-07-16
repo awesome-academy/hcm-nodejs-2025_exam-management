@@ -4,7 +4,6 @@ import { Subject } from '@/modules/subjects/entities/subject.entity';
 import { Answer } from '@/modules/answers/entities/answer.entity';
 import { UserAnswer } from '@/modules/user_answers/entities/user_answer.entity';
 import { BaseEntity } from '@/common/entities/base.entity';
-import { TestQuestion } from '@/modules/test_questions/entities/test_question.entity';
 
 @Entity('questions')
 export class Question extends BaseEntity {
@@ -40,9 +39,9 @@ export class Question extends BaseEntity {
   @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.question)
   user_answers: UserAnswer[];
 
-  @OneToMany(() => TestQuestion, (testQuestion) => testQuestion.question)
-  test_questions: TestQuestion[];
-
   @Column({ default: true })
   is_active: boolean;
+
+  @Column({ default: 1 })
+  version: number;
 }

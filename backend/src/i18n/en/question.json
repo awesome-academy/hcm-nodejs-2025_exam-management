@@ -8,5 +8,9 @@
   "delete_denied_has_answers": "Cannot delete the question because it already has answers.",
   "delete_denied_has_user_answers": "Cannot delete the question because it has been answered by users.",
   "delete_denied_has_test_questions": "Cannot delete the question because it is assigned in a test.",
-  "update_denied_has_test_sessions": "Cannot update the question because a test session using it is currently in progress."
+  "update_denied_has_test_sessions": "Cannot update or delete the question because a test session using it is currently in progress.",
+  "multiple_choice_min_2_active": "Multiple choice questions must have at least 2 active answers.",
+  "multiple_choice_max_4_active": "Multiple choice questions can have a maximum of 4 active answers.",
+  "multiple_choice_only_1_correct": "Multiple choice questions must have exactly 1 correct answer.",
+  "correct_answer_must_be_active": "Correct answer must be active."
 }

@@ -29,5 +29,24 @@
   "action": "Hành động",
   "unknown": "Không rõ",
   "id": "Mã",
-  "passing_score_range": "Điểm đạt phải nằm trong khoảng từ 0 đến 100."
+  "passing_score_range": "Điểm đạt phải nằm trong khoảng từ 0 đến 100.",
+
+  "easy_question_count": "Số câu dễ",
+  "medium_question_count": "Số câu trung bình",
+  "hard_question_count": "Số câu khó",
+  "question_count_invalid": "Tổng số câu hỏi phải lớn hơn 0",
+  "not_enough_questions": "Không đủ câu hỏi theo yêu cầu ở mức độ này",
+  "is_active": "Hoạt động",
+  "total_questions": "Số câu hỏi",
+  "available": "Có sẵn",
+  "not_enough_easy_questions": "Không đủ câu hỏi dễ. Chỉ còn {{count}} câu.",
+  "not_enough_medium_questions": "Không đủ câu hỏi trung bình. Chỉ còn {{count}} câu.",
+  "not_enough_hard_questions": "Không đủ câu hỏi khó. Chỉ còn {{count}} câu.",
+  "version": "Phiên bản",
+  "latest": "Mới nhất",
+  "old_version": "Đã cũ",
+  "confirm_clone_message": "Việc thay đổi môn học sẽ tạo ra một bản sao mới của đề thi. Bạn có chắc chắn muốn tiếp tục?",
+  "status": "Trạng thái",
+  "is_latest": "Phiên bản mới nhất"
 }
+

@@ -28,6 +28,24 @@
   "reset": "Reset",
   "action": "Action",
   "unknown": "Unknown",
-  "id":"ID",
-  "passing_score_range": "Passing score must be between 0 and 100."
+  "id": "ID",
+  "passing_score_range": "Passing score must be between 0 and 100.",
+
+  "easy_question_count": "Easy question count",
+  "medium_question_count": "Medium question count",
+  "hard_question_count": "Hard question count",
+  "question_count_invalid": "Total question count must be greater than 0",
+  "not_enough_questions": "Not enough questions available for this difficulty level",
+  "is_active": "Active",
+  "total_questions": "Total Questions",
+  "available": "Available",
+  "not_enough_easy_questions": "Not enough easy questions. Only {{count}} available.",
+  "not_enough_medium_questions": "Not enough medium questions. Only {{count}} available.",
+  "not_enough_hard_questions": "Not enough hard questions. Only {{count}} available.",
+  "version": "Version",
+  "latest": "Latest",
+  "old_version": "Old Version",
+  "confirm_clone_message": "Changing the subject will create a new copy of this test. Are you sure you want to proceed?",
+  "status": "Status",
+  "is_latest": "Latest version"
 }

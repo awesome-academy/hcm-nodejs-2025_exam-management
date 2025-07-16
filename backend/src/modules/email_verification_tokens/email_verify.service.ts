@@ -103,7 +103,8 @@ export class EmailVerifyService extends BaseService {
 
   async sendVerificationEmail(email: string, token: string) {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: process.env.MAIL_HOST,
+      port: Number(process.env.MAIL_PORT),
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
