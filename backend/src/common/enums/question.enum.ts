@@ -1,10 +1,10 @@
 export enum QuestionType {
-  MultipleChoice = 'Trắc nghiệm',
-  Essay = 'Tự luận',
+  MULTIPLE_CHOICE = 'multiple_choice',
+  ESSAY = 'essay',
 }
 
 export enum DifficultyLevel {
-  Easy = 'Dễ',
-  Medium = 'Trung bình',
-  Hard = 'Khó',
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
 }

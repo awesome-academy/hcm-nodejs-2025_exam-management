@@ -32,5 +32,16 @@
   "close_answer_section": "Đóng phần đáp án",
   "status": "Trạng thái",
   "active": "Đang hoạt động",
-  "inactive": "Không hoạt động"
+  "inactive": "Không hoạt động",
+  "answers": "Danh sách đáp án",
+  "answer": "Đáp án",
+  "remove": "Xóa",
+  "answer_text": "Nội dung đáp án",
+  "answer_text_required": "Vui lòng nhập nội dung đáp án",
+  "is_correct": "Là đáp án đúng",
+  "explanation": "Giải thích",
+  "explanation_required": "Vui lòng nhập giải thích cho đáp án đúng",
+  "version": "Phiên bản",
+  "latest": "Mới nhất",
+  "old_version": "Đã cũ"
 }

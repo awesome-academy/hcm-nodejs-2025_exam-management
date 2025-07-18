@@ -1,7 +1,6 @@
 import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '@/modules/users/entities/user.entity';
 import { Subject } from '@/modules/subjects/entities/subject.entity';
-import { TestQuestion } from '@/modules/test_questions/entities/test_question.entity';
 import { TestSession } from '@/modules/test_sessions/entities/test_session.entity';
 import { BaseEntity } from '@/common/entities/base.entity';
 
@@ -29,15 +28,30 @@ export class Test extends BaseEntity {
   @Column({ default: false })
   is_published: boolean;
 
+  @Column({ default: 1, type: 'int' })
+  version: number;
+
+  @Column({ default: true })
+  is_latest: boolean;
+
+  @Column({ nullable: true, type: 'int' })
+  question_count: number;
+
+  @Column({ nullable: true, type: 'int' })
+  easy_question_count: number;
+
+  @Column({ nullable: true, type: 'int' })
+  medium_question_count: number;
+
+  @Column({ nullable: true, type: 'int' })
+  hard_question_count: number;
+
   @ManyToOne(() => User, (user) => user.tests)
   @JoinColumn({ name: 'creator_id' })
   creator: User;
 
   @Column()
   creator_id: number;
-
-  @OneToMany(() => TestQuestion, (testQuestion) => testQuestion.test)
-  test_questions: TestQuestion[];
 
   @OneToMany(() => TestSession, (testSession) => testSession.test)
   test_sessions: TestSession[];

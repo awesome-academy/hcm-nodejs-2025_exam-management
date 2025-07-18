@@ -16,5 +16,10 @@
   "create_failed": "Failed to create test.",
   "update_failed": "Failed to update test.",
   "delete_failed": "Failed to delete test.",
-  "deleted_success": "Test deleted successfully."
+  "deleted_success": "Test deleted successfully.",
+
+  "update_question_count_denied": "Cannot update question count fields once the test exists.",
+  "update_denied_has_in_progress_session": "Cannot update the test while there are users currently taking it.",
+  "update_denied_no_active_questions": "Cannot clone the test because there are no active questions.",
+  "confirm_clone_message": "Changing the subject will create a new copy. Are you sure you want to proceed?"
 }

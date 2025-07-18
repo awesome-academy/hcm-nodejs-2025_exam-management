@@ -2,7 +2,6 @@ import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserSerializer } from '@/modules/users/serializers/user.serializer';
 import { SubjectSerializer } from '@/modules/subjects/serializers/subject.serializer';
-import { TestQuestionSerializer } from '@/modules/test_questions/serializers/test_question.serializer';
 import { TestSessionSerializer } from '@/modules/test_sessions/serializers/test_session.serializer';
 
 export class TestSerializer {
@@ -36,6 +35,30 @@ export class TestSerializer {
 
   @ApiProperty()
   @Expose()
+  is_latest: boolean;
+
+  @ApiProperty()
+  @Expose()
+  version: number;
+
+  @ApiProperty()
+  @Expose()
+  question_count: number;
+
+  @ApiProperty()
+  @Expose()
+  easy_question_count: number;
+
+  @ApiProperty()
+  @Expose()
+  medium_question_count: number;
+
+  @ApiProperty()
+  @Expose()
+  hard_question_count: number;
+
+  @ApiProperty()
+  @Expose()
   creator_id: number;
 
   @ApiProperty({ type: () => UserSerializer })
@@ -47,11 +70,6 @@ export class TestSerializer {
   @Expose()
   @Type(() => SubjectSerializer)
   subject: SubjectSerializer;
-
-  @ApiProperty({ type: () => [TestQuestionSerializer] })
-  @Expose()
-  @Type(() => TestQuestionSerializer)
-  test_questions: TestQuestionSerializer[];
 
   @ApiProperty({ type: () => [TestSessionSerializer] })
   @Expose()

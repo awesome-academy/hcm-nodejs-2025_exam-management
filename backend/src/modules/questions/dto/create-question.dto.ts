@@ -5,9 +5,13 @@ import {
   IsIn,
   IsOptional,
   IsBoolean,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { QuestionType, DifficultyLevel } from '@/common/enums/question.enum';
+import { CreateAnswerDto } from '@/modules/answers/dto/create-answer.dto';
+import { Type } from 'class-transformer';
 
 export class CreateQuestionDto {
   @ApiProperty()
@@ -41,4 +45,10 @@ export class CreateQuestionDto {
   @IsOptional()
   @IsBoolean()
   is_active?: boolean;
+
+  @ApiProperty({ type: [CreateAnswerDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateAnswerDto)
+  answers: CreateAnswerDto[];
 }

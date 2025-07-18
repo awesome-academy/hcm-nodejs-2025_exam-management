@@ -8,5 +8,9 @@
   "delete_denied_has_answers": "Không thể xóa câu hỏi vì đã có câu trả lời.",
   "delete_denied_has_user_answers": "Không thể xóa câu hỏi vì đã được người dùng làm bài.",
   "delete_denied_has_test_questions": "Không thể xóa câu hỏi vì đang được sử dụng trong bài thi.",
-  "update_denied_has_test_sessions": "Không thể cập nhật câu hỏi vì có bài thi đang diễn ra sử dụng câu hỏi này."
+  "update_denied_has_test_sessions": "Không thể cập nhật hoặc xóa câu hỏi vì có bài thi đang diễn ra sử dụng câu hỏi này.",
+  "multiple_choice_min_2_active": "Câu hỏi trắc nghiệm phải có ít nhất 2 đáp án đang hoạt động.",
+  "multiple_choice_max_4_active": "Câu hỏi trắc nghiệm chỉ được có tối đa 4 đáp án đang hoạt động.",
+  "multiple_choice_only_1_correct": "Câu hỏi trắc nghiệm phải có đúng 1 đáp án đúng.",
+  "correct_answer_must_be_active": "Đáp án đúng phải là đáp án đang hoạt động."
 }

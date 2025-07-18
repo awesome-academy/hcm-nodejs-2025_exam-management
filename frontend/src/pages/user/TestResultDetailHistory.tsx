@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
   Typography,
@@ -7,45 +7,43 @@ import {
   Radio,
   Space,
   Alert,
-  message,
   Row,
   Col,
   Button,
+  message,
 } from "antd";
-import { getTestSessionById } from "../../services/test_sessionService";
-import type { TestSessionSerializer } from "../../types/test_session.type";
-import type { AnswerWithOriginal } from "../../types/answer.type";
+import { getTestSessionHistoryDetail } from "../../services/test_sessionService";
 import { useTranslation } from "react-i18next";
+import type { TestSessionSerializer } from "../../types/test_session.type";
 import "../../styles/DoTest.css";
 
 const { Title, Paragraph, Text } = Typography;
 
-const TestResult: React.FC = () => {
+const TestResultDetailHistory = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
-  const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation("dotest");
 
   const [session, setSession] = useState<TestSessionSerializer | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const searchParams = new URLSearchParams(location.search);
-  const isFromHistory = searchParams.get("fromHistory") === "true";
-
-  const fetchSession = useCallback(async () => {
-    try {
-      const res = await getTestSessionById(Number(sessionId));
-      setSession(res.data ?? null);
-    } catch {
-      message.error(t("load_result_failed"));
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId, t]);
-
   useEffect(() => {
-    if (sessionId) fetchSession();
-  }, [sessionId, fetchSession]);
+    const fetchDetail = async () => {
+      try {
+        const res = await getTestSessionHistoryDetail(Number(sessionId));
+        if (res.data) {
+          setSession(res.data);
+        } else {
+          message.error(t("load_result_failed"));
+        }
+      } catch {
+        message.error(t("load_result_failed"));
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (sessionId) fetchDetail();
+  }, [sessionId, t]);
 
   if (loading || !session) {
     return (
@@ -55,22 +53,26 @@ const TestResult: React.FC = () => {
     );
   }
 
-  const correctCount = session.user_answers.filter((a) => a.is_correct).length;
-  const totalQuestions = session.user_answers.length;
+  const correctCount = session.test_session_questions.filter((tsq) => {
+    const correctAnswer = tsq.answers_snapshot?.find((a) => a.is_correct);
+    return tsq.user_answer?.answer_id === correctAnswer?.id;
+  }).length;
+
+  const totalQuestions = session.test_session_questions.length;
   const score = session.score ?? 0;
-  const totalScore = session.user_answers.reduce(
-    (sum, ua) => sum + (ua.question?.points ?? 0),
+  const totalScore = session.test_session_questions.reduce(
+    (sum, tsq) => sum + (tsq.question?.points ?? 0),
     0
   );
 
-  const testTitle = session.test.title;
+  const testTitle = session.test?.title || "";
 
   return (
     <div className="test-layout">
       <div className="question-area">
         <Button
           type="default"
-          onClick={() => navigate(isFromHistory ? "/history" : "/dotest")}
+          onClick={() => navigate("/history")}
           style={{ marginBottom: 16 }}
         >
           ← {t("back")}
@@ -94,26 +96,20 @@ const TestResult: React.FC = () => {
         </Row>
 
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          {session.user_answers.map((item, index) => {
-            const q = item.question;
-            const answers = (q.answers || []) as AnswerWithOriginal[];
-
-            const selectedAnswer = answers.find(
-              (a) => a.id === item.answer_id || a.original_id === item.answer_id
-            );
-            const selectedAnswerId = selectedAnswer?.id;
-
+          {session.test_session_questions.map((tsq, index) => {
+            const question = tsq.question;
+            const answers = tsq.answers_snapshot ?? [];
+            const selectedAnswerId = tsq.user_answer?.answer_id;
             const correctAnswer = answers.find((a) => a.is_correct);
-            const correctAnswerId = correctAnswer?.id;
 
             return (
               <Card
-                key={q.id}
+                key={tsq.id}
                 title={`${t("question_number", { index: index + 1 })}`}
                 className="quiz-question-card"
               >
                 <Paragraph className="question-text">
-                  {q.question_text}
+                  {question?.question_text}
                 </Paragraph>
 
                 <Radio.Group
@@ -122,7 +118,7 @@ const TestResult: React.FC = () => {
                 >
                   {answers.map((answer, i) => {
                     const isSelected = selectedAnswerId === answer.id;
-                    const isCorrect = answer.id === correctAnswerId;
+                    const isCorrect = answer.is_correct;
 
                     let backgroundColor = "";
                     if (isSelected && isCorrect) backgroundColor = "#d4edda";
@@ -157,7 +153,7 @@ const TestResult: React.FC = () => {
                   })}
                 </Radio.Group>
 
-                {!selectedAnswer && (
+                {!selectedAnswerId && (
                   <Text type="secondary" italic>
                     {t("no_answer_selected")}
                   </Text>
@@ -199,4 +195,4 @@ const TestResult: React.FC = () => {
   );
 };
 
-export default TestResult;
+export default TestResultDetailHistory;

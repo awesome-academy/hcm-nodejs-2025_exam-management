@@ -12,7 +12,6 @@ import viSubject from "./vi/subject.json";
 import viQuestion from "./vi/question.json";
 import viAnswer from "./vi/answer.json";
 import viTest from "./vi/test.json";
-import viTestQuesiton from "./vi/test_question.json";
 import viDoTest from "./vi/dotest.json";
 import viTestHistory from "./vi/test_history.json";
 import viTestList from "./vi/testList.json";
@@ -27,7 +26,6 @@ import enSubject from "./en/subject.json";
 import enQuestion from "./en/question.json";
 import enAnswer from "./en/answer.json";
 import enTest from "./en/test.json";
-import enTestQuestion from "./en/test_question.json";
 import enDoTest from "./en/dotest.json";
 import enTestHistory from "./en/test_history.json";
 import enTestList from "./en/testList.json";
@@ -48,7 +46,6 @@ i18n
         question: viQuestion,
         answer: viAnswer,
         test: viTest,
-        test_question: viTestQuesiton,
         dotest: viDoTest,
         test_history: viTestHistory,
         testList: viTestList,
@@ -64,7 +61,6 @@ i18n
         question: enQuestion,
         answer: enAnswer,
         test: enTest,
-        test_question: enTestQuestion,
         dotest: enDoTest,
         test_history: enTestHistory,
         testList: enTestList,
@@ -82,7 +78,6 @@ i18n
       "question",
       "answer",
       "test",
-      "test_question",
       "dotest",
       "test_history",
       "testList",

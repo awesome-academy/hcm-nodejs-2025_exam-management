@@ -61,20 +61,4 @@ export class UserAnswerSerializer {
   @Expose()
   @Type(() => UserSerializer)
   grader?: UserSerializer;
-
-  @ApiProperty({ required: false })
-  @Expose()
-  question_text_snapshot?: string;
-
-  @ApiProperty({ required: false })
-  @Expose()
-  answer_text_snapshot?: string;
-
-  @ApiProperty({ required: false })
-  @Expose()
-  answer_is_correct_snapshot?: boolean;
-
-  @ApiProperty({ required: false, type: [Object] })
-  @Expose()
-  question_answers_snapshot?: any[];
 }

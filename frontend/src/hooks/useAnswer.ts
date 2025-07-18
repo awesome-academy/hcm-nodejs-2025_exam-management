@@ -3,16 +3,11 @@ import {
   getAnswersByQuestion,
   updateAnswer,
   deleteAnswer,
-  deleteAnswersByQuestion,
-  createBulkAnswers,
+  createAnswer,
 } from "../services/answerService";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import type {
-  AnswerSerializer,
-  UpdateAnswerFormValues,
-  CreateBulkAnswerFormValues,
-} from "../types/answer.type";
+import type { AnswerSerializer, AnswerFormValues } from "../types/answer.type";
 import { useAuth } from "./useAuth";
 
 export const useAnswers = (questionId: number | null) => {
@@ -37,7 +32,7 @@ export const useAnswers = (questionId: number | null) => {
     }
   }, [questionId]);
 
-  const onUpdate = async (id: number, values: UpdateAnswerFormValues) => {
+  const onUpdate = async (id: number, values: AnswerFormValues) => {
     try {
       await updateAnswer(id, values);
       toast.success(t("update_success"));
@@ -61,23 +56,10 @@ export const useAnswers = (questionId: number | null) => {
     }
   };
 
-  const onDeleteAllByQuestion = async () => {
+  const onCreate = async (values: AnswerFormValues) => {
     if (!questionId) return false;
     try {
-      await deleteAnswersByQuestion(questionId);
-      toast.success(t("delete_all_success"));
-      await loadAnswers();
-      return true;
-    } catch (err) {
-      toast.error((err as Error).message);
-      return false;
-    }
-  };
-
-  const onCreateBulk = async (values: CreateBulkAnswerFormValues) => {
-    if (!questionId) return false;
-    try {
-      await createBulkAnswers(questionId, values);
+      await createAnswer(questionId, values);
       toast.success(t("create_bulk_success"));
       await loadAnswers();
       return true;
@@ -101,7 +83,6 @@ export const useAnswers = (questionId: number | null) => {
     loadAnswers,
     onUpdate,
     onDelete,
-    onDeleteAllByQuestion,
-    onCreateBulk,
+    onCreate,
   };
 };

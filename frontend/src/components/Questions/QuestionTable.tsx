@@ -22,9 +22,9 @@ const QuestionTable: React.FC<Props> = ({
   data,
   onEdit,
   onDelete,
-  onAddAnswer,
   loading,
   onTableChange,
+  onAddAnswer,
 }) => {
   const { t } = useTranslation("question");
 
@@ -49,7 +49,7 @@ const QuestionTable: React.FC<Props> = ({
       title: t("question_type"),
       dataIndex: "question_type",
       key: "question_type",
-      render: (type) => <Tag>{type}</Tag>,
+      render: (type) => <Tag>{t(type)}</Tag>,
     },
     { title: t("points"), dataIndex: "points", key: "points" },
     {
@@ -60,9 +60,14 @@ const QuestionTable: React.FC<Props> = ({
         <Tag
           color={lvl === "hard" ? "red" : lvl === "medium" ? "orange" : "green"}
         >
-          {lvl}
+          {t(lvl)}
         </Tag>
       ),
+    },
+    {
+      title: t("version"),
+      dataIndex: "version",
+      key: "version",
     },
     {
       title: t("status"),
@@ -73,7 +78,6 @@ const QuestionTable: React.FC<Props> = ({
         </Tag>
       ),
     },
-
     {
       title: t("action"),
       key: "actions",

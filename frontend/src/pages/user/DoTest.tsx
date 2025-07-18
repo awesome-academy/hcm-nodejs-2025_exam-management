@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -34,20 +34,17 @@ const DoTest: React.FC = () => {
     startedAt,
     isSubmitting,
     handleFinish,
-    loadDoingTestQuestions,
+    testDetail,
   } = useTestSession(testId, t);
-
-  useEffect(() => {
-    loadDoingTestQuestions();
-  }, [loadDoingTestQuestions]);
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const testDuration = testQuestions[0]?.test?.time_limit || 15;
+  const testDuration = testDetail?.time_limit ?? 15;
+  const testTitle = testDetail?.title ?? `Đề số ${testId}`;
+
   const totalQuestions = testQuestions.length;
   const answeredCount = Object.keys(selectedAnswers).length;
   const unansweredCount = totalQuestions - answeredCount;
-  const testTitle = testQuestions[0]?.test?.title || t("no_title");
 
   const totalPoints = useMemo(() => {
     return testQuestions.reduce(
@@ -60,14 +57,17 @@ const DoTest: React.FC = () => {
     return startedAt + testDuration * 60 * 1000;
   }, [startedAt, testDuration]);
 
-  const handleChange = (questionId: number, answerId: number) => {
-    setSelectedAnswers((prev) => ({ ...prev, [questionId]: answerId }));
+  const handleChange = (testSessionQuestionId: number, answerId: number) => {
+    setSelectedAnswers((prev) => ({
+      ...prev,
+      [testSessionQuestionId]: answerId,
+    }));
   };
 
-  const handleClearAnswer = (questionId: number) => {
+  const handleClearAnswer = (testSessionQuestionId: number) => {
     setSelectedAnswers((prev) => {
       const newAnswers = { ...prev };
-      delete newAnswers[questionId];
+      delete newAnswers[testSessionQuestionId];
       return newAnswers;
     });
   };
@@ -102,11 +102,11 @@ const DoTest: React.FC = () => {
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
           {paginatedQuestions.map((testQuestion, index) => {
             const question = testQuestion.question;
-            const selected = selectedAnswers[question.id];
+            const selected = selectedAnswers[testQuestion.id];
 
             return (
               <Card
-                key={question.id}
+                key={testQuestion.id}
                 title={t("question_number", {
                   index: (currentPage - 1) * QUESTIONS_PER_PAGE + index + 1,
                 })}
@@ -116,31 +116,46 @@ const DoTest: React.FC = () => {
                     <Button
                       danger
                       size="small"
-                      onClick={() => handleClearAnswer(question.id)}
+                      onClick={() => handleClearAnswer(testQuestion.id)}
                     >
                       {t("clear_answer")}
                     </Button>
                   )
                 }
               >
-                <Paragraph className="question-text">
-                  {question.question_text}
-                </Paragraph>
-                <Radio.Group
-                  onChange={(e) => handleChange(question.id, e.target.value)}
-                  value={selected}
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                >
-                  {question.answers.map((answer, i) => (
-                    <Radio
-                      key={answer.id}
-                      value={answer.id}
-                      className={selected === answer.id ? "selected" : ""}
+                {question ? (
+                  <>
+                    <Paragraph className="question-text">
+                      {question.question_text}
+                    </Paragraph>
+                    <Radio.Group
+                      onChange={(e) =>
+                        handleChange(testQuestion.id, e.target.value)
+                      }
+                      value={selected}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
                     >
-                      <b>{String.fromCharCode(65 + i)}.</b> {answer.answer_text}
-                    </Radio>
-                  ))}
-                </Radio.Group>
+                      {testQuestion.answers_snapshot?.map((answer, i) => (
+                        <Radio
+                          key={answer.id}
+                          value={answer.id}
+                          className={selected === answer.id ? "selected" : ""}
+                        >
+                          <b>{String.fromCharCode(65 + i)}.</b>{" "}
+                          {answer.answer_text}
+                        </Radio>
+                      ))}
+                    </Radio.Group>
+                  </>
+                ) : (
+                  <Paragraph type="secondary">
+                    {t("question_not_found")}
+                  </Paragraph>
+                )}
               </Card>
             );
           })}
@@ -190,11 +205,11 @@ const DoTest: React.FC = () => {
           <div className="question-numbers">
             <Row gutter={[8, 8]}>
               {testQuestions.map((q, index) => {
-                const isAnswered = selectedAnswers[q.question.id];
+                const isAnswered = selectedAnswers[q.id];
                 const page = Math.floor(index / QUESTIONS_PER_PAGE) + 1;
 
                 return (
-                  <Col key={q.question.id}>
+                  <Col key={q.id}>
                     <Button
                       shape="circle"
                       size="small"

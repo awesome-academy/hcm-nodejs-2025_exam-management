@@ -3,27 +3,16 @@ import { Table, Button, Popconfirm, Space, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { TestSerializer } from "../../types/test.type";
 import { useTranslation } from "react-i18next";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusCircleOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 interface Props {
   data: TestSerializer[];
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
-  onViewQuestions: (testId: number) => void;
   loading: boolean;
 }
 
-const TestTable: React.FC<Props> = ({
-  data,
-  onEdit,
-  onDelete,
-  loading,
-  onViewQuestions,
-}) => {
+const TestTable: React.FC<Props> = ({ data, onEdit, onDelete, loading }) => {
   const { t } = useTranslation("test");
 
   const columns: ColumnsType<TestSerializer> = [
@@ -40,6 +29,27 @@ const TestTable: React.FC<Props> = ({
       title: t("passing_score"),
       dataIndex: "passing_score",
       key: "passing_score",
+    },
+    {
+      title: t("total_questions"),
+      dataIndex: "question_count",
+      key: "question_count",
+    },
+    {
+      title: t("version"),
+      dataIndex: "version",
+      key: "version",
+    },
+    {
+      title: t("status"),
+      dataIndex: "is_latest",
+      key: "is_latest",
+      render: (val) =>
+        val ? (
+          <Tag color="green">{t("latest")}</Tag>
+        ) : (
+          <Tag color="red">{t("old_version")}</Tag>
+        ),
     },
     {
       title: t("is_published"),
@@ -66,10 +76,6 @@ const TestTable: React.FC<Props> = ({
           >
             <Button danger icon={<DeleteOutlined />} />
           </Popconfirm>
-          <Button
-            icon={<PlusCircleOutlined />}
-            onClick={() => onViewQuestions(record.id)}
-          />
         </Space>
       ),
     },

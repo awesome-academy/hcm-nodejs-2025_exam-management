@@ -17,14 +17,10 @@ import type {
 const QuestionManagement: React.FC = () => {
   const { t } = useTranslation("question");
   const [form] = Form.useForm();
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(
-    null
-  );
+  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [showAnswerSection, setShowAnswerSection] = useState(false);
-
   const { subjects } = useSubjects();
 
   const {
@@ -37,7 +33,6 @@ const QuestionManagement: React.FC = () => {
     loading,
   } = useQuestions();
 
-  // CRUD - Question
   const showModal = () => {
     setIsEditMode(false);
     setIsModalVisible(true);
@@ -85,11 +80,18 @@ const QuestionManagement: React.FC = () => {
         points: selectedQuestion.points,
         difficulty_level: selectedQuestion.difficulty_level,
         is_active: selectedQuestion.is_active,
+        answers: selectedQuestion.answers?.map((a) => ({
+          id: a.id,
+          answer_text: a.answer_text,
+          is_correct: a.is_correct,
+          explanation: a.explanation,
+          is_active: a.is_active,
+        })),
       });
     }
   }, [isEditMode, selectedQuestion, form]);
 
-  const handleShowAnswer = (id: number) => {
+    const handleShowAnswer = (id: number) => {
     setCurrentQuestionId(id);
     setShowAnswerSection(true);
   };
@@ -104,7 +106,7 @@ const QuestionManagement: React.FC = () => {
           </Button>
         }
       >
-        <Spin spinning={loading}>
+           <Spin spinning={loading}>
           <QuestionTable
             data={questions}
             onEdit={(id) => {
@@ -133,7 +135,7 @@ const QuestionManagement: React.FC = () => {
         />
       </Card>
 
-      {showAnswerSection && currentQuestionId && (
+       {showAnswerSection && currentQuestionId && (
         <AnswerSection
           questionId={currentQuestionId}
           onClose={() => setShowAnswerSection(false)}

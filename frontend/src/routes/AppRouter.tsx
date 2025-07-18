@@ -8,7 +8,6 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import HomePage from "../pages/guest/HomePage";
 import SubjectList from "../pages/guest/SubjectList";
-import TestList from "../pages/user/TestList";
 import DoTest from "../pages/user/DoTest";
 import TestHistory from "../pages/user/TestHistory";
 import TestResultDetail from "../pages/user/TestResultDetail";
@@ -22,6 +21,7 @@ import SupervisorLayout from "../layouts/SuppervisorLayout";
 import TestManagement from "../pages/suppervisor/TestManagement";
 import { ToastContainer } from "react-toastify";
 import SubjectDetail from "../pages/user/SubjectDetail";
+import TestResultDetailHistory from "../pages/user/TestResultDetailHistory";
 import "react-toastify/dist/ReactToastify.css";
 
 const AppRouter = () => {
@@ -34,12 +34,14 @@ const AppRouter = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/subjects" element={<SubjectList />} />
-
             <Route path="/subjects/:id" element={<SubjectDetail />} />
-            <Route path="/tests" element={<TestList />} />
             <Route path="/tests/:id/do" element={<DoTest />} />
             <Route path="/history" element={<TestHistory />} />
             <Route path="/results/:sessionId" element={<TestResultDetail />} />
+            <Route
+              path="/results-detail-history/:sessionId"
+              element={<TestResultDetailHistory />}
+            />
           </Route>
 
           <Route element={<RequireRole allowed={["suppervisor"]} />}>
@@ -58,7 +60,10 @@ const AppRouter = () => {
               />
 
               <Route path="/suppervisor/tests" element={<TestReviewList />} />
-              <Route path="/suppervisor/tests/:sessionId" element={<TestReviewDetail />} />
+              <Route
+                path="/suppervisor/tests/:sessionId"
+                element={<TestReviewDetail />}
+              />
             </Route>
           </Route>
 

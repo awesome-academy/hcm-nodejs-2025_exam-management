@@ -5,6 +5,7 @@ import type {
   QuestionResponse,
   QuestionResponseAll,
   DeleteQuestionResponse,
+  QuestionStatsResponse,
 } from "../types/question.type";
 import { handleAxiosError } from "../utils/handleError";
 
@@ -59,5 +60,16 @@ export const deleteQuestion = async (
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "question.delete_failed");
+  }
+};
+
+export const getQuestionStats = async (
+  subjectId: number
+): Promise<QuestionStatsResponse> => {
+  try {
+    const res = await api.get(`/questions/stats/${subjectId}`);
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "question.stats_failed");
   }
 };

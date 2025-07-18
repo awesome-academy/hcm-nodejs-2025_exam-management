@@ -2,24 +2,12 @@ import type { components, paths } from "../types/api";
 
 export type AnswerSerializer = components["schemas"]["AnswerSerializer"];
 
-export interface CreateAnswerFormValues {
-  question_id: number;
-  answer_text: string;
-  is_correct: boolean;
-  explanation?: string;
-  is_active: boolean;
-}
-
-export interface UpdateAnswerFormValues {
+export interface AnswerFormValues {
   question_id?: number;
   answer_text?: string;
   is_correct?: boolean;
   explanation?: string;
   is_active: boolean;
-}
-
-export interface CreateBulkAnswerFormValues {
-  answers: CreateAnswerFormValues[];
 }
 
 export interface AnswerWithOriginal {
@@ -33,14 +21,11 @@ export interface AnswerWithOriginal {
 export type AnswerResponseAllByQuestion =
   paths["/answers/question/{questionId}"]["get"]["responses"]["200"]["content"]["application/json"];
 
-export type DeleteAnswersByQuestionResponse =
-  paths["/answers/question/{questionId}"]["delete"]["responses"]["200"]["content"]["application/json"];
-
-export type UpdateAnswerResponse =
-  paths["/answers/{id}"]["put"]["responses"]["200"]["content"]["application/json"];
-
 export type DeleteAnswerResponse =
   paths["/answers/{id}"]["delete"]["responses"]["200"]["content"]["application/json"];
 
-export type CreateBulkAnswerResponse =
-  paths["/answers/bulk/{questionId}"]["post"]["responses"]["200"]["content"]["application/json"];
+export type AnswerCreateRequest =
+  paths["/answers/question/{questionId}/answers"]["post"]["requestBody"]["content"]["application/json"];
+
+export type AnswerUpdateRequest =
+  paths["/answers/{id}"]["put"]["requestBody"]["content"]["application/json"];
