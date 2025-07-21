@@ -6,9 +6,11 @@ import "../../styles/LoginPage.css";
 import { useAuthForm } from "../../hooks/useAuthForm";
 import { useEmailVerifyQuery } from "../../hooks/useEmailVerifyQuery";
 import { useTranslation } from "react-i18next";
+import ForgotPassword from "../../components/ForgotPassword";
 
 const Login = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isForgotOpen, setIsForgotOpen] = useState(false);
   const { handleLogin } = useAuthForm();
   useEmailVerifyQuery();
   const { t } = useTranslation("auth");
@@ -52,6 +54,14 @@ const Login = () => {
               {t("not_verified")}
             </span>
           </p>
+          <p>
+            <span
+              style={{ color: "#1677ff", cursor: "pointer" }}
+              onClick={() => setIsForgotOpen(true)}
+            >
+              {t("forgot_password")}
+            </span>
+          </p>
         </div>
       </Card>
       <Modal
@@ -61,6 +71,15 @@ const Login = () => {
         destroyOnClose
       >
         <ResendVerify onSuccess={() => setIsModalOpen(false)} />
+      </Modal>
+
+      <Modal
+        open={isForgotOpen}
+        onCancel={() => setIsForgotOpen(false)}
+        footer={null}
+        destroyOnClose
+      >
+        <ForgotPassword onSuccess={() => setIsForgotOpen(false)} />
       </Modal>
     </div>
   );

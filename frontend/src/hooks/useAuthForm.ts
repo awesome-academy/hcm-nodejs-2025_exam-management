@@ -4,6 +4,8 @@ import {
   loginUser,
   registerUser,
   resendVerifyEmail,
+  forgotPassword,
+  resetPassword,
 } from "../services/authService";
 import { useAuth } from "./useAuth";
 import type { LoginFormData, RegisterFormData } from "../types/auth.type";
@@ -57,5 +59,39 @@ export const useAuthForm = () => {
     }
   };
 
-  return { handleLogin, handleRegister, handleResend, handleLogout };
+  const handleForgotPassword = async (
+    email: string,
+    onSuccess?: () => void
+  ) => {
+    try {
+      const res = await forgotPassword(email);
+      toast.success(res.message);
+      onSuccess?.();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
+  const handleResetPassword = async (
+    token: string,
+    newPassword: string,
+    onSuccess?: () => void
+  ) => {
+    try {
+      const res = await resetPassword(token, newPassword);
+      toast.success(res.message);
+      onSuccess?.();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
+  return {
+    handleLogin,
+    handleRegister,
+    handleResend,
+    handleLogout,
+    handleForgotPassword,
+    handleResetPassword,
+  };
 };

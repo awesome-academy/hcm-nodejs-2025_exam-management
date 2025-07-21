@@ -16,6 +16,8 @@ import { QuestionModule } from './modules/questions/question.module';
 import { TestModule } from './modules/tests/test.module';
 import { TestSessionModule } from './modules/test_sessions/test_session.module';
 import { AnswerModule } from './modules/answers/answer.module';
+import { PasswordResetModule } from './modules/password_reset_tokens/entities/password-reset.module';
+import { MailModule } from './common/jobs/mail/mail.module';
 
 
 @Module({
@@ -46,7 +48,9 @@ import { AnswerModule } from './modules/answers/answer.module';
     QuestionModule,
     TestModule,
     TestSessionModule,
-    AnswerModule
+    AnswerModule,
+    PasswordResetModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService, RequestContextService],

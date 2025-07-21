@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UserController_getProfile"];
+        put: operations["UserController_updateProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UserController_changePassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/emailVerify/confirm": {
         parameters: {
             query?: never;
@@ -356,6 +388,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PasswordResetController_forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PasswordResetController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -504,6 +568,14 @@ export interface components {
             password: string;
             full_name: string;
         };
+        UpdateProfileDto: {
+            full_name: string;
+            avatar_url: string;
+        };
+        ChangePasswordDto: {
+            current_password: string;
+            new_password: string;
+        };
         LoginDto: {
             username: string;
             password: string;
@@ -630,6 +702,95 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["UserSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    UserController_getProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["UserSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    UserController_updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["UserSerializer"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    UserController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["MessageResponseDto"];
                         /** @example 200 */
                         statusCode?: number;
                         /** @example Server Response Success */
@@ -1534,6 +1695,40 @@ export interface operations {
                         error?: string | null;
                     };
                 };
+            };
+        };
+    };
+    PasswordResetController_forgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PasswordResetController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

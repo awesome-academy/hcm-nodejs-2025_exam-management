@@ -34,3 +34,25 @@ export const resendVerifyEmail = async (email: string) => {
     throw handleAxiosError(err, "auth.resend_failed");
   }
 };
+
+//  Reset Pass
+export const forgotPassword = async (email: string) => {
+  try {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  } catch (err) {
+    throw handleAxiosError(err, "auth.forgot_password_failed");
+  }
+};
+
+export const resetPassword = async (token: string, newPassword: string) => {
+  try {
+    const response = await api.post("/auth/reset-password", {
+      token,
+      new_password: newPassword,
+    });
+    return response.data;
+  } catch (err) {
+    throw handleAxiosError(err, "auth.reset_password_failed");
+  }
+};

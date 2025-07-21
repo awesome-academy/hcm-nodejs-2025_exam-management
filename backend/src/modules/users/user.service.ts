@@ -17,6 +17,8 @@ import { findOneByField } from '../../common/utils/repository.util';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
 import { BaseService } from '../shared/base.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { CloudinaryService } from '../shared/cloudinary.service';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -27,6 +29,7 @@ export class UserService extends BaseService {
     private readonly dataSource: DataSource,
     i18n: I18nService,
     context: RequestContextService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {
     super(i18n, context);
   }
@@ -88,39 +91,133 @@ export class UserService extends BaseService {
   }
 
   async findByEmail(email: string): Promise<User> {
-    return findOneByField(
-      this.userRepo,
-      'email',
-      email,
-      await this.t('user.user_not_found_by_email'),
-    );
+    try {
+      return await findOneByField(
+        this.userRepo,
+        'email',
+        email,
+        await this.t('user.user_not_found_by_email'),
+      );
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.fetch_failed'));
+    }
   }
 
   async findByUsername(username: string): Promise<User> {
-    const user = await this.userRepo.findOne({
-      where: { username },
-      relations: ['role'],
-    });
+    try {
+      const user = await this.userRepo.findOne({
+        where: { username },
+        relations: ['role'],
+      });
 
-    if (!user) {
-      throw new NotFoundException(
-        await this.t('user.user_not_found_by_username'),
-      );
+      if (!user) {
+        throw new NotFoundException(
+          await this.t('user.user_not_found_by_username'),
+        );
+      }
+
+      return user;
+    } catch (err) {
+      if (err instanceof NotFoundException) throw err;
+      throw new BadRequestException(await this.t('user.fetch_failed'));
     }
-
-    return user;
   }
 
   async findById(id: number): Promise<User> {
-    return findOneByField(
-      this.userRepo,
-      'id',
-      id,
-      await this.t('user.user_not_found_by_id'),
-    );
+    try {
+      return await findOneByField(
+        this.userRepo,
+        'id',
+        id,
+        await this.t('user.user_not_found_by_id'),
+      );
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.fetch_failed'));
+    }
   }
 
   async saveUser(user: User): Promise<User> {
-    return this.userRepo.save(user);
+    try {
+      return await this.userRepo.save(user);
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.save_failed'));
+    }
+  }
+
+  async updateProfile(
+    userId: number,
+    dto: UpdateProfileDto,
+    file?: Express.Multer.File,
+  ): Promise<UserSerializer> {
+    try {
+      const user = await this.findById(userId);
+
+      if (dto.full_name) {
+        user.full_name = dto.full_name;
+      }
+
+      if (file) {
+        const avatarUrl = await this.cloudinaryService.uploadImage(file);
+        user.avatar_url = avatarUrl;
+      }
+
+      const saved = await this.userRepo.save(user);
+      return plainToInstance(UserSerializer, saved, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.update_failed'));
+    }
+  }
+
+  async changePassword(
+    userId: number,
+    currentPwd: string,
+    newPwd: string,
+  ): Promise<string> {
+    try {
+      const user = await this.findById(userId);
+      const match = await bcrypt.compare(currentPwd, user.password_hash);
+
+      if (!match) {
+        throw new BadRequestException(
+          await this.t('user.invalid_current_password'),
+        );
+      }
+
+      user.password_hash = await bcrypt.hash(newPwd, 10);
+      await this.userRepo.save(user);
+
+      return await this.t('user.change_password_success');
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(
+        await this.t('user.change_password_failed'),
+      );
+    }
+  }
+
+  async getProfile(userId: number): Promise<UserSerializer> {
+    try {
+      const user = await this.userRepo.findOne({
+        where: { id: userId },
+        relations: ['role'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(await this.t('user.user_not_found_by_id'));
+      }
+
+      return plainToInstance(UserSerializer, user, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.fetch_failed'));
+    }
   }
 }

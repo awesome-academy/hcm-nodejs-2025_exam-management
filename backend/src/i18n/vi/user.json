@@ -22,5 +22,11 @@
   "user_not_found_by_email": "Không tìm thấy người dùng theo email",
   "user_not_found_by_username": "Không tìm thấy người dùng theo tên đăng nhập",
   "user_not_found_by_id": "Không tìm thấy người dùng theo ID",
-  "user_not_found": "Không tìm thấy người dùng"
+  "user_not_found": "Không tìm thấy người dùng",
+  "fetch_failed": "Không thể lấy thông tin người dùng",
+  "save_failed": "Lưu người dùng thất bại",
+  "update_failed": "Cập nhật thông tin người dùng thất bại",
+  "change_password_failed": "Đổi mật khẩu thất bại",
+  "invalid_current_password": "Mật khẩu hiện tại không đúng",
+  "change_password_success": "Đổi mật khẩu thành công."
 }
