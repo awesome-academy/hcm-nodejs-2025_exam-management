@@ -76,19 +76,31 @@ const TestHistory = () => {
             <List.Item>
               <Card
                 hoverable
-                onClick={() => navigate(`/results/${item.id}?fromHistory=true`)}
+                onClick={() => navigate(`/results-detail-history/${item.id}`)}
                 style={{ borderRadius: 12 }}
               >
-                <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{ width: "100%" }}
+                >
                   <Text strong>{item.test?.title || t("no_test_title")}</Text>
                   <Space wrap>
-                    <Tag color="blue">{t("submitted_at")}: {submittedAt}</Tag>
+                    <Tag color="blue">
+                      {t("submitted_at")}: {submittedAt}
+                    </Tag>
                     <Tag color={isSubmitted ? "green" : "red"}>
-                      {t("status")}: {t(isSubmitted ? "status_submitted" : "status_not_submitted")}
+                      {t("status")}:{" "}
+                      {t(
+                        isSubmitted
+                          ? "status_submitted"
+                          : "status_not_submitted"
+                      )}
                     </Tag>
                   </Space>
                   <Paragraph style={{ margin: 0 }}>
-                    <Text strong>{t("score")}:</Text> {score} / {totalScore} {t("points")}
+                    <Text strong>{t("score")}:</Text> {score} / {totalScore}{" "}
+                    {t("points")}
                   </Paragraph>
                 </Space>
               </Card>

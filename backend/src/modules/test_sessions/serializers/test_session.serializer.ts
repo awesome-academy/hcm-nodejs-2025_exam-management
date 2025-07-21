@@ -1,8 +1,10 @@
 import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+
 import { TestSerializer } from '@/modules/tests/serializers/test.serializer';
 import { UserSerializer } from '@/modules/users/serializers/user.serializer';
 import { UserAnswerSerializer } from '@/modules/user_answers/serializers/user_answer.serializer';
+import { TestSessionQuestionSerializer } from '@/modules/test_session_questions/serializers/test_session_question.serializer';
 
 export class TestSessionSerializer {
   @ApiProperty()
@@ -63,4 +65,9 @@ export class TestSessionSerializer {
   @Expose()
   @Type(() => UserAnswerSerializer)
   user_answers: UserAnswerSerializer[];
+
+  @ApiProperty({ type: () => [TestSessionQuestionSerializer] })
+  @Expose()
+  @Type(() => TestSessionQuestionSerializer)
+  test_session_questions: TestSessionQuestionSerializer[];
 }

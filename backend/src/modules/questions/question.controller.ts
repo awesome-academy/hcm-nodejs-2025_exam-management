@@ -20,6 +20,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Role } from '@/common/decorators/role.decorator';
 import { UserRole } from '@/common/enums/role.enum';
 import { ApiTags, ApiBody, ApiExtraModels } from '@nestjs/swagger';
+import { QuestionStatsDto } from './dto/question-stats.dto';
+
 import {
   ApiResponseData,
   ApiResponseDataArray,
@@ -28,7 +30,7 @@ import { MessageResponseDto } from '@/common/dto/message-response.dto';
 import { HttpStatus, HttpMessage } from '@/common/enums/global.enum';
 
 @ApiTags('Question')
-@ApiExtraModels(QuestionSerializer, MessageResponseDto)
+@ApiExtraModels(QuestionSerializer, MessageResponseDto, QuestionStatsDto)
 @Controller('questions')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class QuestionController {
@@ -85,6 +87,15 @@ export class QuestionController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ResponseData<{ message: string }>> {
     const result = await this.questionService.softDelete(id);
+    return new ResponseData(result, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  @Get('stats/:subjectId')
+  @ApiResponseData(QuestionStatsDto)
+  async getStatsBySubject(
+    @Param('subjectId', ParseIntPipe) subjectId: number,
+  ): Promise<ResponseData<QuestionStatsDto>> {
+    const result = await this.questionService.getStatsBySubject(subjectId);
     return new ResponseData(result, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }

@@ -63,4 +63,32 @@ export class CreateTestDto {
   @IsOptional()
   @IsBoolean()
   is_published?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  easy_question_count?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  medium_question_count?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  hard_question_count?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  is_latest?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsNumber()
+  version?: number;
 }

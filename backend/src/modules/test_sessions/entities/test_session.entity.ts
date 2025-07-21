@@ -9,6 +9,7 @@ import {
 import { User } from '@/modules/users/entities/user.entity';
 import { Test } from '@/modules/tests/entities/test.entity';
 import { UserAnswer } from '@/modules/user_answers/entities/user_answer.entity';
+import { TestSessionQuestion } from '@/modules/test_session_questions/entities/test_session_question.entity';
 
 @Entity('test_sessions')
 export class TestSession {
@@ -55,4 +56,7 @@ export class TestSession {
 
   @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.session)
   user_answers: UserAnswer[];
+
+  @OneToMany(() => TestSessionQuestion, (q) => q.session)
+  test_session_questions: TestSessionQuestion[];
 }

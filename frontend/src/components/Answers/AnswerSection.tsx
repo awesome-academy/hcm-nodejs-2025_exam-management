@@ -16,7 +16,7 @@ const AnswerSection: React.FC<Props> = ({ questionId, onClose }) => {
   const [answerModalOpen, setAnswerModalOpen] = useState(false);
   const [editingAnswerId, setEditingAnswerId] = useState<number | null>(null);
 
-  const { answers, loading, loadAnswers, onUpdate, onDelete, onCreateBulk } =
+  const { answers, loading, loadAnswers, onUpdate, onDelete, onCreate } =
     useAnswers(questionId);
 
   useEffect(() => {
@@ -28,15 +28,12 @@ const AnswerSection: React.FC<Props> = ({ questionId, onClose }) => {
     if (answer) {
       const { answer_text, is_correct, explanation, is_active } = answer;
       form.setFieldsValue({
-        answers: [
-          {
-            answer_text,
-            is_correct,
-            explanation,
-            is_active,
-          },
-        ],
+        answer_text,
+        is_correct,
+        explanation,
+        is_active,
       });
+
       setEditingAnswerId(id);
       setAnswerModalOpen(true);
     }
@@ -51,16 +48,11 @@ const AnswerSection: React.FC<Props> = ({ questionId, onClose }) => {
   const handleAnswerSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const { answers } = values;
-
-      if (!answers || !Array.isArray(answers)) {
-        return message.error(t("invalid_answer_list"));
-      }
 
       if (editingAnswerId) {
-        await onUpdate(editingAnswerId, answers[0]);
+        await onUpdate(editingAnswerId, values);
       } else {
-        await onCreateBulk({ answers });
+        await onCreate(values);
       }
 
       await loadAnswers();

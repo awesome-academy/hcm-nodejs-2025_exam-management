@@ -51,7 +51,9 @@ export class SubjectService extends BaseService {
       );
     }
 
-    subject.tests = subject.tests?.filter((test) => test.is_published);
+    subject.tests = subject.tests?.filter(
+      (test) => test.is_latest && test.is_published,
+    );
 
     return plainToInstance(SubjectSerializer, subject, {
       excludeExtraneousValues: true,

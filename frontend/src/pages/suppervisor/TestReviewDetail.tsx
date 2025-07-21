@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
@@ -10,37 +10,40 @@ import {
   Row,
   Col,
   Button,
+  message,
 } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import { getTestSessionDetailAdmin } from "../../services/test_sessionService";
-import type { TestSessionSerializer } from "../../types/test_session.type";
-import type { AnswerWithOriginal } from "../../types/answer.type";
 import { useTranslation } from "react-i18next";
+import type { TestSessionSerializer } from "../../types/test_session.type";
+import "../../styles/DoTest.css";
 
 const { Title, Paragraph, Text } = Typography;
 
-const TestReviewDetail: React.FC = () => {
-  const { t } = useTranslation("dotest");
+const TestReviewDetail = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation("dotest");
 
   const [session, setSession] = useState<TestSessionSerializer | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const fetchDetail = async () => {
       try {
         const res = await getTestSessionDetailAdmin(Number(sessionId));
-        setSession(res.data ?? null);
-      } catch (err) {
-        console.error(err);
+        if (res.data) {
+          setSession(res.data);
+        } else {
+          message.error(t("load_result_failed"));
+        }
+      } catch {
+        message.error(t("load_result_failed"));
       } finally {
         setLoading(false);
       }
     };
-
-    if (sessionId) fetchSession();
-  }, [sessionId]);
+    if (sessionId) fetchDetail();
+  }, [sessionId, t]);
 
   if (loading || !session) {
     return (
@@ -50,29 +53,34 @@ const TestReviewDetail: React.FC = () => {
     );
   }
 
-  const correctCount = session.user_answers.filter((a) => a.is_correct).length;
-  const totalQuestions = session.user_answers.length;
+  const correctCount = session.test_session_questions.filter((tsq) => {
+    const correctAnswer = tsq.answers_snapshot?.find((a) => a.is_correct);
+    return tsq.user_answer?.answer_id === correctAnswer?.id;
+  }).length;
+
+  const totalQuestions = session.test_session_questions.length;
   const score = session.score ?? 0;
-  const totalScore = session.user_answers.reduce(
-    (sum, ua) => sum + (ua.question?.points ?? 0),
+  const totalScore = session.test_session_questions.reduce(
+    (sum, tsq) => sum + (tsq.question?.points ?? 0),
     0
   );
 
+  const testTitle = session.test?.title || "";
+  const studentName = session.user?.full_name || "";
+
   return (
     <div className="test-layout">
-      {/* LEFT: Question Area */}
       <div className="question-area">
         <Button
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate("/suppervisor/tests")}
           type="default"
+          onClick={() => navigate("/suppervisor/tests")}
           style={{ marginBottom: 16 }}
         >
-          Quay lại danh sách
+          ← {t("back")}
         </Button>
 
         <Title level={2}>
-          {t("result_title", { title: session.test.title })}
+          {t("result_title", { title: testTitle })} - {studentName}
         </Title>
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -84,33 +92,27 @@ const TestReviewDetail: React.FC = () => {
               description={`${t(
                 "correct_answers"
               )}: ${correctCount}/${totalQuestions}`}
-              type="info"
+              type="success"
               showIcon
             />
           </Col>
         </Row>
 
         <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-          {session.user_answers.map((item, index) => {
-            const q = item.question;
-            const answers = (q.answers || []) as AnswerWithOriginal[];
-
-            const selectedAnswer = answers.find(
-              (a) => a.id === item.answer_id || a.original_id === item.answer_id
-            );
-            const selectedAnswerId = selectedAnswer?.id;
-
+          {session.test_session_questions.map((tsq, index) => {
+            const question = tsq.question;
+            const answers = tsq.answers_snapshot ?? [];
+            const selectedAnswerId = tsq.user_answer?.answer_id;
             const correctAnswer = answers.find((a) => a.is_correct);
-            const correctAnswerId = correctAnswer?.id;
 
             return (
               <Card
-                key={q.id}
+                key={tsq.id}
                 title={`${t("question_number", { index: index + 1 })}`}
                 className="quiz-question-card"
               >
                 <Paragraph className="question-text">
-                  {q.question_text}
+                  {question?.question_text}
                 </Paragraph>
 
                 <Radio.Group
@@ -119,7 +121,7 @@ const TestReviewDetail: React.FC = () => {
                 >
                   {answers.map((answer, i) => {
                     const isSelected = selectedAnswerId === answer.id;
-                    const isCorrect = answer.id === correctAnswerId;
+                    const isCorrect = answer.is_correct;
 
                     let backgroundColor = "";
                     if (isSelected && isCorrect) backgroundColor = "#d4edda";
@@ -154,13 +156,12 @@ const TestReviewDetail: React.FC = () => {
                   })}
                 </Radio.Group>
 
-                {!selectedAnswer && (
+                {!selectedAnswerId && (
                   <Text type="secondary" italic>
                     {t("no_answer_selected")}
                   </Text>
                 )}
 
-                {/* ✅ Giải thích đáp án đúng */}
                 {correctAnswer?.explanation && (
                   <Paragraph style={{ marginTop: 12 }}>
                     <Text strong style={{ color: "#28a745" }}>
@@ -175,12 +176,14 @@ const TestReviewDetail: React.FC = () => {
         </Space>
       </div>
 
-      {/* RIGHT: Sidebar */}
       <div className="sidebar">
         <Card>
           <Title level={5}>{t("info")}</Title>
           <Paragraph>
-            <Text strong>{t("name")}:</Text> {session.test.title}
+            <Text strong>{t("name")}:</Text> {testTitle}
+          </Paragraph>
+          <Paragraph>
+            <Text strong>{t("user")}:</Text> {studentName}
           </Paragraph>
           <Paragraph>
             <Text strong>{t("score")}:</Text> {score} / {totalScore}{" "}
@@ -192,13 +195,10 @@ const TestReviewDetail: React.FC = () => {
           <Paragraph>
             <Text strong>{t("correct_answers")}:</Text> {correctCount}
           </Paragraph>
-          <Paragraph>
-            <Text strong>{t("user")}:</Text> {session.user?.full_name} (ID{" "}
-            {session.user_id})
-          </Paragraph>
         </Card>
       </div>
     </div>
   );
 };
+
 export default TestReviewDetail;

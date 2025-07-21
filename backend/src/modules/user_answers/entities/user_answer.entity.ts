@@ -54,16 +54,4 @@ export class UserAnswer {
 
   @Column({ type: 'timestamp', nullable: true })
   graded_at: Date;
-
-  @Column({ type: 'text', nullable: true })
-  question_text_snapshot: string;
-
-  @Column({ type: 'text', nullable: true })
-  answer_text_snapshot: string;
-
-  @Column({ type: 'boolean', nullable: true })
-  answer_is_correct_snapshot: boolean;
-
-  @Column({ type: 'json', nullable: true })
-  question_answers_snapshot: any[];
 }

@@ -32,5 +32,16 @@
   "close_answer_section": "Close Answer Section",
   "status": "Status",
   "active": "Active",
-  "inactive": "InActive"
+  "inactive": "InActive",
+  "answers": "Answers",
+  "answer": "Answer",
+  "remove": "Remove",
+  "answer_text": "Answer Text",
+  "answer_text_required": "Please input answer text",
+  "is_correct": "Correct Answer",
+  "explanation": "Explanation",
+  "explanation_required": "Please provide explanation for the correct answer",
+  "version": "Version",
+  "latest": "Latest",
+  "old_version": "Old Version"
 }

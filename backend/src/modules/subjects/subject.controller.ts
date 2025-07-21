@@ -32,7 +32,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Subject')
 @Controller('subjects')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiExtraModels(SubjectSerializer, MessageResponseDto)
 export class SubjectController {
   constructor(private readonly subjectService: SubjectService) {}
@@ -58,6 +57,7 @@ export class SubjectController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.SUPPERVISOR)
   @ApiBody({ type: CreateSubjectDto })
   @ApiResponseData(SubjectSerializer)
@@ -72,6 +72,7 @@ export class SubjectController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.SUPPERVISOR)
   @ApiBody({ type: UpdateSubjectDto })
   @ApiResponseData(SubjectSerializer)
@@ -86,6 +87,7 @@ export class SubjectController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.SUPPERVISOR)
   @ApiResponseData(MessageResponseDto)
   async delete(

@@ -10,10 +10,19 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import type { TestSerializer, TestFormValues } from "../types/test.type";
 import { useAuth } from "./useAuth";
+import { getQuestionStats } from "../services/questionService";
+import type { QuestionStatsResponse } from "../types/question.type";
 
 export const useTests = () => {
   const [tests, setTests] = useState<TestSerializer[]>([]);
   const [selectedTest, setSelectedTest] = useState<TestSerializer | null>(null);
+  const [questionStats, setQuestionStats] = useState<
+    QuestionStatsResponse["data"]
+  >({
+    easy: 0,
+    medium: 0,
+    hard: 0,
+  });
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation("test");
   const { token } = useAuth();
@@ -33,11 +42,25 @@ export const useTests = () => {
     }
   };
 
+  const fetchQuestionStats = async (subjectId: number) => {
+    try {
+      const res = await getQuestionStats(subjectId);
+      setQuestionStats(res.data);
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
   const fetchTestById = async (id: number): Promise<TestSerializer | null> => {
     try {
       const data = await getTestById(id);
       const test = data.data ?? null;
       setSelectedTest(test);
+
+      if (test?.subject_id) {
+        await fetchQuestionStats(test.subject_id);
+      }
+
       return test;
     } catch (err) {
       toast.error((err as Error).message);
@@ -96,5 +119,7 @@ export const useTests = () => {
     onUpdate,
     onDelete,
     loadTests,
+    questionStats,
+    fetchQuestionStats,
   };
 };

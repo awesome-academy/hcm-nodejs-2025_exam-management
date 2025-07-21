@@ -16,7 +16,7 @@ const ResendVerify = ({ onSuccess }: { onSuccess?: () => void }) => {
       <input
         className="resend-input"
         type="email"
-        placeholder={t("auth.email_placeholder")}
+        placeholder={t("email_placeholder")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

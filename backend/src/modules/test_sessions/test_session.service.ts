@@ -5,19 +5,24 @@ import {
 } from '@nestjs/common';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { Repository, In, DataSource } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
+
 import { TestSession } from './entities/test_session.entity';
 import { UserAnswer } from '@/modules/user_answers/entities/user_answer.entity';
 import { Answer } from '@/modules/answers/entities/answer.entity';
 import { CreateTestSessionDto } from './dto/create-test-session.dto';
 import { SubmitTestSessionDto } from './dto/submit-test-session.dto';
-import { plainToInstance } from 'class-transformer';
 import { TestSessionSerializer } from './serializers/test_session.serializer';
 import { TestSessionStatus } from '@/common/enums/testSession.enum';
-import { TestQuestion } from '../test_questions/entities/test_question.entity';
+import { DifficultyLevel } from '@/common/enums/question.enum';
+
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
 import { BaseService } from '@/modules/shared/base.service';
-
+import { Test } from '@/modules/tests/entities/test.entity';
+import { Question } from '@/modules/questions/entities/question.entity';
+import { TestSessionQuestion } from '../test_session_questions/entities/test_session_question.entity';
+import { TestSessionQuestionSerializer } from '../test_session_questions/serializers/test_session_question.serializer';
 @Injectable()
 export class TestSessionService extends BaseService {
   constructor(
@@ -30,6 +35,9 @@ export class TestSessionService extends BaseService {
     @InjectRepository(Answer)
     private answerRepo: Repository<Answer>,
 
+    @InjectRepository(TestSessionQuestion)
+    private sessionQuestionRepo: Repository<TestSessionQuestion>,
+
     @InjectDataSource()
     private dataSource: DataSource,
 
@@ -40,7 +48,11 @@ export class TestSessionService extends BaseService {
   }
 
   /**
-   * Tạo một phiên làm bài mới (nếu chưa tồn tại).
+   * Tạo một phiên làm bài mới cho người dùng.
+   * - Nếu đã có phiên đang làm thì trả về luôn (chưa hoàn thành).
+   * - Lấy ngẫu nhiên câu hỏi theo mức độ (dễ/trung bình/khó).
+   * - Trộn thứ tự câu hỏi và lưu vào bảng `test_session_question`.
+   * - Snapshot các câu trả lời tại thời điểm tạo phiên.
    */
   async createSession(
     dto: CreateTestSessionDto,
@@ -49,7 +61,10 @@ export class TestSessionService extends BaseService {
     try {
       const session = await this.dataSource.transaction(async (manager) => {
         const sessionRepo = manager.getRepository(TestSession);
+        const questionRepo = manager.getRepository(Question);
+        const sessionQuestionRepo = manager.getRepository(TestSessionQuestion);
 
+        // Kiểm tra xem người dùng đã có phiên làm bài chưa hoàn thành chưa
         const existingSession = await sessionRepo.findOne({
           where: {
             user_id: user.id,
@@ -60,8 +75,86 @@ export class TestSessionService extends BaseService {
           lock: { mode: 'pessimistic_write' },
         });
 
+        // Nếu đã có thì trả luôn
         if (existingSession) return existingSession;
 
+        // Lấy thông tin bài test
+        const test = await manager.getRepository(Test).findOneOrFail({
+          where: { id: dto.testId },
+        });
+
+        /**
+         * Hàm lấy câu hỏi ngẫu nhiên theo độ khó kèm đáp án
+         * - Nếu không đủ số lượng yêu cầu thì báo lỗi
+         */
+        const fetchRandomQuestions = async (
+          difficulty: string,
+          count: number,
+        ): Promise<Question[]> => {
+          const availableCount = await questionRepo.count({
+            where: {
+              subject_id: test.subject_id,
+              difficulty_level: difficulty,
+              is_active: true,
+            },
+          });
+
+          if (availableCount < count) {
+            throw new BadRequestException(
+              await this.t('test_question.not_enough_questions'),
+            );
+          }
+
+          return questionRepo
+            .createQueryBuilder('question')
+            .leftJoinAndSelect('question.answers', 'answer')
+            .where('question.subject_id = :subjectId', {
+              subjectId: test.subject_id,
+            })
+            .andWhere('question.difficulty_level = :difficulty', { difficulty })
+            .andWhere('question.is_active = true')
+            .orderBy('RAND()')
+            .take(count)
+            .getMany();
+        };
+
+        // Gom các câu hỏi theo độ khó
+        const allQuestions: Question[] = [];
+
+        if (test.easy_question_count) {
+          allQuestions.push(
+            ...(await fetchRandomQuestions(
+              DifficultyLevel.EASY,
+              test.easy_question_count,
+            )),
+          );
+        }
+
+        if (test.medium_question_count) {
+          allQuestions.push(
+            ...(await fetchRandomQuestions(
+              DifficultyLevel.MEDIUM,
+              test.medium_question_count,
+            )),
+          );
+        }
+
+        if (test.hard_question_count) {
+          allQuestions.push(
+            ...(await fetchRandomQuestions(
+              DifficultyLevel.HARD,
+              test.hard_question_count,
+            )),
+          );
+        }
+
+        // Trộn thứ tự câu hỏi ngẫu nhiên
+        const shuffled = allQuestions
+          .map((q) => ({ q, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ q }) => q);
+
+        // Tạo phiên làm bài
         const newSession = sessionRepo.create({
           test_id: dto.testId,
           user_id: user.id,
@@ -70,7 +163,31 @@ export class TestSessionService extends BaseService {
           is_completed: false,
         });
 
-        return await sessionRepo.save(newSession);
+        const savedSession = await sessionRepo.save(newSession);
+
+        // Tạo bản ghi câu hỏi cho từng câu hỏi trong phiên thi (snapshot đáp án)
+        const sessionQuestions = shuffled.map((q, idx) => {
+          const answersSnapshot =
+            q.answers
+              ?.filter((a) => a.is_active)
+              .map((a) => ({
+                id: a.id,
+                answer_text: a.answer_text,
+                is_correct: a.is_correct,
+                explanation: a.explanation ?? null,
+              })) ?? [];
+
+          return sessionQuestionRepo.create({
+            session_id: savedSession.id,
+            question_id: q.id,
+            order_number: idx + 1,
+            answers_snapshot: answersSnapshot,
+          });
+        });
+
+        await sessionQuestionRepo.save(sessionQuestions);
+
+        return savedSession;
       });
 
       return plainToInstance(TestSessionSerializer, session, {
@@ -81,9 +198,12 @@ export class TestSessionService extends BaseService {
       throw new BadRequestException(await this.t('test_session.create_failed'));
     }
   }
-
   /**
-   * Nộp bài thi, chấm điểm tự động và lưu snapshot.
+   * Nộp bài làm:
+   * - Tính điểm.
+   * - Lưu câu trả lời của user.
+   * - Đánh dấu phiên thi đã hoàn thành.
+   * - Tính thời gian làm bài.
    */
   async submitSession(
     id: number,
@@ -91,32 +211,28 @@ export class TestSessionService extends BaseService {
     user: { id: number },
   ): Promise<TestSessionSerializer> {
     try {
-      const session = await this.testSessionRepo.findOneBy({ id });
-      if (!session) {
-        throw new NotFoundException(await this.t('test_session.not_found'));
-      }
+      const session = await this.testSessionRepo.findOne({
+        where: { id },
+        relations: ['test'],
+      });
 
-      if (session.user_id !== user.id) {
+      if (!session)
+        throw new NotFoundException(await this.t('test_session.not_found'));
+
+      if (session.user_id !== user.id)
         throw new BadRequestException(
           await this.t('test_session.invalid_user'),
         );
-      }
 
-      // Lấy danh sách câu hỏi đang active của đề thi
-      const testQuestions = await this.dataSource
-        .getRepository(TestQuestion)
-        .find({
-          where: {
-            test_id: session.test_id,
-            question: { is_active: true },
-          },
-          relations: ['question', 'question.answers'],
-        });
+      // Lấy danh sách câu hỏi trong phiên thi
+      const sessionQuestions = await this.sessionQuestionRepo.find({
+        where: { session_id: session.id },
+        relations: ['question', 'question.answers'],
+      });
 
-      const allQuestions = testQuestions.map((tq) => tq.question);
-      const allQuestionIds = allQuestions.map((q) => q.id);
+      const allQuestionIds = sessionQuestions.map((sq) => sq.question.id);
 
-      // Lấy danh sách đáp án người dùng đã chọn, chỉ lấy những đáp án active
+      // Lấy thông tin các câu trả lời người dùng chọn
       const answers = await this.answerRepo.find({
         where: {
           id: In(dto.answers.map((a) => a.answerId)),
@@ -132,11 +248,12 @@ export class TestSessionService extends BaseService {
       const userAnswersToSave: UserAnswer[] = [];
       const answeredQuestions = new Set<number>();
 
-      // Duyệt từng câu trả lời hợp lệ và tính điểm
+      // Duyệt qua từng câu trả lời được gửi lên
       for (const item of dto.answers) {
         const answer = answerMap.get(item.answerId);
         const isValid = answer && answer.question?.id === item.questionId;
 
+        // Đảm bảo không tính nhiều lần cho một câu hỏi
         if (!isValid || answeredQuestions.has(item.questionId)) continue;
 
         const isCorrect = answer.is_correct;
@@ -149,18 +266,6 @@ export class TestSessionService extends BaseService {
             answer_id: item.answerId,
             is_correct: isCorrect,
             points_earned: points,
-            question_text_snapshot: answer.question.question_text,
-            answer_text_snapshot: answer.answer_text,
-            answer_is_correct_snapshot: answer.is_correct,
-            question_answers_snapshot: answer.question.answers
-              .filter((a) => a.is_active)
-              .map((a) => ({
-                id: a.id,
-                original_id: a.id,
-                answer_text: a.answer_text,
-                is_correct: a.is_correct,
-                explanation: a.explanation,
-              })),
           }),
         );
 
@@ -168,11 +273,10 @@ export class TestSessionService extends BaseService {
         answeredQuestions.add(item.questionId);
       }
 
-      // Tạo UserAnswer cho các câu không trả lời
+      // Các câu không làm thì coi như sai
       for (const qid of allQuestionIds) {
         if (answeredQuestions.has(qid)) continue;
 
-        const question = allQuestions.find((q) => q.id === qid);
         userAnswersToSave.push(
           this.userAnswerRepo.create({
             session_id: session.id,
@@ -180,23 +284,11 @@ export class TestSessionService extends BaseService {
             answer_id: null,
             is_correct: false,
             points_earned: 0,
-            question_text_snapshot: question?.question_text ?? '',
-            question_answers_snapshot: question?.answers
-              ?.filter((a) => a.is_active)
-              .map((a) => ({
-                id: a.id,
-                original_id: a.id,
-                answer_text: a.answer_text,
-                is_correct: a.is_correct,
-                explanation: a.explanation,
-              })),
           }),
         );
       }
 
-      // Lưu tất cả UserAnswer và cập nhật trạng thái phiên làm bài
-      await this.userAnswerRepo.save(userAnswersToSave);
-
+      // Cập nhật trạng thái phiên thi
       session.score = totalScore;
       session.is_completed = true;
       session.status = TestSessionStatus.SUBMITTED;
@@ -206,9 +298,13 @@ export class TestSessionService extends BaseService {
       );
       session.auto_graded = true;
 
-      const updated = await this.testSessionRepo.save(session);
+      // Lưu phiên và câu trả lời vào DB trong transaction
+      await this.dataSource.transaction(async (manager) => {
+        await manager.save(UserAnswer, userAnswersToSave);
+        await manager.save(TestSession, session);
+      });
 
-      return plainToInstance(TestSessionSerializer, updated, {
+      return plainToInstance(TestSessionSerializer, session, {
         excludeExtraneousValues: true,
       });
     } catch (error) {
@@ -218,84 +314,7 @@ export class TestSessionService extends BaseService {
   }
 
   /**
-   * Lấy danh sách lịch sử làm bài của người dùng.
-   */
-  async getSessionHistory(user: {
-    id: number;
-  }): Promise<TestSessionSerializer[]> {
-    try {
-      const sessions = await this.testSessionRepo.find({
-        where: { user_id: user.id },
-        relations: ['test', 'user_answers', 'user_answers.question'],
-        order: { submitted_at: 'DESC' },
-      });
-
-      return plainToInstance(TestSessionSerializer, sessions, {
-        excludeExtraneousValues: true,
-      });
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException(await this.t('test_session.fetch_failed'));
-    }
-  }
-
-  /**
-   * Lấy chi tiết phiên làm bài kèm snapshot đúng lúc làm bài.
-   */
-  async getSessionByIdRaw(
-    id: number,
-    user: { id: number },
-  ): Promise<TestSessionSerializer> {
-    const session = await this.testSessionRepo.findOne({
-      where: { id, user_id: user.id },
-      relations: [
-        'test',
-        'user_answers',
-        'user_answers.question',
-        'user_answers.answer',
-      ],
-    });
-
-    if (!session) {
-      throw new NotFoundException(
-        await this.t('test_session.not_found_or_unauthorized'),
-      );
-    }
-
-    if (session.user_answers) {
-      session.user_answers = session.user_answers.filter(
-        (ua) =>
-          ua.question?.is_active &&
-          (ua.answer === null || ua.answer?.is_active),
-      );
-
-      for (const ua of session.user_answers) {
-        const snapshot = ua.question_answers_snapshot;
-
-        if (snapshot) {
-          // Gán lại đáp án từ snapshot
-          ua.question.answers = snapshot;
-
-          // Gán lại đáp án đã chọn từ snapshot
-          const match = snapshot.find(
-            (ans) =>
-              ans.original_id === ua.answer_id || ans.id === ua.answer_id,
-          );
-          ua.answer = match ?? null;
-        } else {
-          // Nếu không có snapshot, fallback về các đáp án còn active
-          ua.question.answers = ua.question.answers?.filter((a) => a.is_active);
-        }
-      }
-    }
-
-    return plainToInstance(TestSessionSerializer, session, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  /**
-   * Lấy chi tiết phiên làm bài cho màn hình kết quả (không dùng snapshot).
+   * Lấy chi tiết một phiên thi (dành cho user, không dùng snapshot).
    */
   async getSessionById(
     id: number,
@@ -317,19 +336,15 @@ export class TestSessionService extends BaseService {
         await this.t('test_session.not_found_or_unauthorized'),
       );
 
-    if (session.user_answers) {
-      session.user_answers = session.user_answers.filter(
-        (ua) =>
-          ua.question?.is_active &&
-          (ua.answer === null || ua.answer?.is_active),
-      );
+    // Lọc ra các câu hỏi và đáp án còn hoạt động
+    session.user_answers = session.user_answers?.filter(
+      (ua) =>
+        ua.question?.is_active && (ua.answer === null || ua.answer?.is_active),
+    );
 
-      for (const ua of session.user_answers) {
-        if (ua.question?.answers) {
-          ua.question.answers = ua.question.answers.filter(
-            (ans) => ans.is_active,
-          );
-        }
+    for (const ua of session.user_answers ?? []) {
+      if (ua.question?.answers) {
+        ua.question.answers = ua.question.answers.filter((a) => a.is_active);
       }
     }
 
@@ -339,69 +354,130 @@ export class TestSessionService extends BaseService {
   }
 
   /**
-   * Lấy tất cả phiên làm bài của tất cả học viên.
+   * ADMIN: Lấy danh sách tất cả phiên làm bài của toàn bộ người dùng.
    */
   async getAllSessionsForAdmin(): Promise<TestSessionSerializer[]> {
-    try {
-      const sessions = await this.testSessionRepo.find({
-        relations: ['test', 'user', 'user_answers'],
-        order: { submitted_at: 'DESC' },
-      });
+    const sessions = await this.testSessionRepo.find({
+      relations: ['test', 'user', 'user_answers'],
+      order: { submitted_at: 'DESC' },
+    });
 
-      return plainToInstance(TestSessionSerializer, sessions, {
-        excludeExtraneousValues: true,
-      });
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException(
-        await this.t('test_session.fetch_failed_for_admin'),
-      );
-    }
+    return plainToInstance(TestSessionSerializer, sessions, {
+      excludeExtraneousValues: true,
+    });
   }
+
   /**
-   * Xem chi tiết một phiên làm bài bất kỳ (dùng snapshot).
+   * Lấy lịch sử các phiên làm bài của user hiện tại.
    */
-  async getSessionDetailByAdmin(id: number): Promise<TestSessionSerializer> {
+  async getSessionHistory(user: {
+    id: number;
+  }): Promise<TestSessionSerializer[]> {
+    const sessions = await this.testSessionRepo.find({
+      where: { user_id: user.id },
+      relations: ['test', 'user_answers', 'user_answers.question'],
+      order: { submitted_at: 'DESC' },
+    });
+
+    return plainToInstance(TestSessionSerializer, sessions, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * ADMIN: Xem chi tiết phiên làm bài (dùng snapshot).
+   */
+  async getSessionDetailRawByAdmin(
+    sessionId: number,
+  ): Promise<TestSessionSerializer> {
     const session = await this.testSessionRepo.findOne({
-      where: { id },
+      where: { id: sessionId },
       relations: [
         'test',
         'user',
+        'test_session_questions',
+        'test_session_questions.question',
         'user_answers',
-        'user_answers.question',
         'user_answers.answer',
       ],
     });
 
-    if (!session) {
+    if (!session)
       throw new NotFoundException(await this.t('test_session.not_found'));
+
+    const answerMap = new Map<number, UserAnswer>();
+    for (const ua of session.user_answers) {
+      answerMap.set(ua.question_id, ua);
     }
 
-    if (session.user_answers) {
-      session.user_answers = session.user_answers.filter(
-        (ua) =>
-          ua.question?.is_active &&
-          (ua.answer === null || ua.answer?.is_active),
-      );
-
-      for (const ua of session.user_answers) {
-        const snapshot = ua.question_answers_snapshot;
-
-        if (snapshot) {
-          ua.question.answers = snapshot;
-
-          const match = snapshot.find(
-            (ans) =>
-              ans.original_id === ua.answer_id || ans.id === ua.answer_id,
-          );
-          ua.answer = match ?? null;
-        } else {
-          ua.question.answers = ua.question.answers?.filter((a) => a.is_active);
-        }
-      }
+    for (const tsq of session.test_session_questions) {
+      (tsq.question as any).answers = tsq.answers_snapshot ?? [];
+      const userAnswer = answerMap.get(tsq.question_id);
+      (tsq as any).user_answer = userAnswer ?? null;
     }
 
     return plainToInstance(TestSessionSerializer, session, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  /**
+   * USER: Xem chi tiết phiên làm bài của chính mình (dùng snapshot).
+   */
+  async getSessionDetailRawByUser(
+    sessionId: number,
+    user: { id: number },
+  ): Promise<TestSessionSerializer> {
+    const session = await this.testSessionRepo.findOne({
+      where: {
+        id: sessionId,
+        user_id: user.id,
+      },
+      relations: [
+        'test',
+        'test_session_questions',
+        'test_session_questions.question',
+        'user_answers',
+        'user_answers.answer',
+      ],
+    });
+
+    if (!session)
+      throw new NotFoundException(
+        await this.t('test_session.not_found_or_unauthorized'),
+      );
+
+    const answerMap = new Map<number, UserAnswer>();
+    for (const ua of session.user_answers) {
+      answerMap.set(ua.question_id, ua);
+    }
+
+    for (const tsq of session.test_session_questions) {
+      (tsq.question as any).answers = tsq.answers_snapshot ?? [];
+      const userAnswer = answerMap.get(tsq.question_id);
+      (tsq as any).user_answer = userAnswer ?? null;
+    }
+
+    return plainToInstance(TestSessionSerializer, session, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getSessionQuestions(
+    sessionId: number,
+  ): Promise<TestSessionQuestionSerializer[]> {
+    const sessionQuestions = await this.sessionQuestionRepo.find({
+      where: { session_id: sessionId },
+      relations: ['question'],
+      order: { order_number: 'ASC' },
+    });
+
+    if (!sessionQuestions.length) {
+      throw new NotFoundException(
+        await this.t('test_session.questions_not_found'),
+      );
+    }
+    return plainToInstance(TestSessionQuestionSerializer, sessionQuestions, {
       excludeExtraneousValues: true,
     });
   }
