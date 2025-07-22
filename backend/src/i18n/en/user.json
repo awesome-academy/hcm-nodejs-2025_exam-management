@@ -22,5 +22,11 @@
   "user_not_found_by_email": "User not found by email",
   "user_not_found_by_username": "User not found by username",
   "user_not_found_by_id": "User not found by ID",
-  "user_not_found": "User not found"
+  "user_not_found": "User not found",
+  "fetch_failed": "Failed to fetch user data",
+  "save_failed": "Failed to save user",
+  "update_failed": "Failed to update user profile",
+  "change_password_failed": "Failed to change password",
+  "invalid_current_password": "Current password is incorrect",
+  "change_password_success": "Password changed successfully."
 }

@@ -22,8 +22,9 @@ import TestManagement from "../pages/suppervisor/TestManagement";
 import { ToastContainer } from "react-toastify";
 import SubjectDetail from "../pages/user/SubjectDetail";
 import TestResultDetailHistory from "../pages/user/TestResultDetailHistory";
+import ProfilePage from "../pages/user/ProfilePage";
 import "react-toastify/dist/ReactToastify.css";
-
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 const AppRouter = () => {
   return (
     <>
@@ -42,6 +43,8 @@ const AppRouter = () => {
               path="/results-detail-history/:sessionId"
               element={<TestResultDetailHistory />}
             />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
           </Route>
 
           <Route element={<RequireRole allowed={["suppervisor"]} />}>

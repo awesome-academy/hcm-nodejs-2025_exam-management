@@ -38,7 +38,7 @@ const GuestLayout = () => {
         {
           key: "profile",
           label: t("profile"),
-          onClick: () => navigate("/"),
+          onClick: () => navigate("/profile"),
         },
         {
           key: "history",

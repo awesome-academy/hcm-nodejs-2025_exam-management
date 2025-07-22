@@ -10,5 +10,7 @@ export class PasswordResetToken {
 
   @CreateDateColumn()
   created_at: Date;
-}
 
+  @CreateDateColumn()
+  expires_at: Date;
+}
