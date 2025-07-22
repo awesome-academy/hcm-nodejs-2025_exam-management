@@ -14,6 +14,11 @@ import { BaseService } from '@/modules/shared/base.service';
 import { TestSessionStatus } from '@/common/enums/testSession.enum';
 import { TEST_DEFAULT_VERSION } from '@/common/constants/test.constant';
 import { validateMultipleChoiceAnswers } from '../shared/validators/answer.validator';
+import { FindQuestionDto } from './dto/find-question.dto';
+import {
+  buildAndExecuteQuery,
+  QueryMapping,
+} from 'src/common/utils/query-builder';
 
 @Injectable()
 export class QuestionService extends BaseService {
@@ -59,17 +64,28 @@ export class QuestionService extends BaseService {
   /**
    * Lấy danh sách tất cả câu hỏi.
    */
-  async findAll(): Promise<QuestionSerializer[]> {
-    const questions = await this.questionRepo.find({
-      order: { subject_id: 'ASC', id: 'ASC' },
-      relations: ['creator', 'subject', 'answers'],
-    });
+  async findAll(query?: FindQuestionDto): Promise<QuestionSerializer[]> {
+    const mappings: QueryMapping = {
+      subject_id: 'equal',
+      question_type: 'equal',
+      creator_id: 'equal',
+      question_text: 'like',
+    };
+
+    const questions = await buildAndExecuteQuery(
+      this.questionRepo,
+      query || {},
+      mappings,
+      {
+        relations: ['creator', 'subject', 'answers'],
+        order: { subject_id: 'ASC', id: 'ASC' },
+      },
+    );
 
     return plainToInstance(QuestionSerializer, questions, {
       excludeExtraneousValues: true,
     });
   }
-
   /**
    * Lấy chi tiết 1 câu hỏi theo id.
    */

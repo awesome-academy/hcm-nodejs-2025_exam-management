@@ -23,5 +23,10 @@
   "enter_full_name": "Nhập họ và tên",
   "invalid_image_format": "Vui lòng chọn đúng định dạng ảnh",
   "cancel": "Hủy",
-  "username": "Tên đăng nhập"
+  "username": "Tên đăng nhập",
+  "id": "Mã học viên",
+  "active": "Hoạt động",
+  "inactive": "Không hoạt động",
+  "update_status_success": "Cập nhật trạng thái người dùng thành công",
+  "action": "Hành động"
 }

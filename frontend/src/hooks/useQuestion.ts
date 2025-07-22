@@ -23,10 +23,15 @@ export const useQuestions = () => {
   const { t } = useTranslation("question");
   const { token } = useAuth();
 
-  const loadQuestions = async () => {
+  const loadQuestions = async (filters?: {
+    subject_id?: number;
+    question_type?: string;
+    question_text?: string;
+    creator_id?: number;
+  }) => {
     setLoading(true);
     try {
-      const data = await getAllQuestions();
+      const data = await getAllQuestions(filters);
       setQuestions(data.data || []);
     } catch (err) {
       toast.error((err as Error).message);

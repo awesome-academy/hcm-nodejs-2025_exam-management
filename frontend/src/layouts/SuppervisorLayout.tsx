@@ -44,6 +44,11 @@ const SupervisorLayout = () => {
       label: t("tests"),
       onClick: () => navigate("/suppervisor/tests"),
     },
+    {
+      key: "users",
+      label: t("users_management"),
+      onClick: () => navigate("/suppervisor/users"),
+    },
   ];
 
   const avatarDropdownItems = [

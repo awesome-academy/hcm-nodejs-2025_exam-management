@@ -17,6 +17,8 @@ export interface ProfileFormValues {
   }[];
 }
 
+export type UpdateUserStatusDto = components["schemas"]["UpdateStatusDto"];
+
 export interface ChangePasswordFormData {
   current_password: string;
   new_password: string;
@@ -27,3 +29,9 @@ export type UpdateProfileResponse =
 
 export type ChangePasswordResponse =
   paths["/users/change-password"]["put"]["responses"]["200"]["content"]["application/json"];
+
+export type UserListResponse =
+  paths["/users/user-list"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export type UpdateUserStatusResponse =
+  paths["/users/{id}/status"]["put"]["responses"]["200"]["content"]["application/json"];

@@ -9,7 +9,7 @@ import { MailModule } from '@/common/jobs/mail/mail.module';
   imports: [
     TypeOrmModule.forFeature([PasswordResetToken]),
     forwardRef(() => UserModule),
-    MailModule,
+    MailModule
   ],
   controllers: [PasswordResetController],
   providers: [PasswordResetService],
