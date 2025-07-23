@@ -52,6 +52,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/user-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UserController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UserController_updateStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/emailVerify/confirm": {
         parameters: {
             query?: never;
@@ -576,6 +608,9 @@ export interface components {
             current_password: string;
             new_password: string;
         };
+        UpdateStatusDto: {
+            is_active: boolean;
+        };
         LoginDto: {
             username: string;
             password: string;
@@ -791,6 +826,66 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["MessageResponseDto"];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    UserController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["UserSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    UserController_updateStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["UserSerializer"];
                         /** @example 200 */
                         statusCode?: number;
                         /** @example Server Response Success */

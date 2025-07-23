@@ -154,7 +154,7 @@ export class UserService extends BaseService {
   ): Promise<UserSerializer> {
     try {
       const user = await this.findById(userId);
-
+      
       if (dto.full_name) {
         user.full_name = dto.full_name;
       }
@@ -218,6 +218,43 @@ export class UserService extends BaseService {
     } catch (err) {
       if (err instanceof BadRequestException) throw err;
       throw new BadRequestException(await this.t('user.fetch_failed'));
+    }
+  }
+  async getUsersList(): Promise<UserSerializer[]> {
+    try {
+      const users = await this.userRepo.find({
+        where: {
+          role: {
+            name: 'user',
+          },
+        },
+        relations: ['role'],
+        order: { id: 'ASC' },
+      });
+
+      return plainToInstance(UserSerializer, users, {
+        excludeExtraneousValues: true,
+      });
+    } catch {
+      throw new BadRequestException(await this.t('user.fetch_failed'));
+    }
+  }
+
+  async updateStatusStudent(
+    userId: number,
+    is_active: boolean,
+  ): Promise<UserSerializer> {
+    try {
+      const user = await this.findById(userId);
+      user.is_active = is_active;
+      const updatedUser = await this.userRepo.save(user);
+
+      return plainToInstance(UserSerializer, updatedUser, {
+        excludeExtraneousValues: true,
+      });
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      throw new BadRequestException(await this.t('user.update_status_failed'));
     }
   }
 }

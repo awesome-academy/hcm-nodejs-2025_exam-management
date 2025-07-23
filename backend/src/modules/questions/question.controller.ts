@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
 import { CreateQuestionDto } from './dto/create-question.dto';
@@ -38,8 +39,8 @@ export class QuestionController {
 
   @Get()
   @ApiResponseDataArray(QuestionSerializer)
-  async findAll(): Promise<ResponseData<QuestionSerializer[]>> {
-    const results = await this.questionService.findAll();
+  async findAll(@Query() query): Promise<ResponseData<QuestionSerializer[]>> {
+    const results = await this.questionService.findAll(query);
     return new ResponseData<QuestionSerializer[]>(
       results,
       HttpStatus.SUCCESS,

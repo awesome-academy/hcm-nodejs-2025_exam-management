@@ -23,5 +23,10 @@
   "enter_full_name": "Enter full name",
   "invalid_image_format": "Please select a valid image format",
   "cancel": "Cancel",
-  "username": "Username"
+  "username": "Username",
+  "id": "ID",
+  "active": "Active",
+  "inactive": "Inactive",
+  "update_status_success": "User status updated successfully",
+  "action": "Action"
 }

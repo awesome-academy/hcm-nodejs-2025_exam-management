@@ -9,9 +9,14 @@ import type {
 } from "../types/question.type";
 import { handleAxiosError } from "../utils/handleError";
 
-export const getAllQuestions = async (): Promise<QuestionResponseAll> => {
+export const getAllQuestions = async (params?: {
+  subject_id?: number;
+  question_type?: string;
+  question_text?: string;
+  creator_id?: number;
+}): Promise<QuestionResponseAll> => {
   try {
-    const res = await api.get("/questions");
+    const res = await api.get("/questions", { params });
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "question.fetch_all_failed");

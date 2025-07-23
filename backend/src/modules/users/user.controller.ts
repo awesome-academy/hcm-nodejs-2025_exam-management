@@ -1,4 +1,13 @@
-import { Controller, Post, Body, Put, Req, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Put,
+  Req,
+  Get,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from './dto/register.dto';
 import { ResponseData } from '@/common/classes/response.class';
@@ -12,6 +21,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MessageResponseDto } from '@/common/dto/message-response.dto';
+import { ApiResponseDataArray } from '@/common/decorators/api-response.decorator';
+import { UpdateStatusDto } from './dto/update-status.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Role } from '@/common/decorators/role.decorator';
+import { UserRole } from '@/common/enums/role.enum';
+
 @ApiTags('User')
 @Controller('users')
 @ApiExtraModels(UserSerializer)
@@ -28,8 +43,9 @@ export class UserController {
     return new ResponseData(user, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
-  @UseGuards(JwtAuthGuard)
+  
   @Put('profile')
+  @UseGuards(JwtAuthGuard)
   @ApiBody({ type: UpdateProfileDto })
   @ApiResponseData(UserSerializer)
   @UseInterceptors(FileInterceptor('file'))
@@ -66,11 +82,41 @@ export class UserController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  
   @Get('profile')
+  @UseGuards(JwtAuthGuard)
   @ApiResponseData(UserSerializer)
   async getProfile(@Req() req: any): Promise<ResponseData<UserSerializer>> {
     const user = await this.userService.getProfile(req.user.id);
     return new ResponseData(user, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  @Get('user-list')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(UserRole.SUPPERVISOR)
+  @ApiResponseDataArray(UserSerializer)
+  async findAll(): Promise<ResponseData<UserSerializer[]>> {
+    const results = await this.userService.getUsersList();
+    return new ResponseData<UserSerializer[]>(
+      results,
+      HttpStatus.SUCCESS,
+      HttpMessage.SUCCESS,
+    );
+  }
+
+  @Put(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Role(UserRole.SUPPERVISOR)
+  @ApiBody({ type: UpdateStatusDto })
+  @ApiResponseData(UserSerializer)
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateStatusDto,
+  ): Promise<ResponseData<UserSerializer>> {
+    const updated = await this.userService.updateStatusStudent(
+      id,
+      dto.is_active,
+    );
+    return new ResponseData(updated, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }

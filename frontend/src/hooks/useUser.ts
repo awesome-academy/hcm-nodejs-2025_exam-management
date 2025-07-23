@@ -3,12 +3,15 @@ import {
   getUserProfile,
   updateUserProfile,
   changePassword,
+  getUsersList,
+  updateUserStatus,
 } from "../services/userService";
 import type {
   UserSerializer,
   UpdateProfileFormData,
   ChangePasswordFormData,
   ProfileFormValues,
+  UpdateUserStatusDto,
 } from "../types/user.type";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
@@ -17,6 +20,9 @@ import { useAuth } from "./useAuth";
 export const useUser = () => {
   const [user, setUser] = useState<UserSerializer | null>(null);
   const [loading, setLoading] = useState(false);
+  const [usersList, setUsersList] = useState<UserSerializer[]>([]);
+  const [loadingUsersList, setLoadingUsersList] = useState(false);
+
   const { t } = useTranslation("user");
   const { token, logout } = useAuth();
 
@@ -29,6 +35,19 @@ export const useUser = () => {
       toast.error((err as Error).message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUsersList = async () => {
+    setLoadingUsersList(true);
+    try {
+      const res = await getUsersList();
+      const users = res.data || [];
+      setUsersList(users);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoadingUsersList(false);
     }
   };
 
@@ -67,6 +86,20 @@ export const useUser = () => {
       return false;
     }
   };
+  const onUpdateUserStatus = async (
+    userId: number,
+    statusData: UpdateUserStatusDto
+  ): Promise<boolean> => {
+    try {
+      await updateUserStatus(userId, statusData);
+      toast.success(t("update_status_success"));
+      await fetchUsersList();
+      return true;
+    } catch (err) {
+      toast.error((err as Error).message);
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (token) {
@@ -74,11 +107,21 @@ export const useUser = () => {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (user?.role_name === "suppervisor") {
+      fetchUsersList();
+    }
+  }, [user]);
+
   return {
     user,
     loading,
+    usersList,
+    loadingUsersList,
     fetchUser,
+    fetchUsersList,
     onUpdateProfile,
     onChangePassword,
+    onUpdateUserStatus,
   };
 };

@@ -28,5 +28,6 @@
   "update_failed": "Cập nhật thông tin người dùng thất bại",
   "change_password_failed": "Đổi mật khẩu thất bại",
   "invalid_current_password": "Mật khẩu hiện tại không đúng",
-  "change_password_success": "Đổi mật khẩu thành công."
+  "change_password_success": "Đổi mật khẩu thành công.",
+  "update_status_failed": "Cập nhật trạng thái hoạt động thất bại."
 }

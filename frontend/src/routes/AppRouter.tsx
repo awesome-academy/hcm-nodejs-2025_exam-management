@@ -25,6 +25,7 @@ import TestResultDetailHistory from "../pages/user/TestResultDetailHistory";
 import ProfilePage from "../pages/user/ProfilePage";
 import "react-toastify/dist/ReactToastify.css";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import UserManagement from "../pages/suppervisor/UserManagement";
 const AppRouter = () => {
   return (
     <>
@@ -67,6 +68,7 @@ const AppRouter = () => {
                 path="/suppervisor/tests/:sessionId"
                 element={<TestReviewDetail />}
               />
+              <Route path="/suppervisor/users" element={<UserManagement />} />
             </Route>
           </Route>
 

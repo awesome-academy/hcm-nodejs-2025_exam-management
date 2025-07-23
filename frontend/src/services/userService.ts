@@ -7,6 +7,9 @@ import type {
   UpdateProfileResponse,
   ChangePasswordResponse,
   UserSerializer,
+  UserListResponse,
+  UpdateUserStatusResponse,
+  UpdateUserStatusDto,
 } from "../types/user.type";
 
 export const getUserProfile = async (): Promise<UserSerializer> => {
@@ -45,5 +48,26 @@ export const changePassword = async (
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "user.change_password_failed");
+  }
+};
+
+export const getUsersList = async (): Promise<UserListResponse> => {
+  try {
+    const res = await api.get("/users/user-list");
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "user.fetch_users_failed");
+  }
+};
+
+export const updateUserStatus = async (
+  id: number,
+  data: UpdateUserStatusDto
+): Promise<UpdateUserStatusResponse> => {
+  try {
+    const res = await api.put(`/users/${id}/status`, data);
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "user.update_status_failed");
   }
 };

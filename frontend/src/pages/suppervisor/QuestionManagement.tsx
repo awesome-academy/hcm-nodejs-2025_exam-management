@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Form, message, Spin } from "antd";
+import { Button, Card, Form, message, Spin, Input, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
@@ -14,12 +14,22 @@ import type {
   UpdateQuestionFormValues,
 } from "../../types/question.type";
 
+type FilterValues = {
+  subject_id?: number;
+  question_type?: string;
+  content?: string;
+  creator_id?: number;
+};
+
 const QuestionManagement: React.FC = () => {
   const { t } = useTranslation("question");
   const [form] = Form.useForm();
+  const [filterForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
+  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(
+    null
+  );
   const [showAnswerSection, setShowAnswerSection] = useState(false);
   const { subjects } = useSubjects();
 
@@ -31,7 +41,18 @@ const QuestionManagement: React.FC = () => {
     onUpdate,
     onDelete,
     loading,
+    loadQuestions,
   } = useQuestions();
+
+  const questionTypes = Array.from(
+    new Set(questions.map((q) => q.question_type).filter(Boolean))
+  );
+
+  const creators = Array.from(
+    new Map(
+      questions.filter((q) => q.creator).map((q) => [q.creator.id, q.creator])
+    ).values()
+  );
 
   const showModal = () => {
     setIsEditMode(false);
@@ -91,9 +112,14 @@ const QuestionManagement: React.FC = () => {
     }
   }, [isEditMode, selectedQuestion, form]);
 
-    const handleShowAnswer = (id: number) => {
+  const handleShowAnswer = (id: number) => {
     setCurrentQuestionId(id);
     setShowAnswerSection(true);
+  };
+
+  const handleSearch = async (values: FilterValues) => {
+    setShowAnswerSection(false);
+    await loadQuestions(values);
   };
 
   return (
@@ -106,7 +132,80 @@ const QuestionManagement: React.FC = () => {
           </Button>
         }
       >
-           <Spin spinning={loading}>
+        <Form
+          layout="inline"
+          form={filterForm}
+          onFinish={handleSearch}
+          style={{ marginBottom: 16 }}
+        >
+          <Form.Item name="subject_id" label={t("subject")}>
+            <Select
+              allowClear
+              placeholder={t("select_subject")}
+              style={{ width: 160 }}
+            >
+              {subjects.map((s) => (
+                <Select.Option key={s.id} value={s.id}>
+                  {s.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="question_type" label={t("type")}>
+            <Select
+              allowClear
+              placeholder={t("select_type")}
+              style={{ width: 160 }}
+            >
+              {questionTypes.map((type) => (
+                <Select.Option key={type} value={type}>
+                  {type}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="question_text" label={t("content")}>
+            <Input allowClear placeholder={t("search_by_content")} />
+          </Form.Item>
+
+          <Form.Item name="creator_id" label={t("creator")}>
+            <Select
+              allowClear
+              placeholder={t("select_creator")}
+              style={{ width: 160 }}
+              optionFilterProp="children"
+              showSearch
+            >
+              {creators.map((c) => (
+                <Select.Option key={c.id} value={c.id}>
+                  {c.full_name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button htmlType="submit" type="primary">
+              {t("search")}
+            </Button>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              htmlType="button"
+              onClick={() => {
+                filterForm.resetFields();
+                handleSearch(filterForm.getFieldsValue());
+              }}
+            >
+              {t("reset")}
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <Spin spinning={loading}>
           <QuestionTable
             data={questions}
             onEdit={(id) => {
@@ -135,7 +234,7 @@ const QuestionManagement: React.FC = () => {
         />
       </Card>
 
-       {showAnswerSection && currentQuestionId && (
+      {showAnswerSection && currentQuestionId && (
         <AnswerSection
           questionId={currentQuestionId}
           onClose={() => setShowAnswerSection(false)}

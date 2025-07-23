@@ -43,5 +43,14 @@
   "explanation_required": "Please provide explanation for the correct answer",
   "version": "Version",
   "latest": "Latest",
-  "old_version": "Old Version"
+  "old_version": "Old Version",
+    "subject": "Subject",
+  "type": "Question type",
+  "select_type": "Select question type",
+  "content": "Question content",
+  "search_by_content": "Search by content",
+  "creator": "Creator",
+  "search": "Search",
+  "reset": "Reset",
+  "select_creator": "Select creator"
 }

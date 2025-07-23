@@ -37,6 +37,10 @@ export class AuthService extends BaseService {
       throw new BadRequestException(await this.t('auth.email_not_verified'));
     }
 
+    if (!user.is_active) {
+      throw new BadRequestException(await this.t('auth.account_inactive'));
+    }
+
     const payload = {
       sub: user.id,
       username: user.username,

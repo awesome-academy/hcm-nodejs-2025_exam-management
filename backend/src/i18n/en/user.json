@@ -28,5 +28,6 @@
   "update_failed": "Failed to update user profile",
   "change_password_failed": "Failed to change password",
   "invalid_current_password": "Current password is incorrect",
-  "change_password_success": "Password changed successfully."
+  "change_password_success": "Password changed successfully.",
+  "update_status_failed": "Failed to update user activity status."
 }
