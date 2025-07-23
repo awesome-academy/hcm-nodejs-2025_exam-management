@@ -54,6 +54,9 @@ const TestResult: React.FC = () => {
       </div>
     );
   }
+  const hasEssay = session.user_answers.some(
+    (ua) => ua.question?.question_type === "essay" && !ua.graded_at
+  );
 
   const correctCount = session.user_answers.filter((a) => a.is_correct).length;
   const totalQuestions = session.user_answers.length;
@@ -116,60 +119,107 @@ const TestResult: React.FC = () => {
                   {q.question_text}
                 </Paragraph>
 
-                <Radio.Group
-                  value={selectedAnswerId}
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                >
-                  {answers.map((answer, i) => {
-                    const isSelected = selectedAnswerId === answer.id;
-                    const isCorrect = answer.id === correctAnswerId;
+                {q.question_type === "essay" ? (
+                  <>
+                    <Paragraph
+                      style={{
+                        background: "#f0f5ff",
+                        padding: "12px 16px",
+                        borderRadius: 8,
+                        border: "1px solid #d6e4ff",
+                      }}
+                    >
+                      <Text strong>{t("your_answer")}:</Text>{" "}
+                      {item.answer_text ? (
+                        <Text>{item.answer_text}</Text>
+                      ) : (
+                        <Text type="secondary" italic>
+                          {t("no_answer_submitted")}
+                        </Text>
+                      )}
+                    </Paragraph>
 
-                    let backgroundColor = "";
-                    if (isSelected && isCorrect) backgroundColor = "#d4edda";
-                    else if (isSelected && !isCorrect)
-                      backgroundColor = "#f8d7da";
-                    else if (!isSelected && isCorrect)
-                      backgroundColor = "#cce5ff";
+                    {correctAnswer?.answer_text && (
+                      <Paragraph style={{ marginTop: 12 }}>
+                        <Text strong style={{ color: "#1890ff" }}>
+                          {t("expected_answer")}:
+                        </Text>{" "}
+                        {correctAnswer.answer_text}
+                      </Paragraph>
+                    )}
 
-                    return (
-                      <Radio
-                        key={answer.id}
-                        value={answer.id}
-                        disabled
-                        style={{
-                          backgroundColor,
-                          padding: "6px 10px",
-                          borderRadius: 6,
-                          border:
-                            isCorrect && isSelected
-                              ? "1px solid #28a745"
-                              : isSelected
-                              ? "1px solid #dc3545"
-                              : isCorrect
-                              ? "1px solid #007bff"
-                              : undefined,
-                        }}
-                      >
-                        <b>{String.fromCharCode(65 + i)}.</b>{" "}
-                        {answer.answer_text}
-                      </Radio>
-                    );
-                  })}
-                </Radio.Group>
+                    {correctAnswer?.explanation && (
+                      <Paragraph style={{ marginTop: 12 }}>
+                        <Text strong style={{ color: "#28a745" }}>
+                          {t("explanation")}:
+                        </Text>{" "}
+                        {correctAnswer.explanation}
+                      </Paragraph>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Radio.Group
+                      value={selectedAnswerId}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
+                    >
+                      {answers.map((answer, i) => {
+                        const isSelected = selectedAnswerId === answer.id;
+                        const isCorrect = answer.id === correctAnswerId;
 
-                {!selectedAnswer && (
-                  <Text type="secondary" italic>
-                    {t("no_answer_selected")}
-                  </Text>
-                )}
+                        let backgroundColor = "";
+                        if (isSelected && isCorrect)
+                          backgroundColor = "#d4edda";
+                        else if (isSelected && !isCorrect)
+                          backgroundColor = "#f8d7da";
+                        else if (!isSelected && isCorrect)
+                          backgroundColor = "#cce5ff";
 
-                {correctAnswer?.explanation && (
-                  <Paragraph style={{ marginTop: 12 }}>
-                    <Text strong style={{ color: "#28a745" }}>
-                      {t("explanation")}:
-                    </Text>{" "}
-                    {correctAnswer.explanation}
-                  </Paragraph>
+                        return (
+                          <Radio
+                            key={answer.id}
+                            value={answer.id}
+                            disabled
+                            style={{
+                              backgroundColor,
+                              padding: "6px 10px",
+                              borderRadius: 6,
+                              border:
+                                isCorrect && isSelected
+                                  ? "1px solid #28a745"
+                                  : isSelected
+                                  ? "1px solid #dc3545"
+                                  : isCorrect
+                                  ? "1px solid #007bff"
+                                  : undefined,
+                            }}
+                          >
+                            <b>{String.fromCharCode(65 + i)}.</b>{" "}
+                            {answer.answer_text}
+                          </Radio>
+                        );
+                      })}
+                    </Radio.Group>
+
+                    {!selectedAnswer && (
+                      <Text type="secondary" italic>
+                        {t("no_answer_selected")}
+                      </Text>
+                    )}
+
+                    {correctAnswer?.explanation && (
+                      <Paragraph style={{ marginTop: 12 }}>
+                        <Text strong style={{ color: "#28a745" }}>
+                          {t("explanation")}:
+                        </Text>{" "}
+                        {correctAnswer.explanation}
+                      </Paragraph>
+                    )}
+                  </>
                 )}
               </Card>
             );
@@ -184,8 +234,8 @@ const TestResult: React.FC = () => {
             <Text strong>{t("name")}:</Text> {testTitle}
           </Paragraph>
           <Paragraph>
-            <Text strong>{t("score")}:</Text> {score} / {totalScore}{" "}
-            {t("points")}
+            <Text strong>{hasEssay ? t("temporary_score") : t("score")}:</Text>{" "}
+            {score} / {totalScore} {t("points")}
           </Paragraph>
           <Paragraph>
             <Text strong>{t("questions_count")}:</Text> {totalQuestions}
@@ -193,6 +243,13 @@ const TestResult: React.FC = () => {
           <Paragraph>
             <Text strong>{t("correct_answers")}:</Text> {correctCount}
           </Paragraph>
+          {hasEssay && (
+            <Paragraph>
+              <Text type="warning" strong>
+                ⚠️ {t("some_essays_not_graded_yet")}
+              </Text>
+            </Paragraph>
+          )}
         </Card>
       </div>
     </div>

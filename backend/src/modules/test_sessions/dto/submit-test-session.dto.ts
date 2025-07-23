@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class SubmitAnswerDto {
   @ApiProperty()
@@ -9,6 +9,11 @@ export class SubmitAnswerDto {
   @ApiProperty()
   @IsNumber()
   answerId: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  answer_text?: string;
 }
 
 export class SubmitTestSessionDto {

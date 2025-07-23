@@ -8,7 +8,7 @@
   "points": "Điểm",
   "difficulty_level": "Độ khó",
   "multiple_choice": "Trắc nghiệm",
-  "short_answer": "Tự luận",
+  "essay": "Tự luận",
   "easy": "Dễ",
   "medium": "Trung bình",
   "hard": "Khó",
@@ -53,5 +53,6 @@
   "creator_id": "ID người tạo",
   "search": "Tìm kiếm",
   "reset": "Đặt lại",
-  "select_creator": "Chọn người tạo"
+  "select_creator": "Chọn người tạo",
+  "essay_answer": "Đáp án"
 }

@@ -27,6 +27,7 @@ export interface TestSessionQuestionSerializer {
     updated_at: string;
     is_active: boolean;
     version: string;
+    question_type: string;
   };
   answers_snapshot?: AnswerSnapshot[];
 }
@@ -72,7 +73,8 @@ export interface CreateTestSessionFormValues {
 export interface SubmitTestSessionFormValues {
   answers: {
     questionId: number;
-    answerId: number;
+    answerId?: number;
+    answer_text?: string;
   }[];
 }
 
@@ -81,3 +83,22 @@ export type CreateTestSessionResponse =
 
 export type SubmitTestSessionResponse =
   paths["/test-sessions/{id}/submit"]["post"]["responses"]["200"]["content"]["application/json"];
+
+// Chấm điểm tự luận
+export interface EssayQuestion {
+  id: number;
+  session_id: number;
+  question_id: number;
+  order_number: number;
+  question?: components["schemas"]["QuestionSerializer"];
+  answers_snapshot?: components["schemas"]["AnswerSnapshotSerializer"][];
+  user_answer?: components["schemas"]["UserAnswerSerializer"];
+}
+
+export type GradeEssayDto = components["schemas"]["GradeEssayDto"];
+
+export type GradeEssayRequest =
+  paths["/test-sessions/{id}/grade-essay"]["post"]["requestBody"]["content"]["application/json"];
+
+export type GradeEssayResponse =
+  paths["/test-sessions/{id}/grade-essay"]["post"]["responses"]["200"]["content"]["application/json"];

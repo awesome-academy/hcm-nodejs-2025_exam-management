@@ -7,9 +7,7 @@
   "submitted_at": "Nộp lúc",
   "action": "Hành động",
   "view_detail": "Xem chi tiết",
-  "SUBMITTED": "Đã nộp",
-  "IN_PROGRESS": "Đang làm",
-  "PENDING": "Chờ xử lý",
-  "CANCELLED": "Đã hủy",
-  "DEFAULT": "Không xác định"
+  "in_progress": "Đang làm bài",
+  "submitted": "Đã nộp",
+  "graded": "Đã chấm điểm"
 }

@@ -12,8 +12,11 @@ import { BaseService } from '@/modules/shared/base.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { TestSessionStatus } from '@/common/enums/testSession.enum';
-import { validateMultipleChoiceAnswers } from '../shared/validators/answer.validator';
-
+import {
+  validateMultipleChoiceAnswers,
+  validateEssayAnswers,
+} from '../shared/validators/answer.validator';
+import { QuestionType } from '@/common/enums/question.enum';
 @Injectable()
 export class AnswerService extends BaseService {
   constructor(
@@ -74,14 +77,27 @@ export class AnswerService extends BaseService {
     dto: CreateAnswerDto,
   ): Promise<AnswerSerializer> {
     try {
+      // Lấy thông tin câu hỏi
+      const question = await this.questionRepo.findOne({
+        where: { id: question_id },
+      });
+      if (!question) {
+        throw new BadRequestException(await this.t('question.not_found'));
+      }
+
       // Lấy các đáp án hiện có
       const existingAnswers = await this.answerRepo.find({
         where: { question_id },
       });
-
       const allAnswers = [...existingAnswers, { ...dto }];
 
-      await validateMultipleChoiceAnswers(this.i18n, allAnswers);
+      // Validate theo loại câu hỏi
+      if (question.question_type === QuestionType.MULTIPLE_CHOICE) {
+        await validateMultipleChoiceAnswers(this.i18n, allAnswers);
+      } else if (question.question_type === QuestionType.ESSAY) {
+        await validateEssayAnswers(this.i18n, allAnswers);
+      }
+
       const answer = this.answerRepo.create({
         ...dto,
         question_id,
@@ -139,7 +155,7 @@ export class AnswerService extends BaseService {
             answerIdJson: JSON.stringify([{ id: answer.id }]),
           })
           .getOne();
-          
+
         if (usedInTestWithSnapshot) {
           // Nếu chỉ thay đổi is_active thì không clone
           const isOnlyChangeIsActive =
@@ -184,7 +200,11 @@ export class AnswerService extends BaseService {
         });
 
         const allAnswers = [...otherAnswers, { ...answer, ...dto }];
-        await validateMultipleChoiceAnswers(this.i18n, allAnswers);
+        if (question.question_type === QuestionType.MULTIPLE_CHOICE) {
+          await validateMultipleChoiceAnswers(this.i18n, allAnswers);
+        } else if (question.question_type === QuestionType.ESSAY) {
+          await validateEssayAnswers(this.i18n, allAnswers);
+        }
 
         const updated = manager.merge(Answer, answer, dto);
         const saved = await manager.save(updated);

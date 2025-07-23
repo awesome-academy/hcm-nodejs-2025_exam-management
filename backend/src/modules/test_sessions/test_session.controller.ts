@@ -27,6 +27,7 @@ import {
   TestSessionQuestionSerializer,
   AnswerSnapshotSerializer,
 } from '../test_session_questions/serializers/test_session_question.serializer';
+import { GradeEssayDto } from './dto/grade-essay.dto';
 
 @ApiTags('Test Session')
 @ApiExtraModels(
@@ -111,6 +112,23 @@ export class TestSessionController {
   @ApiResponseDataArray(TestSessionQuestionSerializer)
   async getSessionQuestions(@Param('id', ParseIntPipe) id: number) {
     const data = await this.testSessionService.getSessionQuestions(id);
+    return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
+  }
+
+  // Chấm điểm bài thi tự luận
+  @Post(':id/grade-essay')
+  @Role(UserRole.SUPPERVISOR)
+  @ApiResponseData(TestSessionSerializer)
+  async gradeEssay(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: GradeEssayDto,
+    @Req() req: any,
+  ) {
+    const data = await this.testSessionService.gradeEssayAnswers(
+      id,
+      dto,
+      req.user.id,
+    );
     return new ResponseData(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 }

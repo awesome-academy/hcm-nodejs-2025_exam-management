@@ -15,6 +15,7 @@ import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import type { QuestionSerializer } from "../../types/question.type";
 import type { SubjectSerializer } from "../../types/subject.type";
 import { Switch } from "antd";
+import { useWatch } from "antd/es/form/Form";
 
 interface Props {
   open: boolean;
@@ -37,6 +38,7 @@ const QuestionFormModal: React.FC<Props> = ({
   subjects,
 }) => {
   const { t } = useTranslation("question");
+  const questionType = useWatch("question_type", form);
 
   return (
     <Modal
@@ -94,9 +96,7 @@ const QuestionFormModal: React.FC<Props> = ({
               <Select.Option value="multiple_choice">
                 {t("multiple_choice")}
               </Select.Option>
-              <Select.Option value="short_answer">
-                {t("short_answer")}
-              </Select.Option>
+              <Select.Option value="essay">{t("essay")}</Select.Option>
             </Select>
           </Form.Item>
 
@@ -129,120 +129,190 @@ const QuestionFormModal: React.FC<Props> = ({
           </Form.Item>
 
           {/* ANSWERS */}
-          <Form.List name="answers">
-            {(fields, { add, remove }) => (
-              <>
-                <h4>{t("answers")}</h4>
-                {fields.map(({ key, name, ...restField }, index) => (
-                  <div
-                    key={key}
-                    style={{
-                      border: "1px solid #ddd",
-                      borderRadius: 8,
-                      padding: 16,
-                      marginBottom: 16,
-                      background: "#fafafa",
-                    }}
-                  >
-                    <Space
+          {questionType === "multiple_choice" && (
+            <Form.List name="answers">
+              {(fields, { add, remove }) => (
+                <>
+                  <h4>{t("answers")}</h4>
+                  {fields.map(({ key, name, ...restField }, index) => (
+                    <div
+                      key={key}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
+                        border: "1px solid #ddd",
+                        borderRadius: 8,
+                        padding: 16,
+                        marginBottom: 16,
+                        background: "#fafafa",
                       }}
                     >
-                      <h5>
-                        {t("answer")} #{index + 1}
-                      </h5>
-                      {/* Ẩn nút xóa nếu đang ở edit mode */}
-                      {!isEditMode && fields.length > 1 && (
-                        <Button
-                          type="link"
-                          danger
-                          icon={<MinusCircleOutlined />}
-                          onClick={() => remove(name)}
-                        >
-                          {t("remove")}
-                        </Button>
-                      )}
-                    </Space>
-
-                    <Form.Item
-                      {...restField}
-                      name={[name, "answer_text"]}
-                      label={t("answer_text")}
-                      rules={[
-                        {
-                          required: true,
-                          message: t("answer_text_required"),
-                        },
-                      ]}
-                    >
-                      <Input.TextArea rows={3} disabled={isEditMode} />
-                    </Form.Item>
-
-                    <Space direction="horizontal" size="large">
-                      <Form.Item
-                        name={[name, "is_correct"]}
-                        valuePropName="checked"
-                        label={t("is_correct")}
+                      <Space
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
                       >
-                        <Switch disabled={isEditMode} />
-                      </Form.Item>
-
-                      <Form.Item
-                        name={[name, "is_active"]}
-                        valuePropName="checked"
-                        label={t("active")}
-                      >
-                        <Switch disabled={isEditMode} />
-                      </Form.Item>
-                    </Space>
-
-                    <Form.Item shouldUpdate noStyle>
-                      {() => {
-                        const isCorrect = form.getFieldValue([
-                          "answers",
-                          name,
-                          "is_correct",
-                        ]);
-                        return isCorrect ? (
-                          <Form.Item
-                            {...restField}
-                            name={[name, "explanation"]}
-                            label={t("explanation")}
-                            rules={[
-                              {
-                                required: true,
-                                message: t("explanation_required"),
-                              },
-                            ]}
+                        <h5>
+                          {t("answer")} #{index + 1}
+                        </h5>
+                        {!isEditMode && fields.length > 1 && (
+                          <Button
+                            type="link"
+                            danger
+                            icon={<MinusCircleOutlined />}
+                            onClick={() => remove(name)}
                           >
-                            <Input.TextArea rows={2} disabled={isEditMode} />
-                          </Form.Item>
-                        ) : null;
-                      }}
-                    </Form.Item>
-                  </div>
-                ))}
+                            {t("remove")}
+                          </Button>
+                        )}
+                      </Space>
 
-                {/* Ẩn nút add nếu đang ở edit mode */}
-                {!isEditMode && (
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() =>
-                        add({ is_active: true, is_correct: false })
-                      }
-                      block
-                      icon={<PlusOutlined />}
-                    >
-                      {t("add_answer")}
-                    </Button>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "answer_text"]}
+                        label={t("answer_text")}
+                        rules={[
+                          {
+                            required: true,
+                            message: t("answer_text_required"),
+                          },
+                        ]}
+                      >
+                        <Input.TextArea rows={3} disabled={isEditMode} />
+                      </Form.Item>
+
+                      <Space direction="horizontal" size="large">
+                        <Form.Item
+                          name={[name, "is_correct"]}
+                          valuePropName="checked"
+                          label={t("is_correct")}
+                        >
+                          <Switch disabled={isEditMode} />
+                        </Form.Item>
+
+                        <Form.Item
+                          name={[name, "is_active"]}
+                          valuePropName="checked"
+                          label={t("active")}
+                        >
+                          <Switch disabled={isEditMode} />
+                        </Form.Item>
+                      </Space>
+
+                      <Form.Item shouldUpdate noStyle>
+                        {() => {
+                          const isCorrect = form.getFieldValue([
+                            "answers",
+                            name,
+                            "is_correct",
+                          ]);
+                          return isCorrect ? (
+                            <Form.Item
+                              {...restField}
+                              name={[name, "explanation"]}
+                              label={t("explanation")}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: t("explanation_required"),
+                                },
+                              ]}
+                            >
+                              <Input.TextArea rows={2} disabled={isEditMode} />
+                            </Form.Item>
+                          ) : null;
+                        }}
+                      </Form.Item>
+                    </div>
+                  ))}
+
+                  {!isEditMode && (
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() =>
+                          add({ is_active: true, is_correct: false })
+                        }
+                        block
+                        icon={<PlusOutlined />}
+                      >
+                        {t("add_answer")}
+                      </Button>
+                    </Form.Item>
+                  )}
+                </>
+              )}
+            </Form.List>
+          )}
+
+          {questionType === "essay" && (
+            <>
+              <h4>{t("essay_answer")}</h4>
+              <div
+                style={{
+                  border: "1px solid #ddd",
+                  borderRadius: 8,
+                  padding: 16,
+                  marginBottom: 16,
+                  background: "#fafafa",
+                }}
+              >
+                <Form.Item
+                  name={["answers", 0, "answer_text"]}
+                  label={t("answer_text")}
+                  rules={[
+                    {
+                      required: true,
+                      message: t("answer_text_required"),
+                    },
+                  ]}
+                >
+                  <Input.TextArea rows={10} disabled={isEditMode} />
+                </Form.Item>
+
+                <Space direction="horizontal" size="large">
+                  <Form.Item
+                    name={["answers", 0, "is_correct"]}
+                    valuePropName="checked"
+                    label={t("is_correct")}
+                  >
+                    <Switch disabled={isEditMode} />
                   </Form.Item>
-                )}
-              </>
-            )}
-          </Form.List>
+
+                  <Form.Item
+                    name={["answers", 0, "is_active"]}
+                    valuePropName="checked"
+                    label={t("active")}
+                  >
+                    <Switch disabled={isEditMode} />
+                  </Form.Item>
+                </Space>
+
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const isCorrect = form.getFieldValue([
+                      "answers",
+                      0,
+                      "is_correct",
+                    ]);
+                    return isCorrect ? (
+                      <Form.Item
+                        name={["answers", 0, "explanation"]}
+                        label={t("explanation")}
+                        rules={[
+                          {
+                            required: true,
+                            message: t("explanation_required"),
+                          },
+                        ]}
+                      >
+                        <Input.TextArea rows={7} disabled={isEditMode} />
+                      </Form.Item>
+                    ) : null;
+                  }}
+                </Form.Item>
+              </div>
+            </>
+          )}
         </Form>
       </Spin>
     </Modal>

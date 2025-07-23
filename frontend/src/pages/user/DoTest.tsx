@@ -8,6 +8,7 @@ import {
   Progress,
   Statistic,
   Radio,
+  Input,
   Space,
   Row,
   Col,
@@ -57,10 +58,16 @@ const DoTest: React.FC = () => {
     return startedAt + testDuration * 60 * 1000;
   }, [startedAt, testDuration]);
 
-  const handleChange = (testSessionQuestionId: number, answerId: number) => {
+  const handleChange = (
+    testSessionQuestionId: number,
+    value: { answerId?: number; answerText?: string }
+  ) => {
     setSelectedAnswers((prev) => ({
       ...prev,
-      [testSessionQuestionId]: answerId,
+      [testSessionQuestionId]: {
+        ...prev[testSessionQuestionId],
+        ...value,
+      },
     }));
   };
 
@@ -128,28 +135,52 @@ const DoTest: React.FC = () => {
                     <Paragraph className="question-text">
                       {question.question_text}
                     </Paragraph>
-                    <Radio.Group
-                      onChange={(e) =>
-                        handleChange(testQuestion.id, e.target.value)
-                      }
-                      value={selected}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
-                      }}
-                    >
-                      {testQuestion.answers_snapshot?.map((answer, i) => (
-                        <Radio
-                          key={answer.id}
-                          value={answer.id}
-                          className={selected === answer.id ? "selected" : ""}
-                        >
-                          <b>{String.fromCharCode(65 + i)}.</b>{" "}
-                          {answer.answer_text}
-                        </Radio>
-                      ))}
-                    </Radio.Group>
+
+                    {question.question_type === "multiple_choice" ? (
+                      <Radio.Group
+                        onChange={(e) =>
+                          handleChange(testQuestion.id, {
+                            answerId: e.target.value,
+                          })
+                        }
+                        value={selected?.answerId}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 8,
+                        }}
+                      >
+                        {testQuestion.answers_snapshot?.map((answer, i) => (
+                          <Radio
+                            key={answer.id}
+                            value={answer.id}
+                            className={
+                              selected?.answerId === answer.id
+                                ? "selected"
+                                : ""
+                            }
+                          >
+                            <b>{String.fromCharCode(65 + i)}.</b>{" "}
+                            {answer.answer_text}
+                          </Radio>
+                        ))}
+                      </Radio.Group>
+                    ) : question.question_type === "essay" ? (
+                      <Input.TextArea
+                        rows={6}
+                        value={selected?.answerText ?? ""}
+                        onChange={(e) =>
+                          handleChange(testQuestion.id, {
+                            answerText: e.target.value,
+                          })
+                        }
+                        placeholder={t("enter_answer")}
+                      />
+                    ) : (
+                      <Paragraph type="secondary">
+                        {t("unsupported_question_type")}
+                      </Paragraph>
+                    )}
                   </>
                 ) : (
                   <Paragraph type="secondary">

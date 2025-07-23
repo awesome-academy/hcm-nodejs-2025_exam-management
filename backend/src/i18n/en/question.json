@@ -12,5 +12,9 @@
   "multiple_choice_min_2_active": "Multiple choice questions must have at least 2 active answers.",
   "multiple_choice_max_4_active": "Multiple choice questions can have a maximum of 4 active answers.",
   "multiple_choice_only_1_correct": "Multiple choice questions must have exactly 1 correct answer.",
-  "correct_answer_must_be_active": "Correct answer must be active."
+  "correct_answer_must_be_active": "Correct answer must be active.",
+  "essay_only_1_active": "An essay question can have only one active answer.",
+  "essay_only_1_active_correct": "An essay question can have only one correct and active answer.",
+  "essay_answer_must_not_be_empty": "The correct answer must not be empty.",
+  "essay_only_1_correct": "There must be only one correct answer."
 }

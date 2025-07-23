@@ -23,6 +23,9 @@ import { Test } from '@/modules/tests/entities/test.entity';
 import { Question } from '@/modules/questions/entities/question.entity';
 import { TestSessionQuestion } from '../test_session_questions/entities/test_session_question.entity';
 import { TestSessionQuestionSerializer } from '../test_session_questions/serializers/test_session_question.serializer';
+import { QuestionType } from '@/common/enums/question.enum';
+import { GradeEssayDto, GradeEssayItemDto } from './dto/grade-essay.dto';
+
 @Injectable()
 export class TestSessionService extends BaseService {
   constructor(
@@ -37,6 +40,9 @@ export class TestSessionService extends BaseService {
 
     @InjectRepository(TestSessionQuestion)
     private sessionQuestionRepo: Repository<TestSessionQuestion>,
+
+    @InjectRepository(Question)
+    private questionRepo: Repository<Question>,
 
     @InjectDataSource()
     private dataSource: DataSource,
@@ -198,13 +204,7 @@ export class TestSessionService extends BaseService {
       throw new BadRequestException(await this.t('test_session.create_failed'));
     }
   }
-  /**
-   * Nộp bài làm:
-   * - Tính điểm.
-   * - Lưu câu trả lời của user.
-   * - Đánh dấu phiên thi đã hoàn thành.
-   * - Tính thời gian làm bài.
-   */
+
   async submitSession(
     id: number,
     dto: SubmitTestSessionDto,
@@ -218,58 +218,73 @@ export class TestSessionService extends BaseService {
 
       if (!session)
         throw new NotFoundException(await this.t('test_session.not_found'));
-
       if (session.user_id !== user.id)
         throw new BadRequestException(
           await this.t('test_session.invalid_user'),
         );
 
-      // Lấy danh sách câu hỏi trong phiên thi
       const sessionQuestions = await this.sessionQuestionRepo.find({
         where: { session_id: session.id },
         relations: ['question', 'question.answers'],
       });
 
       const allQuestionIds = sessionQuestions.map((sq) => sq.question.id);
+      const sessionQuestionMap = new Map<number, TestSessionQuestion>();
+      sessionQuestions.forEach((sq) =>
+        sessionQuestionMap.set(sq.question.id, sq),
+      );
 
-      // Lấy thông tin các câu trả lời người dùng chọn
-      const answers = await this.answerRepo.find({
-        where: {
-          id: In(dto.answers.map((a) => a.answerId)),
-          is_active: true,
-        },
-        relations: ['question', 'question.answers'],
+      // Lấy thông tin câu hỏi để kiểm tra loại câu hỏi
+      const questions = await this.questionRepo.find({
+        where: { id: In(allQuestionIds) },
       });
-
-      const answerMap = new Map<number, Answer>();
-      answers.forEach((ans) => answerMap.set(ans.id, ans));
+      const questionMap = new Map<number, Question>();
+      questions.forEach((q) => questionMap.set(q.id, q));
 
       let totalScore = 0;
       const userAnswersToSave: UserAnswer[] = [];
       const answeredQuestions = new Set<number>();
 
-      // Duyệt qua từng câu trả lời được gửi lên
       for (const item of dto.answers) {
-        const answer = answerMap.get(item.answerId);
-        const isValid = answer && answer.question?.id === item.questionId;
+        const question = questionMap.get(item.questionId);
+        if (!question || answeredQuestions.has(item.questionId)) continue;
 
-        // Đảm bảo không tính nhiều lần cho một câu hỏi
-        if (!isValid || answeredQuestions.has(item.questionId)) continue;
+        // Xử lý câu hỏi trắc nghiệm
+        if (question.question_type === QuestionType.MULTIPLE_CHOICE) {
+          const answer = await this.answerRepo.findOne({
+            where: { id: item.answerId, question_id: item.questionId },
+          });
 
-        const isCorrect = answer.is_correct;
-        const points = isCorrect ? (answer.question.points ?? 0) : 0;
+          if (!answer) continue;
 
-        userAnswersToSave.push(
-          this.userAnswerRepo.create({
-            session_id: session.id,
-            question_id: item.questionId,
-            answer_id: item.answerId,
-            is_correct: isCorrect,
-            points_earned: points,
-          }),
-        );
+          const isCorrect = answer.is_correct;
+          const points = isCorrect ? (question.points ?? 0) : 0;
 
-        if (isCorrect) totalScore += points;
+          userAnswersToSave.push(
+            this.userAnswerRepo.create({
+              session_id: session.id,
+              question_id: item.questionId,
+              answer_id: item.answerId,
+              is_correct: isCorrect,
+              points_earned: points,
+            }),
+          );
+
+          if (isCorrect) totalScore += points;
+        }
+        // Xử lý câu hỏi tự luận
+        else if (question.question_type === QuestionType.ESSAY) {
+          userAnswersToSave.push(
+            this.userAnswerRepo.create({
+              session_id: session.id,
+              question_id: item.questionId,
+              answer_text: item.answer_text,
+              is_correct: false, // Mặc định là false, chờ giáo viên chấm
+              points_earned: 0, // Mặc định 0 điểm, chờ giáo viên chấm
+            }),
+          );
+        }
+
         answeredQuestions.add(item.questionId);
       }
 
@@ -277,11 +292,15 @@ export class TestSessionService extends BaseService {
       for (const qid of allQuestionIds) {
         if (answeredQuestions.has(qid)) continue;
 
+        const question = questionMap.get(qid);
+        const isEssay = question?.question_type === QuestionType.ESSAY;
+
         userAnswersToSave.push(
           this.userAnswerRepo.create({
             session_id: session.id,
             question_id: qid,
             answer_id: null,
+            answer_text: isEssay ? '' : undefined,
             is_correct: false,
             points_earned: 0,
           }),
@@ -291,14 +310,19 @@ export class TestSessionService extends BaseService {
       // Cập nhật trạng thái phiên thi
       session.score = totalScore;
       session.is_completed = true;
-      session.status = TestSessionStatus.SUBMITTED;
+      const hasEssay = questions.some(
+        (q) => q.question_type === QuestionType.ESSAY,
+      );
+      session.auto_graded = !hasEssay;
+      session.status = hasEssay
+        ? TestSessionStatus.SUBMITTED
+        : TestSessionStatus.GRADED;
+
       session.submitted_at = new Date();
       session.time_spent = Math.floor(
         (Date.now() - session.started_at.getTime()) / 1000,
       );
-      session.auto_graded = true;
 
-      // Lưu phiên và câu trả lời vào DB trong transaction
       await this.dataSource.transaction(async (manager) => {
         await manager.save(UserAnswer, userAnswersToSave);
         await manager.save(TestSession, session);
@@ -478,6 +502,56 @@ export class TestSessionService extends BaseService {
       );
     }
     return plainToInstance(TestSessionQuestionSerializer, sessionQuestions, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async gradeEssayAnswers(
+    sessionId: number,
+    dto: GradeEssayDto,
+    graderId: number,
+  ): Promise<TestSessionSerializer> {
+    const session = await this.testSessionRepo.findOne({
+      where: { id: sessionId },
+      relations: ['user_answers', 'user_answers.question'],
+    });
+
+    if (!session) {
+      throw new NotFoundException(await this.t('test_session.not_found'));
+    }
+
+    const updatesMap = new Map<number, GradeEssayItemDto>();
+    dto.updates.forEach((item) => updatesMap.set(item.questionId, item));
+
+    let totalScore = 0;
+
+    for (const ua of session.user_answers) {
+      if (
+        ua.question.question_type === QuestionType.ESSAY &&
+        updatesMap.has(ua.question_id)
+      ) {
+        const update = updatesMap.get(ua.question_id)!;
+        ua.points_earned = update.points;
+        if (typeof update.isCorrect === 'boolean') {
+          ua.is_correct = update.isCorrect;
+        }
+        ua.graded_at = new Date();
+        ua.grader_id = graderId;
+
+        await this.userAnswerRepo.save(ua);
+      }
+
+      // Tính tổng điểm cho tất cả user_answer có chấm điểm
+      if (ua.points_earned != null) {
+        totalScore += ua.points_earned;
+      }
+    }
+    session.score = totalScore;
+    session.auto_graded = false;
+    session.status = TestSessionStatus.GRADED;
+    await this.testSessionRepo.save(session);
+
+    return plainToInstance(TestSessionSerializer, session, {
       excludeExtraneousValues: true,
     });
   }

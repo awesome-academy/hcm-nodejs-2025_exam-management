@@ -17,9 +17,11 @@ import { message } from "antd";
 
 export function useTestSession(testId: number, t: TFunction) {
   const navigate = useNavigate();
+
   const [selectedAnswers, setSelectedAnswers] = useState<
-    Record<number, number>
+    Record<number, { answerId?: number; answerText?: string }>
   >({});
+
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startedAt, setStartedAt] = useState<number>(() => Date.now());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,16 +64,19 @@ export function useTestSession(testId: number, t: TFunction) {
     if (!sessionId || isSubmitting) return;
     setIsSubmitting(true);
 
-    const answers = Object.entries(selectedAnswers).map(
-      ([tsqIdStr, answerId]) => {
-        const tsqId = Number(tsqIdStr);
-        const tsq = testSessionQuestions.find((q) => q.id === tsqId);
-        return {
-          questionId: tsq?.question?.id ?? -1,
-          answerId,
-        };
-      }
-    );
+    const answers = Object.entries(selectedAnswers).map(([tsqIdStr, value]) => {
+      const tsqId = Number(tsqIdStr);
+      const tsq = testSessionQuestions.find((q) => q.id === tsqId);
+      const questionId = tsq?.question?.id ?? -1;
+
+      const isEssay = tsq?.question?.question_type === "essay";
+
+      return isEssay
+        ? { questionId, answer_text: value.answerText ?? "" }
+        : { questionId, answerId: value.answerId };
+    });
+
+    console.log("🚀 Submitting answers:", answers);
 
     try {
       const res = await submitTestSession(sessionId, { answers });

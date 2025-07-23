@@ -154,7 +154,6 @@ export class UserService extends BaseService {
   ): Promise<UserSerializer> {
     try {
       const user = await this.findById(userId);
-      
       if (dto.full_name) {
         user.full_name = dto.full_name;
       }

@@ -136,7 +136,13 @@ const QuestionManagement: React.FC = () => {
           layout="inline"
           form={filterForm}
           onFinish={handleSearch}
-          style={{ marginBottom: 16 }}
+          style={{
+            marginBottom: 16,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 12,
+          }}
         >
           <Form.Item name="subject_id" label={t("subject")}>
             <Select
@@ -187,21 +193,20 @@ const QuestionManagement: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button htmlType="submit" type="primary">
-              {t("search")}
-            </Button>
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              htmlType="button"
-              onClick={() => {
-                filterForm.resetFields();
-                handleSearch(filterForm.getFieldsValue());
-              }}
-            >
-              {t("reset")}
-            </Button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button htmlType="submit" type="primary">
+                {t("search")}
+              </Button>
+              <Button
+                htmlType="button"
+                onClick={() => {
+                  filterForm.resetFields();
+                  handleSearch(filterForm.getFieldsValue());
+                }}
+              >
+                {t("reset")}
+              </Button>
+            </div>
           </Form.Item>
         </Form>
 

@@ -8,7 +8,7 @@
   "points": "Points",
   "difficulty_level": "Difficulty Level",
   "multiple_choice": "Multiple Choice",
-  "short_answer": "Short Answer",
+  "essay": "Essay",
   "easy": "Easy",
   "medium": "Medium",
   "hard": "Hard",
@@ -52,5 +52,6 @@
   "creator": "Creator",
   "search": "Search",
   "reset": "Reset",
-  "select_creator": "Select creator"
+  "select_creator": "Select creator",
+  "essay_answer": "Answer"
 }
