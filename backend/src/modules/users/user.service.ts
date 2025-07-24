@@ -40,12 +40,21 @@ export class UserService extends BaseService {
     await queryRunner.startTransaction();
 
     try {
-      const existing = await queryRunner.manager.findOne(User, {
-        where: { username: data.username },
-      });
+      const [userByUsername, userByEmail] = await Promise.all([
+        queryRunner.manager.findOne(User, {
+          where: { username: data.username },
+        }),
+        queryRunner.manager.findOne(User, {
+          where: { email: data.email },
+        }),
+      ]);
 
-      if (existing) {
+      if (userByUsername) {
         throw new BadRequestException(await this.t('user.username_existed'));
+      }
+
+      if (userByEmail) {
+        throw new BadRequestException(await this.t('user.email_existed'));
       }
 
       const role = await this.roleService.findByName('user');
@@ -77,13 +86,9 @@ export class UserService extends BaseService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      if (error.code === 'ER_DUP_ENTRY') {
-        throw new BadRequestException(
-          await this.t('user.username_or_email_existed'),
-        );
+      if (error instanceof BadRequestException) {
+        throw error;
       }
-
-      console.error('[Register Error]', error);
       throw new BadRequestException(await this.t('user.register_failed'));
     } finally {
       await queryRunner.release();
