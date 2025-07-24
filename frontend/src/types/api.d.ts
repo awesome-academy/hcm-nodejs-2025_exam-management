@@ -372,6 +372,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/test-sessions/{id}/grade-essay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["TestSessionController_gradeEssay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/answers/question/{questionId}": {
         parameters: {
             query?: never;
@@ -703,9 +719,18 @@ export interface components {
         SubmitAnswerDto: {
             questionId: number;
             answerId: number;
+            answer_text: string;
         };
         SubmitTestSessionDto: {
             answers: components["schemas"]["SubmitAnswerDto"][];
+        };
+        GradeEssayItemDto: {
+            questionId: number;
+            points: number;
+            isCorrect?: boolean;
+        };
+        GradeEssayDto: {
+            updates: components["schemas"]["GradeEssayItemDto"][];
         };
         UpdateAnswerDto: Record<string, never>;
     };
@@ -1658,6 +1683,39 @@ export interface operations {
                 content: {
                     "application/json": {
                         data?: components["schemas"]["TestSessionQuestionSerializer"][];
+                        /** @example 200 */
+                        statusCode?: number;
+                        /** @example Server Response Success */
+                        message?: string;
+                        /** @example null */
+                        error?: string | null;
+                    };
+                };
+            };
+        };
+    };
+    TestSessionController_gradeEssay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GradeEssayDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data?: components["schemas"]["TestSessionSerializer"];
                         /** @example 200 */
                         statusCode?: number;
                         /** @example Server Response Success */

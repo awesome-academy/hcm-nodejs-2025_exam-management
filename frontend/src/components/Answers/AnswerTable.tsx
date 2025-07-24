@@ -33,12 +33,23 @@ const AnswerTable: React.FC<Props> = ({ data, loading, onEdit, onDelete }) => {
           <Tag color="red">{t("incorrect")}</Tag>
         ),
     },
-
     {
       title: t("explanation"),
       dataIndex: "explanation",
       key: "explanation",
-      render: (text) => text || <i>{t("none")}</i>,
+      render: (text) => (
+        <div
+          style={{
+            maxWidth: 300,
+            wordWrap: "break-word",
+            whiteSpace: "pre-wrap",
+            fontStyle: !text ? "italic" : undefined,
+            color: !text ? "#999" : undefined,
+          }}
+        >
+          {text || t("none")}
+        </div>
+      ),
     },
     {
       title: t("status"),

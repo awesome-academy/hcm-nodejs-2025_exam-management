@@ -4,21 +4,15 @@ import {
   Card,
   Typography,
   Spin,
-  Tag,
   Button,
   Tooltip,
   Space,
+  Tag,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { getAllTestSessionsAdmin } from "../../services/test_sessionService";
 import type { TestSessionSerializer } from "../../types/test_session.type";
-import {
-  EyeOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  CloseCircleOutlined,
-  MinusCircleOutlined,
-} from "@ant-design/icons";
+import { EyeOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 
 const { Title } = Typography;
@@ -40,45 +34,6 @@ const TestReviewList: React.FC = () => {
     };
     fetchSessions();
   }, []);
-
-  const renderStatus = (status: string) => {
-    let color = "default";
-    let icon = null;
-
-    switch (status) {
-      case "SUBMITTED":
-        color = "green";
-        icon = <CheckCircleOutlined />;
-        break;
-      case "IN_PROGRESS":
-        color = "blue";
-        icon = <ClockCircleOutlined />;
-        break;
-      case "PENDING":
-        color = "orange";
-        icon = <MinusCircleOutlined />;
-        break;
-      case "CANCELLED":
-        color = "red";
-        icon = <CloseCircleOutlined />;
-        break;
-    }
-
-    return (
-      <Tag
-        icon={icon}
-        color={color}
-        style={{
-          borderRadius: 20,
-          fontWeight: 500,
-          padding: "4px 12px",
-          textTransform: "capitalize",
-        }}
-      >
-        {t(status) || t("DEFAULT")}
-      </Tag>
-    );
-  };
 
   return (
     <Card style={{ borderRadius: 12 }}>
@@ -103,7 +58,27 @@ const TestReviewList: React.FC = () => {
               title: t("status"),
               dataIndex: "status",
               key: "status",
-              render: renderStatus,
+              render: (status: string) => {
+                let color = "default";
+                let label = status;
+
+                switch (status) {
+                  case "in_progress":
+                    color = "blue";
+                    label = t("in_progress");
+                    break;
+                  case "submitted":
+                    color = "gold";
+                    label = t("submitted");
+                    break;
+                  case "graded":
+                    color = "green";
+                    label = t("graded");
+                    break;
+                }
+
+                return <Tag color={color}>{label}</Tag>;
+              },
             },
             {
               title: t("score"),

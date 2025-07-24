@@ -13,12 +13,16 @@ import { RequestContextService } from '../shared/request-context.service';
 import { BaseService } from '@/modules/shared/base.service';
 import { TestSessionStatus } from '@/common/enums/testSession.enum';
 import { TEST_DEFAULT_VERSION } from '@/common/constants/test.constant';
-import { validateMultipleChoiceAnswers } from '../shared/validators/answer.validator';
+import {
+  validateMultipleChoiceAnswers,
+  validateEssayAnswers,
+} from '../shared/validators/answer.validator';
 import { FindQuestionDto } from './dto/find-question.dto';
 import {
   buildAndExecuteQuery,
   QueryMapping,
 } from 'src/common/utils/query-builder';
+import { QuestionType } from '@/common/enums/question.enum';
 
 @Injectable()
 export class QuestionService extends BaseService {
@@ -118,9 +122,15 @@ export class QuestionService extends BaseService {
     try {
       const { answers = [], ...questionDto } = dto;
 
-      // Validate trước khi tạo câu hỏi
+      //Validate trước khi tạo câu hỏi
       if (answers.length > 0) {
-        await validateMultipleChoiceAnswers(this.i18n, answers);
+        if (questionDto.question_type === QuestionType.MULTIPLE_CHOICE) {
+          await validateMultipleChoiceAnswers(this.i18n, answers);
+        }
+
+        if (questionDto.question_type === QuestionType.ESSAY) {
+          await validateEssayAnswers(this.i18n, answers);
+        }
       }
 
       const question = queryRunner.manager.create(Question, {

@@ -52,10 +52,19 @@ const TestResultDetailHistory = () => {
       </div>
     );
   }
+  const hasUngradedEssay = session.test_session_questions.some(
+    (tsq) =>
+      tsq.question?.question_type === "essay" && !tsq.user_answer?.graded_at
+  );
 
   const correctCount = session.test_session_questions.filter((tsq) => {
-    const correctAnswer = tsq.answers_snapshot?.find((a) => a.is_correct);
-    return tsq.user_answer?.answer_id === correctAnswer?.id;
+    const isEssay = tsq.question?.question_type === "essay";
+    if (isEssay) {
+      return tsq.user_answer?.graded_at && tsq.user_answer?.is_correct;
+    } else {
+      const correctAnswer = tsq.answers_snapshot?.find((a) => a.is_correct);
+      return tsq.user_answer?.answer_id === correctAnswer?.id;
+    }
   }).length;
 
   const totalQuestions = session.test_session_questions.length;
@@ -101,71 +110,142 @@ const TestResultDetailHistory = () => {
             const answers = tsq.answers_snapshot ?? [];
             const selectedAnswerId = tsq.user_answer?.answer_id;
             const correctAnswer = answers.find((a) => a.is_correct);
+            const selectedAnswer = answers.find(
+              (a) => a.id === selectedAnswerId
+            );
 
             return (
               <Card
                 key={tsq.id}
-                title={`${t("question_number", { index: index + 1 })}`}
+                title={
+                  <span>
+                    {question?.question_type === "essay"
+                      ? tsq.user_answer?.graded_at
+                        ? tsq.user_answer?.is_correct
+                          ? "✅"
+                          : "❌"
+                        : "📝"
+                      : selectedAnswer?.id === correctAnswer?.id
+                      ? "✅"
+                      : "❌"}{" "}
+                    {t("question_number", { index: index + 1 })}
+                  </span>
+                }
                 className="quiz-question-card"
               >
                 <Paragraph className="question-text">
                   {question?.question_text}
                 </Paragraph>
 
-                <Radio.Group
-                  value={selectedAnswerId}
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                >
-                  {answers.map((answer, i) => {
-                    const isSelected = selectedAnswerId === answer.id;
-                    const isCorrect = answer.is_correct;
+                {question?.question_type === "essay" ? (
+                  <>
+                    <Paragraph
+                      style={{
+                        background: "#f0f5ff",
+                        padding: "12px 16px",
+                        borderRadius: 8,
+                        border: "1px solid #d6e4ff",
+                      }}
+                    >
+                      <Text strong>{t("your_answer")}:</Text>{" "}
+                      {tsq.user_answer?.answer_text ? (
+                        <Text>{tsq.user_answer.answer_text}</Text>
+                      ) : (
+                        <Text type="secondary" italic>
+                          {t("no_answer_submitted")}
+                        </Text>
+                      )}
+                    </Paragraph>
 
-                    let backgroundColor = "";
-                    if (isSelected && isCorrect) backgroundColor = "#d4edda";
-                    else if (isSelected && !isCorrect)
-                      backgroundColor = "#f8d7da";
-                    else if (!isSelected && isCorrect)
-                      backgroundColor = "#cce5ff";
-
-                    return (
-                      <Radio
-                        key={answer.id}
-                        value={answer.id}
-                        disabled
+                    {correctAnswer?.answer_text && (
+                      <Paragraph
                         style={{
-                          backgroundColor,
-                          padding: "6px 10px",
-                          borderRadius: 6,
-                          border:
-                            isCorrect && isSelected
-                              ? "1px solid #28a745"
-                              : isSelected
-                              ? "1px solid #dc3545"
-                              : isCorrect
-                              ? "1px solid #007bff"
-                              : undefined,
+                          background: "#e6f7ff",
+                          padding: "12px 16px",
+                          borderRadius: 8,
+                          border: "1px solid #91d5ff",
+                          marginTop: 12,
                         }}
                       >
-                        <b>{String.fromCharCode(65 + i)}.</b>{" "}
-                        {answer.answer_text}
-                      </Radio>
-                    );
-                  })}
-                </Radio.Group>
+                        <Text strong style={{ color: "#1890ff" }}>
+                          {t("expected_answer")}:
+                        </Text>{" "}
+                        {correctAnswer.answer_text}
+                      </Paragraph>
+                    )}
 
-                {!selectedAnswerId && (
-                  <Text type="secondary" italic>
-                    {t("no_answer_selected")}
-                  </Text>
-                )}
+                    {correctAnswer?.explanation && (
+                      <Paragraph style={{ marginTop: 12 }}>
+                        <Text strong style={{ color: "#28a745" }}>
+                          {t("explanation")}:
+                        </Text>{" "}
+                        {correctAnswer.explanation}
+                      </Paragraph>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Radio.Group
+                      value={selectedAnswerId}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
+                    >
+                      {answers.map((answer, i) => {
+                        const isSelected = selectedAnswerId === answer.id;
+                        const isCorrect = answer.is_correct;
 
-                {correctAnswer?.explanation && (
-                  <Paragraph style={{ marginTop: 12 }}>
-                    <Text strong style={{ color: "#28a745" }}>
-                      {t("explanation")}:
-                    </Text>{" "}
-                    {correctAnswer.explanation}
-                  </Paragraph>
+                        let backgroundColor = "";
+                        if (isSelected && isCorrect)
+                          backgroundColor = "#d4edda";
+                        else if (isSelected && !isCorrect)
+                          backgroundColor = "#f8d7da";
+                        else if (!isSelected && isCorrect)
+                          backgroundColor = "#cce5ff";
+
+                        return (
+                          <Radio
+                            key={answer.id}
+                            value={answer.id}
+                            disabled
+                            style={{
+                              backgroundColor,
+                              padding: "6px 10px",
+                              borderRadius: 6,
+                              border:
+                                isCorrect && isSelected
+                                  ? "1px solid #28a745"
+                                  : isSelected
+                                  ? "1px solid #dc3545"
+                                  : isCorrect
+                                  ? "1px solid #007bff"
+                                  : undefined,
+                            }}
+                          >
+                            <b>{String.fromCharCode(65 + i)}.</b>{" "}
+                            {answer.answer_text}
+                          </Radio>
+                        );
+                      })}
+                    </Radio.Group>
+
+                    {!selectedAnswerId && (
+                      <Text type="secondary" italic>
+                        {t("no_answer_selected")}
+                      </Text>
+                    )}
+
+                    {correctAnswer?.explanation && (
+                      <Paragraph style={{ marginTop: 12 }}>
+                        <Text strong style={{ color: "#28a745" }}>
+                          {t("explanation")}:
+                        </Text>{" "}
+                        {correctAnswer.explanation}
+                      </Paragraph>
+                    )}
+                  </>
                 )}
               </Card>
             );
@@ -180,8 +260,10 @@ const TestResultDetailHistory = () => {
             <Text strong>{t("name")}:</Text> {testTitle}
           </Paragraph>
           <Paragraph>
-            <Text strong>{t("score")}:</Text> {score} / {totalScore}{" "}
-            {t("points")}
+            <Text strong>
+              {hasUngradedEssay ? t("temporary_score") : t("score")}:
+            </Text>{" "}
+            {score} / {totalScore} {t("points")}
           </Paragraph>
           <Paragraph>
             <Text strong>{t("questions_count")}:</Text> {totalQuestions}
@@ -189,6 +271,14 @@ const TestResultDetailHistory = () => {
           <Paragraph>
             <Text strong>{t("correct_answers")}:</Text> {correctCount}
           </Paragraph>
+
+          {hasUngradedEssay && (
+            <Paragraph>
+              <Text type="warning" strong>
+                ⚠️ {t("some_essays_not_graded_yet")}
+              </Text>
+            </Paragraph>
+          )}
         </Card>
       </div>
     </div>

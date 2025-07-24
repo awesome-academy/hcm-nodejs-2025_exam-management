@@ -12,5 +12,9 @@
   "multiple_choice_min_2_active": "Câu hỏi trắc nghiệm phải có ít nhất 2 đáp án đang hoạt động.",
   "multiple_choice_max_4_active": "Câu hỏi trắc nghiệm chỉ được có tối đa 4 đáp án đang hoạt động.",
   "multiple_choice_only_1_correct": "Câu hỏi trắc nghiệm phải có đúng 1 đáp án đúng.",
-  "correct_answer_must_be_active": "Đáp án đúng phải là đáp án đang hoạt động."
+  "correct_answer_must_be_active": "Đáp án đúng phải là đáp án đang hoạt động.",
+  "essay_only_1_active": "Câu hỏi tự luận chỉ được có nhiều nhất 1 đáp án đang hoạt động.",
+  "essay_only_1_active_correct": "Câu hỏi tự luận chỉ được có nhiều nhất 1 đáp án đúng và đang hoạt động.",
+  "essay_answer_must_not_be_empty": "Đáp án đúng không được để trống.",
+  "essay_only_1_correct": "Chỉ được phép có duy nhất một đáp án đúng."
 }

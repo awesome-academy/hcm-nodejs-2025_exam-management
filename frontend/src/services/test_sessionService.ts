@@ -9,7 +9,9 @@ import type {
   GetTestSessionDetailResponse,
   GetTestSessionListAdminResponse,
   GetTestSessionDetailRawAdminResponse,
-  GetTestSessionQuestionsResponse
+  GetTestSessionQuestionsResponse,
+  GradeEssayRequest,
+  GradeEssayResponse,
 } from "../types/test_session.type";
 import { handleAxiosError } from "../utils/handleError";
 
@@ -96,7 +98,6 @@ export const getTestSessionDetailAdmin = async (
   }
 };
 
-
 export const getTestSessionQuestions = async (
   sessionId: number
 ): Promise<GetTestSessionQuestionsResponse> => {
@@ -105,5 +106,18 @@ export const getTestSessionQuestions = async (
     return res.data;
   } catch (err) {
     throw handleAxiosError(err, "test_session.get_questions_failed");
+  }
+};
+
+// Supervisor chấm điểm bài thi tự luận
+export const gradeEssayTestSession = async (
+  sessionId: number,
+  body: GradeEssayRequest
+): Promise<GradeEssayResponse> => {
+  try {
+    const res = await api.post(`/test-sessions/${sessionId}/grade-essay`, body);
+    return res.data;
+  } catch (err) {
+    throw handleAxiosError(err, "test_session.grade_essay_failed");
   }
 };
