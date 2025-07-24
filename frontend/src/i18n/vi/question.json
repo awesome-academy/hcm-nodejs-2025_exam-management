@@ -54,5 +54,7 @@
   "search": "Tìm kiếm",
   "reset": "Đặt lại",
   "select_creator": "Chọn người tạo",
-  "essay_answer": "Đáp án"
+  "essay_answer": "Đáp án",
+  "import_excel": "Nhập File Excel",
+  "export_excel": "Xuất File Excel"
 }

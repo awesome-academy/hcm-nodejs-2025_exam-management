@@ -53,5 +53,7 @@
   "search": "Search",
   "reset": "Reset",
   "select_creator": "Select creator",
-  "essay_answer": "Answer"
+  "essay_answer": "Answer",
+  "import_excel": "Import Excel",
+  "export_excel": "Export Excel"
 }
