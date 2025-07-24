@@ -8,12 +8,12 @@ import { useSubjects } from "../../hooks/useSubjects";
 import QuestionTable from "../../components/Questions/QuestionTable";
 import QuestionFormModal from "../../components/Questions/QuestionFormModal";
 import AnswerSection from "../../components/Answers/AnswerSection";
-
 import type {
   CreateQuestionFormValues,
   UpdateQuestionFormValues,
 } from "../../types/question.type";
-
+import { handleExportQuestions } from "../../utils/questionExport";
+import { importQuestionsFromExcel } from "../../utils/questionImport";
 type FilterValues = {
   subject_id?: number;
   question_type?: string;
@@ -122,14 +122,58 @@ const QuestionManagement: React.FC = () => {
     await loadQuestions(values);
   };
 
+  const handleExport = () => {
+    handleExportQuestions(questions);
+  };
+
+  const getSubjectIdByName = (name: string): number | undefined => {
+    const subject = subjects.find((s) => s.name === name);
+    return subject?.id;
+  };
+
+  const handleImport = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".xlsx,.xls";
+
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      await importQuestionsFromExcel(file, getSubjectIdByName, onCreate, () => {
+        message.success("Import thành công!");
+        loadQuestions();
+      });
+    };
+
+    input.click();
+  };
+
   return (
     <>
       <Card
         title={t("question_management")}
         extra={
-          <Button icon={<PlusOutlined />} onClick={showModal} type="primary">
-            {t("add_question")}
-          </Button>
+          <>
+            <Button
+              icon={<PlusOutlined />}
+              onClick={showModal}
+              type="primary"
+              style={{ marginRight: 8 }}
+            >
+              {t("add_question")}
+            </Button>
+            <Button
+              onClick={handleExport}
+              style={{ marginRight: 8, marginLeft: 8 }}
+            >
+              {t("export_excel")}
+            </Button>
+            <Button onClick={handleImport} style={{ marginLeft: 8 }}>
+              {t("import_excel")}
+            </Button>
+          </>
         }
       >
         <Form
