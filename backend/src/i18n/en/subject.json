@@ -7,6 +7,7 @@
   "delete_failed": "Failed to delete subject",
   "deleted_success": "Subject deleted successfully",
   "fetch_failed": "Failed to fetch subjects",
-  "cannot_delete_subject_with_dependencies": "Cannot delete subject with linked questions or tests."
+  "cannot_delete_subject_with_dependencies": "Cannot delete subject with linked questions or tests.",
+  "cannot_delete_subject_with_questions": "Cannot delete because this subject already has questions",
+  "cannot_delete_subject_with_tests": "Cannot delete because this subject already has tests"
 }
-

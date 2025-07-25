@@ -8,7 +8,6 @@ import { SubjectSerializer } from './serializers/subject.serializer';
 import { plainToInstance } from 'class-transformer';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
-import { findOneByField } from '@/common/utils/repository.util';
 import { CloudinaryService } from '../shared/cloudinary.service';
 import { BaseService } from '../shared/base.service';
 
@@ -99,12 +98,13 @@ export class SubjectService extends BaseService {
     file?: Express.Multer.File,
   ): Promise<SubjectSerializer> {
     try {
-      const subject = await findOneByField(
-        this.subjectRepo,
-        'id',
-        id,
-        await this.t('subject.subject_not_found_by_id'),
-      );
+      const subject = await this.subjectRepo.findOne({ where: { id } });
+
+      if (!subject) {
+        throw new BadRequestException(
+          await this.t('subject.subject_not_found_by_id'),
+        );
+      }
 
       let imageUrl = dto.image_url || subject.image_url;
       if (file) {
@@ -140,12 +140,15 @@ export class SubjectService extends BaseService {
         );
       }
 
-      if (
-        (subject.questions?.length ?? 0) > 0 ||
-        (subject.tests?.length ?? 0) > 0
-      ) {
+      if (subject.questions?.length > 0) {
         throw new BadRequestException(
-          await this.t('subject.cannot_delete_subject_with_dependencies'),
+          await this.t('subject.cannot_delete_subject_with_questions'),
+        );
+      }
+
+      if (subject.tests?.length > 0) {
+        throw new BadRequestException(
+          await this.t('subject.cannot_delete_subject_with_tests'),
         );
       }
 
