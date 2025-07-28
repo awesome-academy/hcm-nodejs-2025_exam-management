@@ -7,5 +7,6 @@
   "delete_failed": "Xóa môn học thất bại",
   "deleted_success": "Xóa môn học thành công",
   "fetch_failed": "Lấy danh sách môn học thất bại",
-  "cannot_delete_subject_with_dependencies": "Không thể xoá môn học có câu hỏi hoặc bài kiểm tra liên kết."
+  "cannot_delete_subject_with_questions": "Không thể xoá vì môn học này đã có câu hỏi",
+  "cannot_delete_subject_with_tests": "Không thể xoá vì môn học này đã có bài kiểm tra"
 }

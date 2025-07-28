@@ -13,7 +13,6 @@ import { plainToInstance } from 'class-transformer';
 import { UserSerializer } from './serializers/user.serializer';
 import { EmailVerifyService } from '../email_verification_tokens/email_verify.service';
 import { generateToken } from '../../common/utils/token.util';
-import { findOneByField } from '../../common/utils/repository.util';
 import { I18nService } from 'nestjs-i18n';
 import { RequestContextService } from '@/modules/shared/request-context.service';
 import { BaseService } from '../shared/base.service';
@@ -97,12 +96,13 @@ export class UserService extends BaseService {
 
   async findByEmail(email: string): Promise<User> {
     try {
-      return await findOneByField(
-        this.userRepo,
-        'email',
-        email,
-        await this.t('user.user_not_found_by_email'),
-      );
+      const user = await this.userRepo.findOneBy({ email });
+      if (!user) {
+        throw new BadRequestException(
+          await this.t('user.user_not_found_by_email'),
+        );
+      }
+      return user;
     } catch (err) {
       if (err instanceof BadRequestException) throw err;
       throw new BadRequestException(await this.t('user.fetch_failed'));
@@ -131,14 +131,18 @@ export class UserService extends BaseService {
 
   async findById(id: number): Promise<User> {
     try {
-      return await findOneByField(
-        this.userRepo,
-        'id',
-        id,
-        await this.t('user.user_not_found_by_id'),
-      );
+      const user = await this.userRepo.findOne({
+        where: { id },
+        relations: ['role'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(await this.t('user.user_not_found_by_id'));
+      }
+
+      return user;
     } catch (err) {
-      if (err instanceof BadRequestException) throw err;
+      if (err instanceof NotFoundException) throw err;
       throw new BadRequestException(await this.t('user.fetch_failed'));
     }
   }
@@ -146,8 +150,7 @@ export class UserService extends BaseService {
   async saveUser(user: User): Promise<User> {
     try {
       return await this.userRepo.save(user);
-    } catch (err) {
-      if (err instanceof BadRequestException) throw err;
+    } catch {
       throw new BadRequestException(await this.t('user.save_failed'));
     }
   }
@@ -220,7 +223,11 @@ export class UserService extends BaseService {
         excludeExtraneousValues: true,
       });
     } catch (err) {
-      if (err instanceof BadRequestException) throw err;
+      if (
+        err instanceof BadRequestException ||
+        err instanceof NotFoundException
+      )
+        throw err;
       throw new BadRequestException(await this.t('user.fetch_failed'));
     }
   }

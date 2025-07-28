@@ -20,7 +20,9 @@ export function withBaseProviders(customProviders: any[] = []) {
 }
 
 // --- TypeORM Repository ---
-export function createMockRepository<T extends ObjectLiteral = any>(): Partial<Repository<T>> {
+export function createMockRepository<T extends ObjectLiteral = any>(): Partial<
+  Repository<T>
+> {
   return {
     create: jest.fn(),
     save: jest.fn(),
@@ -28,6 +30,8 @@ export function createMockRepository<T extends ObjectLiteral = any>(): Partial<R
     find: jest.fn(),
     update: jest.fn(),
     softDelete: jest.fn(),
+    findOneBy: jest.fn(),
+    merge: jest.fn(),
   };
 }
 
@@ -40,7 +44,9 @@ export function createMockEntityManager(): Partial<EntityManager> {
 }
 
 // --- Factory tạo QueryRunner ---
-export function createMockQueryRunner(manager?: Partial<EntityManager>): Partial<QueryRunner> {
+export function createMockQueryRunner(
+  manager?: Partial<EntityManager>,
+): Partial<QueryRunner> {
   return {
     connect: jest.fn(),
     startTransaction: jest.fn(),
