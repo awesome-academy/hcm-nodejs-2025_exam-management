@@ -21,7 +21,7 @@ import { FindQuestionDto } from './dto/find-question.dto';
 import {
   buildAndExecuteQuery,
   QueryMapping,
-} from 'src/common/utils/query-builder';
+} from '@/common/utils/query-builder';
 import { QuestionType } from '@/common/enums/question.enum';
 
 @Injectable()
@@ -177,21 +177,20 @@ export class QuestionService extends BaseService {
     id: number,
     dto: UpdateQuestionDto,
   ): Promise<QuestionSerializer> {
+    const question = await this.dataSource.manager.findOne(Question, {
+      where: { id },
+      relations: ['user_answers'],
+    });
+
+    if (!question) {
+      throw new BadRequestException(await this.t('question.not_found'));
+    }
+
     try {
       return await this.dataSource.transaction(async (manager) => {
-        const question = await manager.findOne(Question, {
-          where: { id },
-          relations: ['user_answers'],
-        });
-
-        if (!question) {
-          throw new BadRequestException(await this.t('question.not_found'));
-        }
-
         await this.checkBeforeUpdateOrDelete(question);
 
         const dtoAnswers = dto.answers || [];
-
         const safeFields = ['is_active', 'answers'];
         const hasUserAnswers = question.user_answers?.length > 0;
 
@@ -209,14 +208,13 @@ export class QuestionService extends BaseService {
 
           const newQuestion = manager.create(Question, {
             ...questionData,
-            is_active: true, // ép luôn nếu clone
+            is_active: true,
             creator_id: question.creator_id,
             subject_id: question.subject_id,
             version: question.version + 1,
           });
           await manager.save(newQuestion);
 
-          // Chỉ tạo các Answer có is_active = true từ DTO
           const newAnswers = dtoAnswers
             .filter((a) => a.is_active)
             .map((a) =>
@@ -233,7 +231,6 @@ export class QuestionService extends BaseService {
             await manager.save(newAnswers);
           }
 
-          // Vô hiệu hoá question cũ
           question.is_active = false;
           await manager.save(question);
 
@@ -242,7 +239,6 @@ export class QuestionService extends BaseService {
           });
         }
 
-        // Nếu chưa có user_answer thì chỉ cần cập nhật
         const updated = manager.merge(Question, question, dto);
         await manager.save(updated);
 
@@ -251,7 +247,6 @@ export class QuestionService extends BaseService {
         });
       });
     } catch (err) {
-      console.error(err);
       if (err instanceof BadRequestException) throw err;
       throw new BadRequestException(await this.t('question.update_failed'));
     }

@@ -12,6 +12,7 @@ import { RequestContextService } from '../shared/request-context.service';
 import { BaseService } from '../shared/base.service';
 import { TEST_DEFAULT_VERSION } from '@/common/constants/test.constant';
 import { TestSessionStatus } from '@/common/enums/testSession.enum';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class TestService extends BaseService {
@@ -19,6 +20,7 @@ export class TestService extends BaseService {
     @InjectRepository(Test) private testRepo: Repository<Test>,
     i18n: I18nService,
     context: RequestContextService,
+    private dataSource: DataSource,
   ) {
     super(i18n, context);
   }
@@ -102,7 +104,7 @@ export class TestService extends BaseService {
   }
 
   async update(id: number, dto: UpdateTestDto): Promise<TestSerializer> {
-    const queryRunner = this.testRepo.manager.connection.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -136,9 +138,9 @@ export class TestService extends BaseService {
 
       // Tính lại tổng câu hỏi nếu có thay đổi
       const totalCount =
-        (dto.easy_question_count ?? test.easy_question_count ?? 0) +
-        (dto.medium_question_count ?? test.medium_question_count ?? 0) +
-        (dto.hard_question_count ?? test.hard_question_count ?? 0);
+        (dto.easy_question_count ?? test.easy_question_count) +
+        (dto.medium_question_count ?? test.medium_question_count) +
+        (dto.hard_question_count ?? test.hard_question_count);
 
       // Nếu có session và thay đổi field không an toàn → clone bản mới
       if (hasSessions && hasUnsafeChanges) {
