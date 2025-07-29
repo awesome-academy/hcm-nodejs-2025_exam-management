@@ -32,14 +32,22 @@ export function createMockRepository<T extends ObjectLiteral = any>(): Partial<
     softDelete: jest.fn(),
     findOneBy: jest.fn(),
     merge: jest.fn(),
+    count: jest.fn(),
   };
 }
 
 // --- Factory tạo EntityManager ---
 export function createMockEntityManager(): Partial<EntityManager> {
   return {
-    findOne: jest.fn(),
+    create: jest.fn(),
     save: jest.fn(),
+    findOne: jest.fn(),
+    find: jest.fn(),
+    update: jest.fn(),
+    softDelete: jest.fn(),
+    findOneBy: jest.fn(),
+    merge: jest.fn(),
+    count: jest.fn(),
   };
 }
 
@@ -58,9 +66,14 @@ export function createMockQueryRunner(
 }
 
 // --- Factory tạo DataSource từ QueryRunner ---
-export function createMockDataSource(queryRunner: Partial<QueryRunner>) {
+export function createMockDataSource(
+  queryRunner: Partial<QueryRunner>,
+  manager?: Partial<EntityManager>,
+) {
   return {
     createQueryRunner: jest.fn(() => queryRunner),
+    manager: (manager ?? createMockEntityManager()) as EntityManager,
+    transaction: jest.fn(),
   };
 }
 
