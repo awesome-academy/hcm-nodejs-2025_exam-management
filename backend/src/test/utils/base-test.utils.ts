@@ -5,6 +5,7 @@ import { QueryRunner, Repository, EntityManager, ObjectLiteral } from 'typeorm';
 // --- I18n & Request Context ---
 export const mockI18nService: jest.Mocked<I18nService> = {
   translate: jest.fn((key: string) => key),
+  t: jest.fn().mockImplementation((key: string) => Promise.resolve(key)),
 } as any;
 
 export const mockRequestContextService: jest.Mocked<RequestContextService> = {
@@ -33,6 +34,7 @@ export function createMockRepository<T extends ObjectLiteral = any>(): Partial<
     findOneBy: jest.fn(),
     merge: jest.fn(),
     count: jest.fn(),
+    delete: jest.fn(),
   };
 }
 
