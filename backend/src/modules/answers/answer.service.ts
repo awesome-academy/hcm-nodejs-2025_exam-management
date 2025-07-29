@@ -22,8 +22,6 @@ export class AnswerService extends BaseService {
   constructor(
     @InjectRepository(Answer) private answerRepo: Repository<Answer>,
     @InjectRepository(Question) private questionRepo: Repository<Question>,
-    @InjectRepository(TestSessionQuestion)
-    private testSessionQuestionRepo: Repository<TestSessionQuestion>,
     private readonly dataSource: DataSource,
     i18n: I18nService,
     context: RequestContextService,
@@ -115,38 +113,43 @@ export class AnswerService extends BaseService {
   }
 
   async update(id: number, dto: UpdateAnswerDto): Promise<AnswerSerializer> {
+    const answer = await this.dataSource.manager.findOne(Answer, {
+      where: { id },
+    });
+
+    if (!answer) {
+      throw new BadRequestException(await this.t('answer.not_found'));
+    }
+
+    const question = await this.dataSource.manager.findOne(Question, {
+      where: { id: answer.question_id },
+    });
+
+    if (!question) {
+      throw new BadRequestException(await this.t('question.not_found'));
+    }
+
+    // Kiểm tra nếu có đang nằm trong bài thi đang làm dở
+    const activeTestSession = await this.dataSource.manager.findOne(
+      TestSessionQuestion,
+      {
+        where: { question_id: question.id },
+        relations: ['session'],
+      },
+    );
+
+    if (
+      activeTestSession &&
+      activeTestSession.session.status === TestSessionStatus.IN_PROGRESS &&
+      !activeTestSession.session.is_completed
+    ) {
+      throw new BadRequestException(
+        await this.t('answer.update_denied_active_test_session'),
+      );
+    }
+
     try {
       return await this.dataSource.transaction(async (manager) => {
-        const answer = await manager.findOne(Answer, { where: { id } });
-
-        if (!answer) {
-          throw new BadRequestException(await this.t('answer.not_found'));
-        }
-
-        const question = await manager.findOne(Question, {
-          where: { id: answer.question_id },
-        });
-
-        if (!question) {
-          throw new BadRequestException(await this.t('question.not_found'));
-        }
-
-        // Kiểm tra nếu có đang nằm trong bài thi đang làm dở
-        const activeTestSession = await manager.findOne(TestSessionQuestion, {
-          where: { question_id: question.id },
-          relations: ['session'],
-        });
-
-        if (
-          activeTestSession &&
-          activeTestSession.session.status === TestSessionStatus.IN_PROGRESS &&
-          !activeTestSession.session.is_completed
-        ) {
-          throw new BadRequestException(
-            await this.t('answer.update_denied_active_test_session'),
-          );
-        }
-
         // Kiểm tra có nằm trong snapshot (đã sử dụng trong bài thi)
         const usedInTestWithSnapshot = await manager
           .createQueryBuilder(TestSessionQuestion, 'tsq')

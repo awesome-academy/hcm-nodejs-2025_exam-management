@@ -8,7 +8,7 @@ export class SubmitAnswerDto {
 
   @ApiProperty()
   @IsNumber()
-  answerId: number;
+  answerId?: number;
 
   @ApiProperty()
   @IsString()
