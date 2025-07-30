@@ -332,7 +332,11 @@ export class TestSessionService extends BaseService {
         excludeExtraneousValues: true,
       });
     } catch (error) {
-      if (error instanceof BadRequestException) throw error;
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      )
+        throw error;
       throw new BadRequestException(await this.t('test_session.submit_failed'));
     }
   }
@@ -381,14 +385,18 @@ export class TestSessionService extends BaseService {
    * ADMIN: Lấy danh sách tất cả phiên làm bài của toàn bộ người dùng.
    */
   async getAllSessionsForAdmin(): Promise<TestSessionSerializer[]> {
-    const sessions = await this.testSessionRepo.find({
-      relations: ['test', 'user', 'user_answers'],
-      order: { submitted_at: 'DESC' },
-    });
+    try {
+      const sessions = await this.testSessionRepo.find({
+        relations: ['test', 'user', 'user_answers'],
+        order: { submitted_at: 'DESC' },
+      });
 
-    return plainToInstance(TestSessionSerializer, sessions, {
-      excludeExtraneousValues: true,
-    });
+      return plainToInstance(TestSessionSerializer, sessions, {
+        excludeExtraneousValues: true,
+      });
+    } catch {
+      throw new BadRequestException(await this.t('test_session.fetch_failed'));
+    }
   }
 
   /**
@@ -397,15 +405,19 @@ export class TestSessionService extends BaseService {
   async getSessionHistory(user: {
     id: number;
   }): Promise<TestSessionSerializer[]> {
-    const sessions = await this.testSessionRepo.find({
-      where: { user_id: user.id },
-      relations: ['test', 'user_answers', 'user_answers.question'],
-      order: { submitted_at: 'DESC' },
-    });
+    try {
+      const sessions = await this.testSessionRepo.find({
+        where: { user_id: user.id },
+        relations: ['test', 'user_answers', 'user_answers.question'],
+        order: { submitted_at: 'DESC' },
+      });
 
-    return plainToInstance(TestSessionSerializer, sessions, {
-      excludeExtraneousValues: true,
-    });
+      return plainToInstance(TestSessionSerializer, sessions, {
+        excludeExtraneousValues: true,
+      });
+    } catch {
+      throw new BadRequestException(await this.t('test_session.fetch_failed'));
+    }
   }
 
   /**
